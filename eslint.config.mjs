@@ -71,44 +71,6 @@ export default tseslint.config(
         }
     },
 
-    // Import configuration
-    {
-        files: ['**/*.{js,jsx,ts,tsx}'],
-        plugins: {
-            import: importPlugin
-        },
-        settings: {
-            'import/resolver': {
-                node: { paths: 'src' },
-                typescript: {
-                    extensionAlias: {
-                        '.js': ['.ts', '.tsx', '.d.ts', '.js'],
-                        '.jsx': ['.tsx', '.d.ts', '.jsx'],
-                        '.cjs': ['.cts', '.d.cts', '.cjs'],
-                        '.mjs': ['.mts', '.d.mts', '.mjs']
-                    }
-                }
-            }
-        },
-        rules: {
-            ...importPlugin.configs.recommended.rules,
-            'import/order': [
-                'error',
-                {
-                    'newlines-between': 'always',
-                    'groups': [
-                        'builtin',
-                        'external',
-                        'internal',
-                        'parent',
-                        'sibling',
-                        'index'
-                    ]
-                }
-            ]
-        }
-    },
-
     // Prettier configuration
     {
         files: ['**/*.{js,jsx,ts,tsx}'],
@@ -134,12 +96,14 @@ export default tseslint.config(
     // Ignoring specific files and patterns
     {
         ignores: [
-            'eslint.config.js',
-            'tailwind.config.cjs',
-            'postcss.config.js',
-            'next.config.mjs',
-            '**/*.md',
-            '**/*.html'
+            "build/**",
+            // "src/components/ui/**",
+            ".next",
+            "node_modules/**",
+            "eslint.config.js",
+            "postcss.config.mjs",
+            "**/*.md",
+            "**/*.html"
         ]
     }
 );
