@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { MapBackground } from "@/components/map/map-background";
+import FloatingContainer from "@/components/public/floating-container";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,8 +33,12 @@ const RootLayout = ({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {children}
-        <MapBackground />
+        <div className="absolute inset-0 -z-10">
+          <MapBackground />
+        </div>
+        <div className="z-10">
+          <FloatingContainer>{children}</FloatingContainer>
+        </div>
       </body>
     </html>
   );

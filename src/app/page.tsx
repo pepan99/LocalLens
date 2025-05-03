@@ -1,17 +1,17 @@
 import { auth } from "@/auth";
+import SignInButton from "@/components/public/sign-in-button";
 import { redirect } from "next/navigation";
 
 const Page = async () => {
   const session = await auth();
 
-  if (!session?.user) {
-    redirect("/api/auth/signin");
-  }
+  if (session?.user) return redirect("/dashboard");
 
   return (
-    <div>
-      <h1>Current user: {session.user.name}</h1>
-      <pre>{JSON.stringify(session.user, null, 2)}</pre>
+    <div className="h-full flex flex-col items-center justify-center">
+      <h1 className="text-2xl">Welcome to LocalLens!</h1>
+      <p className="pb-5">To continue please sign in</p>
+      <SignInButton />
     </div>
   );
 };
