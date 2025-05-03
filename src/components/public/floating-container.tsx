@@ -1,4 +1,4 @@
-import { cx } from "class-variance-authority";
+import { cn } from "@/lib/utils";
 
 type FloatingContainerProps = {
   children: React.ReactNode;
@@ -11,7 +11,7 @@ const FloatingContainer = ({
 }: FloatingContainerProps) => {
   return (
     <div
-      className={cx(
+      className={cn(
         "absolute top-1/2 left-1/2 -translate-1/2 w-xl bg-white rounded-2xl shadow-lg p-8 border-gray-300 border-3 min-h-64",
         className,
       )}
