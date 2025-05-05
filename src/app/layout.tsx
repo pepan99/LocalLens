@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { MapBackground } from "@/components/map/map-background";
-import FloatingContainer from "@/components/public/floating-container";
+import { Providers } from "@/components/providers";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -33,12 +32,12 @@ const RootLayout = ({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <div className="absolute inset-0 -z-10">
-          <MapBackground />
-        </div>
-        <div className="z-10">
-          <FloatingContainer>{children}</FloatingContainer>
-        </div>
+        <Providers>
+          {/* Main content with higher z-index */}
+          <main className="z-10 min-h-screen flex items-center justify-center">
+            {children}
+          </main>
+        </Providers>
       </body>
     </html>
   );
