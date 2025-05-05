@@ -8,6 +8,13 @@
       "when": 1746453083333,
       "tag": "0000_quick_hellion",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1746461572333,
+      "tag": "0001_majestic_chameleon",
+      "breakpoints": true
     }
   ]
 }
