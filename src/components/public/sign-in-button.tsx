@@ -1,21 +1,26 @@
-"use client";
-
-import { useRouter } from "next/navigation"; // Changed from next/router
+import { signIn } from "@/auth";
 import { Button } from "../ui/button";
 
-const SignInButton = () => {
-  const router = useRouter();
-  const handleSignIn = async () => {
-    router.push("/api/auth/signin");
-  };
+export const SignInButton = () => {
   return (
-    <Button
-      variant="outline"
-      className="bg-white text-black hover:bg-gray-100"
-      onClick={handleSignIn}
+    <form
+      action={async () => {
+        "use server";
+        try {
+          await signIn("github");
+        } catch (e) {
+          console.error(e);
+        }
+      }}
     >
-      Sign In
-    </Button>
+      <Button
+        variant="outline"
+        className="bg-white text-black hover:bg-gray-100"
+        type="submit"
+      >
+        Sign In
+      </Button>
+    </form>
   );
 };
 
