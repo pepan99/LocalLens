@@ -1,10 +1,6 @@
 {
-  "package.json": [
-    "bunx sort-package-json"
-  ],
-  "*.css": [
-    "prettier --write"
-  ],
+  "package.json": ["bunx sort-package-json"],
+  "*.css": ["prettier --write"],
   "(*.ts|*.tsx)": [
     "eslint  --fix",
     "prettier  --cache --cache-strategy metadata --ignore-unknown --write"
