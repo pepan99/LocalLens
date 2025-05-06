@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { MapContainer, TileLayer, useMap, ZoomControl } from "react-leaflet";
+import { MapContainer, TileLayer, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css"; // Must imported to make the leaflet work correctly
 import "leaflet/dist/leaflet.js"; // Must imported to make the leaflet work correctly
 
@@ -141,7 +141,6 @@ const Map = ({
   const [center, setCenter] = useState<[number, number] | undefined>(
     initialCenter,
   );
-  const [zoom, setZoom] = useState<number | undefined>(initialZoom);
   const [currentLocation, setCurrentLocation] = useState<
     [number, number] | null
   >(null);
@@ -191,9 +190,10 @@ const Map = ({
       ref={mapRef}
       center={initialCenter}
       zoom={initialZoom}
-      style={{ height: "100vh", width: "100vw" }}
-      className="z-0"
+      style={{ height: "100%", width: "100%" }}
+      className="z-0 h-screen w-screen absolute top-0 left-0 pt-14"
       zoomControl={false}
+      scrollWheelZoom
       {...otherProps}
     >
       <TileLayer
@@ -203,14 +203,14 @@ const Map = ({
 
       <MapController
         center={center}
-        zoom={zoom}
+        zoom={mapRef.current?.getZoom() || initialZoom}
         trackLocation={trackLocation}
       />
 
       {/* Custom map controls */}
       <div className="leaflet-control-container">
         <div className="leaflet-top leaflet-right">
-          <div className="leaflet-control leaflet-bar bg-white shadow-lg rounded-lg overflow-hidden flex flex-col m-4">
+          <div className="leaflet-control leaflet-bar top-24 bg-white shadow-lg rounded-lg overflow-hidden flex flex-col m-4">
             <Button
               variant="ghost"
               size="icon"

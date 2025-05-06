@@ -1,20 +1,12 @@
+import PersistentMapCaller from "@/components/map/persistent-map-caller";
 import FloatingContainer from "@/components/public/floating-container";
 import SignInButton from "@/components/public/sign-in-button";
-import dynamic from "next/dynamic";
-
-const Map = dynamic(() => import("@/components/map/persistent-map"), {
-  loading: () => (
-    <p className="flex h-screen w-screen items-center justify-center">
-      Loading Map...
-    </p>
-  ), // Optional loading indicator
-});
 
 const LoginPage = () => {
   return (
     <>
       <div className="-z-10 inset-0 fixed bg-gray-50">
-        <Map />
+        <PersistentMapCaller />
       </div>
 
       {/* Main content with higher z-index */}

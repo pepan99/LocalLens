@@ -1,7 +1,6 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-// Mark as a Client Component for state and interactivity
 import {
   Calendar,
   ChevronDown,
@@ -12,27 +11,24 @@ import {
 } from "lucide-react";
 import React, { useMemo, useState } from "react";
 
-// Define a type for the event data
 type Event = {
   id: number;
   name: string;
   category: string;
-  date: string; // Format: "Day, Mon DayNum" (e.g., "Fri, May 9"). Consider using Date objects or ISO strings for robust filtering.
+  date: string;
   time: string;
   location: string;
   attendees: number;
   rating: number;
-  distance: number; // in km
+  distance: number;
 };
 
-// Mock data for events (replace with actual API data)
-// Added more dates for better filtering demo
 const mockEvents: Event[] = [
   {
     id: 1,
     name: "Weekend Farmers Market",
     category: "Food",
-    date: "Fri, May 9", // Assumed current year
+    date: "Fri, May 9",
     time: "09:00 AM",
     location: "Freedom Square, Brno",
     attendees: 120,
@@ -43,7 +39,7 @@ const mockEvents: Event[] = [
     id: 2,
     name: "Art Exhibition Opening",
     category: "Arts",
-    date: "Thu, May 15", // Assumed current year
+    date: "Thu, May 15",
     time: "05:00 PM",
     location: "Moravian Gallery, Brno",
     attendees: 45,
@@ -54,7 +50,7 @@ const mockEvents: Event[] = [
     id: 3,
     name: "Jazz Night",
     category: "Music",
-    date: "Mon, May 12", // Assumed current year
+    date: "Mon, May 12",
     time: "08:00 PM",
     location: "Metro Music Bar, Brno",
     attendees: 63,
@@ -65,7 +61,7 @@ const mockEvents: Event[] = [
     id: 4,
     name: "Tech Meetup Brno",
     category: "Tech",
-    date: "Tue, May 13", // Assumed current year
+    date: "Tue, May 13",
     time: "06:30 PM",
     location: "Impact Hub, Brno",
     attendees: 85,
@@ -76,7 +72,7 @@ const mockEvents: Event[] = [
     id: 5,
     name: "Book Club Meeting",
     category: "Literature",
-    date: "Mon, May 5", // Example for "Today" (assuming today is May 5th)
+    date: "Mon, May 5",
     time: "07:00 PM",
     location: "Central Library, Brno",
     attendees: 25,
@@ -85,89 +81,68 @@ const mockEvents: Event[] = [
   },
 ];
 
-// Helper function to get today's date string in the format "Mon, May 5"
-// NOTE: This is a simplified example. Use a robust date library (like date-fns or dayjs) in a real app.
 const getTodayDateString = (): string => {
   const today = new Date();
-  // Manually format to match mock data (e.g., "Mon, May 5") - highly fragile!
+
   const options: Intl.DateTimeFormatOptions = {
     weekday: "short",
     month: "short",
     day: "numeric",
   };
-  // Replace comma placement if needed by locale
+
   return new Intl.DateTimeFormat("en-US", options)
     .format(today)
     .replace(",", "");
 };
 
-// Helper function to check if an event is this week (simple example)
-// NOTE: This assumes the mock data dates are relevant to the current week.
-// A real implementation needs proper date comparison based on week boundaries.
 const isThisWeek = (eventDateStr: string): boolean => {
-  // Very basic check based on mock data - replace with actual date logic
-  const weekDates = [
-    "Mon, May 5",
-    "Tue, May 6",
-    "Wed, May 7",
-    "Thu, May 8",
-    "Fri, May 9",
-    "Sat, May 10",
-    "Sun, May 11",
-  ]; // Example week
-  // Extend this logic based on the actual current week
-  const currentWeekMockDates = ["Mon, May 5", "Fri, May 9"]; // Dates from mock data assumed to be this week
+  // const weekDates = [
+  //   "Mon, May 5",
+  //   "Tue, May 6",
+  //   "Wed, May 7",
+  //   "Thu, May 8",
+  //   "Fri, May 9",
+  //   "Sat, May 10",
+  //   "Sun, May 11",
+  // ];
+
+  const currentWeekMockDates = ["Mon, May 5", "Fri, May 9"];
   return currentWeekMockDates.some(d => eventDateStr.includes(d));
 };
 
 const ExploreEvents: React.FC = () => {
-  // State to manage the active filter tab
   const [activeTab, setActiveTab] = useState<"All" | "Today" | "This Week">(
     "All",
   );
 
-  // Placeholder function for handling RSVP clicks
   const handleRsvp = (eventId: number) => {
     console.log(`RSVP clicked for event ${eventId}`);
-    // Add actual RSVP logic here
   };
 
-  // Placeholder function for handling Details clicks
   const handleDetails = (eventId: number) => {
     console.log(`Details clicked for event ${eventId}`);
-    // Add navigation or modal logic here
   };
 
-  // Memoize filtered events to avoid recalculating on every render
   const filteredEvents = useMemo(() => {
-    const todayStr = getTodayDateString(); // Get today's date string (e.g., "Mon, May 5")
+    const todayStr = getTodayDateString();
 
     switch (activeTab) {
       case "Today":
-        // WARNING: Relies on exact string match including day name - very fragile!
-        // Use proper Date object comparison in a real application.
         return mockEvents.filter(event => event.date.includes(todayStr));
       case "This Week":
-        // WARNING: Uses a very basic check. Implement proper week calculation.
         return mockEvents.filter(event => isThisWeek(event.date));
       case "All":
       default:
-        return mockEvents; // No filtering
+        return mockEvents;
     }
-  }, [activeTab]); // Recalculate only when activeTab changes
+  }, [activeTab]);
 
-  // --- COLOR SCHEME ---
-  // Replace 'indigo' with your actual theme color (e.g., 'purple', 'teal', 'green')
   const themeColor = "indigo";
   const activeTabClasses = `border-b-2 border-${themeColor}-500 text-${themeColor}-600`;
   const inactiveTabClasses = `text-gray-500 hover:text-gray-700`;
   const categoryClasses = `text-xs font-medium text-${themeColor}-700 bg-${themeColor}-100 px-2 py-0.5 rounded`;
-  const detailsButtonClasses = `text-sm font-medium text-${themeColor}-600 hover:text-${themeColor}-800 px-3 py-1 rounded-md hover:bg-gray-100 transition-colors`;
-  const rsvpButtonClasses = `text-sm font-medium text-white dark:text-black bg-black dark:white hover:bg-${themeColor}-700 px-4 py-1.5 rounded-md transition-colors shadow-sm`;
-  // --- END COLOR SCHEME ---
 
   return (
-    // Container for the events list
     <div className="bg-white rounded-lg shadow-lg p-4 md:p-6 w-full max-w-md lg:max-w-sm h-[calc(100vh-10rem)] max-h-[85vh] overflow-y-auto flex flex-col space-y-4">
       {/* Header Section */}
       <div className="flex justify-between items-center mb-4">
@@ -280,7 +255,6 @@ const ExploreEvents: React.FC = () => {
             </div>
           ))
         ) : (
-          // Optional: Display a message when no events match the filter
           <div className="text-center text-gray-500 py-8">
             No events found for {activeTab}.
           </div>
