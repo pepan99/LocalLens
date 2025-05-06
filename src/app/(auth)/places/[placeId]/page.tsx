@@ -11,25 +11,22 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Calendar,
   ChevronLeft,
-  Clock,
   ExternalLink,
   Globe,
   Heart,
+  ImageIcon,
   Mail,
   MapPin,
   MoreHorizontal,
@@ -164,7 +161,7 @@ const PlaceDetailPage = () => {
   const [isAddReviewDialogOpen, setIsAddReviewDialogOpen] = useState(false);
   const [reviewText, setReviewText] = useState("");
   const [rating, setRating] = useState(0);
-  const [place, setPlace] = useState(MOCK_PLACE);
+  const [place, _setPlace] = useState(MOCK_PLACE);
   const [reviews, setReviews] = useState(MOCK_REVIEWS);
   const [isFavorite, setIsFavorite] = useState(false);
 
@@ -217,10 +214,10 @@ const PlaceDetailPage = () => {
     );
   };
 
-  const calculateAverageRating = () => {
-    const total = reviews.reduce((acc, review) => acc + review.rating, 0);
-    return total / reviews.length;
-  };
+  // const calculateAverageRating = () => {
+  //   const total = reviews.reduce((acc, review) => acc + review.rating, 0);
+  //   return total / reviews.length;
+  // };
 
   const getRatingDistribution = () => {
     const distribution = [0, 0, 0, 0, 0]; // 5 stars, 4 stars, etc.
@@ -641,7 +638,7 @@ const PlaceDetailPage = () => {
 
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <label className="text-sm font-medium">Rating</label>
+              <span className="text-sm font-medium">Rating</span>
               <div className="flex">
                 {[1, 2, 3, 4, 5].map(star => (
                   <button

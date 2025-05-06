@@ -12,7 +12,6 @@ import {
 import L from "leaflet";
 import { Calendar, MapPin, Star, Users } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
 import { Marker, Popup } from "react-leaflet";
 
 // Define custom icon for event markers
@@ -73,22 +72,9 @@ const formatEventDate = (dateString: string) => {
 };
 
 const EventMarker = ({ event }: EventMarkerProps) => {
-  const [isOpen, setIsOpen] = useState(false);
-
   return (
-    <Marker
-      position={event.coordinates}
-      icon={createEventIcon(event.category)}
-      eventHandlers={{
-        click: () => setIsOpen(true),
-      }}
-    >
-      <Popup
-        onClose={() => setIsOpen(false)}
-        className="event-popup"
-        minWidth={280}
-        maxWidth={320}
-      >
+    <Marker position={event.coordinates} icon={createEventIcon(event.category)}>
+      <Popup className="event-popup" minWidth={280} maxWidth={320}>
         <Card className="border-0 shadow-none">
           <CardHeader className="pb-2 pt-1 px-3">
             <div className="flex justify-between items-start">

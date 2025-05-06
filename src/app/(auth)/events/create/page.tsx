@@ -36,17 +36,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { format } from "date-fns";
-import {
-  Calendar,
-  CalendarIcon,
-  Clock,
-  ImageIcon,
-  Info,
-  Link as LinkIcon,
-  MapPin,
-  Tag,
-  Users,
-} from "lucide-react";
+import { CalendarIcon, ImageIcon } from "lucide-react";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -96,7 +86,7 @@ const CreateEventPage = () => {
   const [coordinates, setCoordinates] = useState<[number, number] | null>(null);
 
   // Initialize form
-  const form = useForm<z.infer<typeof formSchema>>({
+  const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
       title: "",

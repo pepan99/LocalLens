@@ -81,11 +81,12 @@ const formatEventDate = (dateString: string) => {
 const EventsSidebar = () => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<string | null>(null);
-  const [mapCenter, setMapCenter] = useState<[number, number] | null>(null);
+  // const [mapCenter, setMapCenter] = useState<[number, number] | null>(null);
 
   const handleEventClick = (eventId: string, coordinates: [number, number]) => {
     setSelectedEvent(eventId);
-    setMapCenter(coordinates);
+    console.log(coordinates);
+    // setMapCenter(coordinates);
     // In a full implementation, this would update the map markers or center
   };
 
@@ -122,7 +123,12 @@ const EventsSidebar = () => {
                 className={`cursor-pointer transition hover:shadow-md ${
                   selectedEvent === event.id ? "ring-2 ring-primary" : ""
                 }`}
-                onClick={() => handleEventClick(event.id, event.coordinates)}
+                onClick={() =>
+                  handleEventClick(
+                    event.id,
+                    event.coordinates as [number, number],
+                  )
+                }
               >
                 <CardHeader className="pb-2">
                   <div className="flex justify-between items-start">

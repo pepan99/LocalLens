@@ -10,8 +10,18 @@ import { Compass, Locate, Minus, Plus } from "lucide-react";
 import EventMarker from "./event-marker";
 import UserMarker from "./user-marker";
 
+type EventType = {
+  id: string;
+  title: string;
+  category: string;
+  date: string;
+  location: string;
+  coordinates: [number, number];
+  attendees: number;
+  rating: number;
+};
 // Mock data for events - in a real app, this would come from your API
-const MOCK_EVENTS = [
+const MOCK_EVENTS: EventType[] = [
   {
     id: "1",
     title: "Tech Meetup in Brno",
@@ -54,8 +64,16 @@ const MOCK_EVENTS = [
   },
 ];
 
+type FriendType = {
+  id: string;
+  name: string;
+  imageUrl: string;
+  coordinates: [number, number];
+  lastUpdated: Date;
+};
+
 // Mock data for friends - in a real app, this would come from your API
-const MOCK_FRIENDS = [
+const MOCK_FRIENDS: FriendType[] = [
   {
     id: "1",
     name: "Marie Novotná",

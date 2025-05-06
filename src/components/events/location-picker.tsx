@@ -1,7 +1,7 @@
 "use client";
 
 import L from "leaflet";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { MapContainer, Marker, TileLayer, useMapEvents } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import { Button } from "@/components/ui/button";
@@ -16,8 +16,8 @@ const LocationMarker = ({
   const [position, setPosition] = useState<[number, number] | null>(null);
 
   // Create event listeners for map
-  const map = useMapEvents({
-    click(e) {
+  useMapEvents({
+    click: e => {
       const { lat, lng } = e.latlng;
       setPosition([lat, lng]);
       onLocationSelected(lat, lng);
@@ -51,6 +51,7 @@ const LocationPicker = ({
   initialLocation = [49.21, 16.599], // Brno as default
 }: LocationPickerProps) => {
   const [myLocation, setMyLocation] = useState<[number, number] | null>(null);
+  console.log("location:", myLocation);
 
   // Get user's current location
   const getCurrentLocation = useCallback(() => {

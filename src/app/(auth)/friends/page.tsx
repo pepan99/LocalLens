@@ -18,13 +18,11 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
@@ -46,16 +44,12 @@ import {
   Clock,
   Group,
   MapPin,
-  Minus,
   Plus,
   Search,
-  Settings,
   Share,
   User,
-  UserCheck,
   UserPlus,
   Users,
-  UserX,
   X,
 } from "lucide-react";
 import { useState } from "react";
@@ -169,7 +163,9 @@ const formatTimeAgo = (date: Date) => {
 
 const FriendsPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedFriendId, setSelectedFriendId] = useState<string | null>(null);
+  const [_selectedFriendId, setSelectedFriendId] = useState<string | null>(
+    null,
+  );
   const [isCreateGroupDialogOpen, setIsCreateGroupDialogOpen] = useState(false);
   const [newGroupName, setNewGroupName] = useState("");
   const [selectedFriendsForGroup, setSelectedFriendsForGroup] = useState<
@@ -762,7 +758,7 @@ const FriendsPage = () => {
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">Select Friends</label>
+              <span className="text-sm font-medium">Select Friends</span>
               <div className="border rounded-md max-h-60 overflow-y-auto">
                 {MOCK_FRIENDS.map(friend => (
                   <div
