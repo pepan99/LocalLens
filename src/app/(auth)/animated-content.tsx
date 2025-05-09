@@ -11,8 +11,11 @@ interface AnimatedContentProps {
 const AnimatedContent: React.FC<AnimatedContentProps> = ({ children }) => {
   const pathname = usePathname();
 
-  return pathname === "/map" ? (
-    <div key={pathname} className="mt-16 w-full">
+  const transparentPages = ["/map", "/explore"];
+  const isPageTransparent = transparentPages.includes(pathname);
+
+  return isPageTransparent ? (
+    <div key={pathname} className="mt-16 relative w-fit pl-4">
       {children}
     </div>
   ) : (
