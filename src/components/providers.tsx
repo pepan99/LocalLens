@@ -1,8 +1,13 @@
 "use client";
 
-import { SessionProvider } from "next-auth/react";
-import { type PropsWithChildren } from "react";
+import { ThemeProvider } from "next-themes";
+import { Toaster } from "sonner";
 
-export const Providers = ({ children }: PropsWithChildren) => (
-  <SessionProvider>{children}</SessionProvider>
-);
+export const Providers = ({ children }: { children: React.ReactNode }) => {
+  return (
+    <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
+      <Toaster position="top-right" />
+      {children}
+    </ThemeProvider>
+  );
+};

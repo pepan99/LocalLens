@@ -4,11 +4,12 @@
   "private": true,
   "scripts": {
     "build": "next build",
+    "check-types": "tsc --noemit",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:studio": "drizzle-kit studio",
     "dev": "next dev --turbopack",
-    "lint": "next lint",
+    "lint": "bun run check-types && next lint",
     "lintfix": "eslint --cache --cache-location ./node_modules/.cache/eslint --fix . && prettier --cache --cache-strategy metadata --write .",
     "prepare": "husky",
     "start": "next start"
