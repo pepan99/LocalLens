@@ -5,74 +5,13 @@ import { MapContainer, TileLayer, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css"; // Must imported to make the leaflet work correctly
 import "leaflet/dist/leaflet.js"; // Must imported to make the leaflet work correctly
 
+import { MOCK_EVENTS } from "@/components/events/utils";
 import { Button } from "@/components/ui/button";
+import { FriendType } from "@/types/friends";
 import { Compass, Locate, Minus, Plus } from "lucide-react";
 import EventMarker from "../markers/event-marker";
 import UserMarker from "../markers/user-marker";
 
-type EventType = {
-  id: string;
-  title: string;
-  category: string;
-  date: string;
-  location: string;
-  coordinates: [number, number];
-  attendees: number;
-  rating: number;
-};
-// Mock data for events - in a real app, this would come from your API
-const MOCK_EVENTS: EventType[] = [
-  {
-    id: "1",
-    title: "Tech Meetup in Brno",
-    category: "Technology",
-    date: "2025-05-10T18:00:00",
-    location: "Impact Hub, Brno",
-    coordinates: [49.19, 16.61],
-    attendees: 24,
-    rating: 4.5,
-  },
-  {
-    id: "2",
-    title: "Weekend Farmers Market",
-    category: "Food",
-    date: "2025-05-09T09:00:00",
-    location: "Freedom Square, Brno",
-    coordinates: [49.2, 16.6],
-    attendees: 120,
-    rating: 4.8,
-  },
-  {
-    id: "3",
-    title: "Art Exhibition Opening",
-    category: "Arts",
-    date: "2025-05-15T17:00:00",
-    location: "Moravian Gallery, Brno",
-    coordinates: [49.195, 16.605],
-    attendees: 45,
-    rating: 4.3,
-  },
-  {
-    id: "4",
-    title: "Weekly Running Club",
-    category: "Sports",
-    date: "2025-05-07T19:00:00",
-    location: "Lužánky Park, Brno",
-    coordinates: [49.205, 16.615],
-    attendees: 18,
-    rating: 4.6,
-  },
-];
-
-type FriendType = {
-  id: string;
-  name: string;
-  imageUrl: string;
-  coordinates: [number, number];
-  lastUpdated: Date;
-};
-
-// Mock data for friends - in a real app, this would come from your API
 const MOCK_FRIENDS: FriendType[] = [
   {
     id: "1",
