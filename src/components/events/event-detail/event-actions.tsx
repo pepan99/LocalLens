@@ -10,24 +10,17 @@ import {
 } from "@/components/ui/card";
 import { Edit, Share, Trash } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { toast } from "sonner";
+import { RSVPManager, RSVPStatusEnum } from "../rsvp";
 import { EventDetail } from "./utils";
 
 interface EventActionsProps {
   event: EventDetail;
   onDelete: () => void;
+  onRSVPChange?: (eventId: string, status: RSVPStatusEnum) => void;
 }
 
-const EventActions = ({ event, onDelete }: EventActionsProps) => {
-  const [attending, setAttending] = useState(false);
-
-  const handleRSVP = () => {
-    // Toggle attendance status
-    setAttending(!attending);
-    // In a real app, you would send a request to your API
-    console.log(attending ? "Cancelling RSVP" : "RSVP to event:", event?.id);
-  };
-
+const EventActions = ({ event, onDelete, onRSVPChange }: EventActionsProps) => {
   const handleShare = () => {
     // In a real app, this would open a sharing dialog
     if (navigator.share) {
@@ -43,7 +36,14 @@ const EventActions = ({ event, onDelete }: EventActionsProps) => {
     } else {
       // Fallback: copy to clipboard
       navigator.clipboard.writeText(window.location.href);
-      alert("Link copied to clipboard!");
+      toast.info("Event link copied to clipboard!");
+    }
+  };
+
+  // Handler for RSVP changes
+  const handleRSVPChange = (eventId: string, status: RSVPStatusEnum) => {
+    if (onRSVPChange) {
+      onRSVPChange(eventId, status);
     }
   };
 
@@ -65,13 +65,14 @@ const EventActions = ({ event, onDelete }: EventActionsProps) => {
             </Button>
           </>
         ) : (
-          <Button
-            className="w-full"
-            variant={attending ? "outline" : "default"}
-            onClick={handleRSVP}
-          >
-            {attending ? "Cancel RSVP" : "RSVP to Event"}
-          </Button>
+          <RSVPManager
+            eventId={event.id}
+            eventTitle={event.title}
+            buttonVariant="default"
+            buttonSize="default"
+            buttonClassName="w-full"
+            onRSVPChange={handleRSVPChange}
+          />
         )}
         <Button variant="outline" className="w-full" onClick={handleShare}>
           <Share className="mr-2 h-4 w-4" /> Share Event

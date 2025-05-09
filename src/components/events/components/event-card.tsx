@@ -11,14 +11,16 @@ import {
 } from "@/components/ui/card";
 import { Clock, Edit, MapPin, Star, Trash, Users } from "lucide-react";
 import Link from "next/link";
+import { RSVPManager, RSVPStatusEnum } from "../rsvp";
 import { Event, formatEventDate } from "../utils";
 
 interface EventCardProps {
   event: Event;
   onDelete: (eventId: string) => void;
+  onRSVPChange?: (eventId: string, status: RSVPStatusEnum) => void;
 }
 
-const EventCard = ({ event, onDelete }: EventCardProps) => {
+const EventCard = ({ event, onDelete, onRSVPChange }: EventCardProps) => {
   return (
     <Card key={event.id} className="overflow-hidden">
       <CardHeader className="pb-2">
@@ -72,9 +74,13 @@ const EventCard = ({ event, onDelete }: EventCardProps) => {
               <Button variant="ghost" size="sm" asChild>
                 <Link href={`/events/${event.id}`}>View</Link>
               </Button>
-              <Button size="sm" variant="default">
-                RSVP
-              </Button>
+              <RSVPManager
+                eventId={event.id}
+                eventTitle={event.title}
+                buttonVariant="default"
+                buttonSize="sm"
+                onRSVPChange={onRSVPChange}
+              />
             </>
           )}
         </div>
