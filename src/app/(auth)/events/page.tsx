@@ -177,7 +177,7 @@ const EventsPage = () => {
             </p>
           </div>
           <Button asChild>
-            <Link href="/dashboard/events/create">Create New Event</Link>
+            <Link href="/events/create">Create New Event</Link>
           </Button>
         </div>
 
@@ -357,7 +357,7 @@ const EventsPage = () => {
                         {event.isOwner ? (
                           <>
                             <Button variant="ghost" size="sm" asChild>
-                              <Link href={`/dashboard/events/${event.id}/edit`}>
+                              <Link href={`/events/${event.id}/edit`}>
                                 <Edit className="h-4 w-4" />
                               </Link>
                             </Button>
@@ -432,7 +432,7 @@ const EventsPage = () => {
                       </div>
                       <div className="flex gap-2">
                         <Button variant="ghost" size="sm" asChild>
-                          <Link href={`/dashboard/events/${event.id}/edit`}>
+                          <Link href={`/events/${event.id}/edit`}>
                             <Edit className="h-4 w-4" />
                           </Link>
                         </Button>

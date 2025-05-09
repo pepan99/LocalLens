@@ -463,7 +463,7 @@ const PlacesPage = () => {
                     <CardHeader className="pb-2">
                       <div className="flex justify-between items-start">
                         <Link
-                          href={`/dashboard/places/${place.id}`}
+                          href={`/places/${place.id}`}
                           className="hover:underline"
                         >
                           <CardTitle className="text-lg">
@@ -507,9 +507,7 @@ const PlacesPage = () => {
                         </span>
                       )}
                       <Button size="sm" asChild>
-                        <Link href={`/dashboard/places/${place.id}`}>
-                          View Details
-                        </Link>
+                        <Link href={`/places/${place.id}`}>View Details</Link>
                       </Button>
                     </CardFooter>
                   </Card>

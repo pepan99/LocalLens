@@ -379,7 +379,7 @@ const CreateEventPage = () => {
               Previous
             </Button>
           ) : (
-            <Button variant="outline" onClick={() => router.push("/dashboard")}>
+            <Button variant="outline" onClick={() => router.push("/map")}>
               Cancel
             </Button>
           )}

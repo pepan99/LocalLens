@@ -172,7 +172,7 @@ const EventsSidebar = () => {
               <Users className="h-12 w-12 mb-2 text-gray-400" />
               <p>Connect with friends to see their events</p>
               <Button variant="outline" className="mt-4" asChild>
-                <Link href="/dashboard/friends">Manage Friends</Link>
+                <Link href="/friends">Manage Friends</Link>
               </Button>
             </div>
           </TabsContent>

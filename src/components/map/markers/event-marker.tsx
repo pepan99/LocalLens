@@ -104,7 +104,7 @@ const EventMarker = ({ event }: EventMarkerProps) => {
           </CardContent>
           <CardFooter className="flex justify-between pt-0 px-3 pb-1">
             <Button size="sm" variant="ghost" asChild>
-              <Link href={`/dashboard/events/${event.id}`}>View Details</Link>
+              <Link href={`/events/${event.id}`}>View Details</Link>
             </Button>
             <Button size="sm" variant="default">
               RSVP
