@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { MapContainer, TileLayer } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import "leaflet/dist/leaflet.js";
-import UserMarker from "./user-marker";
+import UserMarker from "../markers/user-marker";
 
 type PersistentMapProps = {
   children?: React.ReactNode;

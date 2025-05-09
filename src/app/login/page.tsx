@@ -1,4 +1,4 @@
-import PersistentMapCaller from "@/components/map/persistent-map-caller";
+import PersistentMapCaller from "@/components/map/map/persistent-map-caller";
 import FloatingContainer from "@/components/public/floating-container";
 import SignInButton from "@/components/public/sign-in-button";
 

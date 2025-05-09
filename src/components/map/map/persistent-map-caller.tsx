@@ -3,7 +3,7 @@
 import dynamic from "next/dynamic";
 
 const LazyPersistentMap = dynamic(
-  () => import("@/components/map/persistent-map"),
+  () => import("@/components/map/map/persistent-map"),
   {
     ssr: false,
     loading: () => <p>Loading...</p>,

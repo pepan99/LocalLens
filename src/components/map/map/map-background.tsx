@@ -6,7 +6,7 @@ import { useMemo } from "react";
 export const MapBackground = () => {
   const Map = useMemo(
     () =>
-      dynamic(() => import("@/components/map/map"), {
+      dynamic(() => import("@/components/map/map/map"), {
         loading: () => (
           <div className="w-full h-screen flex items-center justify-center bg-gray-100">
             <div className="text-center">
