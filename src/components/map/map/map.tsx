@@ -7,8 +7,8 @@ import "leaflet/dist/leaflet.js"; // Must imported to make the leaflet work corr
 
 import { Button } from "@/components/ui/button";
 import { Compass, Locate, Minus, Plus } from "lucide-react";
-import EventMarker from "./event-marker";
-import UserMarker from "./user-marker";
+import EventMarker from "../markers/event-marker";
+import UserMarker from "../markers/user-marker";
 
 type EventType = {
   id: string;

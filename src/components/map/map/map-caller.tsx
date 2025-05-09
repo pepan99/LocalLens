@@ -3,7 +3,7 @@
 import dynamic from "next/dynamic";
 import { MapContainer } from "react-leaflet";
 
-const LazyMap = dynamic(() => import("@/components/map/map"), {
+const LazyMap = dynamic(() => import("./map"), {
   ssr: false,
   loading: () => <p>Loading...</p>,
 });

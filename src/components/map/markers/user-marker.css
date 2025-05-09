@@ -1,0 +1,14 @@
+/* UserMarker.css */
+.leaflet-popup-content {
+  margin: 8px !important; /* Reduce from default 13px to 8px */
+}
+
+/* Optional: If you want to adjust the popup arrow position */
+.leaflet-popup-tip-container {
+  margin-top: -1px;
+}
+
+/* Make sure your Card component doesn't add its own padding */
+.user-popup .p-0 {
+  padding: 0 !important;
+}

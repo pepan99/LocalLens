@@ -1,6 +1,6 @@
 import { auth } from "@/auth";
 import NavBar from "@/components/dashboard/nav-bar";
-import MapCaller from "@/components/map/map-caller";
+import MapCaller from "@/components/map/map/map-caller";
 import { redirect } from "next/navigation";
 import React from "react";
 import AnimatedContent from "./animated-content";
