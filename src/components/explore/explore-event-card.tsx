@@ -16,7 +16,6 @@ const ExploreEventCard = ({ event, onRSVPChange }: ExploreEventCardProps) => {
   const categoryClasses = `text-xs font-medium text-${THEME_COLOR}-700 bg-${THEME_COLOR}-100 px-2 py-0.5 rounded`;
 
   const handleViewDetails = () => {
-    // Navigate to event details
     router.push(`/events/${event.id}`);
   };
 

@@ -5,10 +5,12 @@ import { MapContainer, TileLayer, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css"; // Must imported to make the leaflet work correctly
 import "leaflet/dist/leaflet.js"; // Must imported to make the leaflet work correctly
 
+import { RSVPStatusEnum } from "@/components/events/rsvp";
 import { MOCK_EVENTS } from "@/components/events/utils";
 import { Button } from "@/components/ui/button";
 import { FriendType } from "@/types/friends";
 import { Compass, Locate, Minus, Plus } from "lucide-react";
+import { toast } from "sonner";
 import EventMarker from "../markers/event-marker";
 import UserMarker from "../markers/user-marker";
 
@@ -102,6 +104,7 @@ const Map = ({
     [number, number] | null
   >(null);
   const mapRef = useRef<L.Map | null>(null);
+  const [eventsState, setEventsState] = useState(MOCK_EVENTS);
 
   // Handle getting user's current location
   useEffect(() => {
@@ -139,6 +142,27 @@ const Map = ({
       if (mapRef.current) {
         mapRef.current.setView(currentLocation, 15);
       }
+    }
+  };
+
+  // Handle RSVP status changes
+  const handleRSVPChange = (eventId: string, status: RSVPStatusEnum) => {
+    // Find the event
+    const event = eventsState.find(e => e.id === eventId);
+
+    if (event) {
+      // Show a toast notification
+      const message =
+        status === RSVPStatusEnum.GOING
+          ? `You're going to ${event.title}!`
+          : status === RSVPStatusEnum.MAYBE
+            ? `You might attend ${event.title}.`
+            : `You've declined ${event.title}.`;
+
+      toast(message);
+
+      // In a real app, you might update the marker state or trigger a refresh
+      // For now, we'll leave the visual update to the marker component itself
     }
   };
 
@@ -210,7 +234,13 @@ const Map = ({
 
       {/* Event markers */}
       {showEvents &&
-        MOCK_EVENTS.map(event => <EventMarker key={event.id} event={event} />)}
+        eventsState.map(event => (
+          <EventMarker
+            key={event.id}
+            event={event}
+            onRSVPChange={handleRSVPChange}
+          />
+        ))}
 
       {/* Friend markers */}
       {showFriends &&
