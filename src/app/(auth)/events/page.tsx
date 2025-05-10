@@ -7,6 +7,7 @@ import {
 } from "@/components/events/components";
 import { MOCK_EVENTS, sortEvents } from "@/components/events/utils";
 import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Calendar, Users } from "lucide-react";
 import Link from "next/link";
@@ -89,53 +90,55 @@ const EventsPage = () => {
             <TabsTrigger value="my-events">My Events</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="all" className="space-y-4">
-            {sortedEvents.length === 0 ? (
+          <ScrollArea className="h-[570]">
+            <TabsContent value="all" className="space-y-4">
+              {sortedEvents.length === 0 ? (
+                <div className="text-center py-12 bg-gray-50 rounded-lg">
+                  <Calendar className="mx-auto h-12 w-12 text-gray-400" />
+                  <h3 className="mt-2 text-lg font-medium">No events found</h3>
+                  <p className="mt-1 text-gray-500">
+                    Try adjusting your search or filters
+                  </p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {sortedEvents.map(event => (
+                    <EventCard
+                      key={event.id}
+                      event={event}
+                      onDelete={handleDeleteClick}
+                    />
+                  ))}
+                </div>
+              )}
+            </TabsContent>
+
+            <TabsContent value="attending">
               <div className="text-center py-12 bg-gray-50 rounded-lg">
-                <Calendar className="mx-auto h-12 w-12 text-gray-400" />
-                <h3 className="mt-2 text-lg font-medium">No events found</h3>
+                <Users className="mx-auto h-12 w-12 text-gray-400" />
+                <h3 className="mt-2 text-lg font-medium">
+                  Events You&apos;re Attending
+                </h3>
                 <p className="mt-1 text-gray-500">
-                  Try adjusting your search or filters
+                  RSVP to events to see them here
                 </p>
               </div>
-            ) : (
+            </TabsContent>
+
+            <TabsContent value="my-events">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {sortedEvents.map(event => (
-                  <EventCard
-                    key={event.id}
-                    event={event}
-                    onDelete={handleDeleteClick}
-                  />
-                ))}
+                {sortedEvents
+                  .filter(event => event.isOwner)
+                  .map(event => (
+                    <EventCard
+                      key={event.id}
+                      event={event}
+                      onDelete={handleDeleteClick}
+                    />
+                  ))}
               </div>
-            )}
-          </TabsContent>
-
-          <TabsContent value="attending">
-            <div className="text-center py-12 bg-gray-50 rounded-lg">
-              <Users className="mx-auto h-12 w-12 text-gray-400" />
-              <h3 className="mt-2 text-lg font-medium">
-                Events You&apos;re Attending
-              </h3>
-              <p className="mt-1 text-gray-500">
-                RSVP to events to see them here
-              </p>
-            </div>
-          </TabsContent>
-
-          <TabsContent value="my-events">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {sortedEvents
-                .filter(event => event.isOwner)
-                .map(event => (
-                  <EventCard
-                    key={event.id}
-                    event={event}
-                    onDelete={handleDeleteClick}
-                  />
-                ))}
-            </div>
-          </TabsContent>
+            </TabsContent>
+          </ScrollArea>
         </Tabs>
       </div>
 
