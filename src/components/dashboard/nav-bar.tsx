@@ -35,6 +35,9 @@ const NavBar = () => {
     console.log("Searching for:", searchQuery);
   };
 
+  // Todo - Display notification if there is some 'LIVE' events today
+  const hasTodayEvents = true;
+
   return (
     <nav className="bg-white/90 backdrop-blur-sm border-b border-gray-200 px-4 py-2 flex items-center justify-between z-20 sticky top-0">
       <div className="flex items-center gap-6">
@@ -92,9 +95,15 @@ const NavBar = () => {
           />
         </form>
 
-        <Button variant="outline" size="icon" asChild>
+        <Button variant="outline" size="icon" asChild className="relative">
           <Link href="/notifications">
             <Bell className="h-5 w-5" />
+            {hasTodayEvents && (
+              <span
+                className="absolute top-0 right-0 h-2 w-2 rounded-full bg-red-500 
+                       translate-x-1/2 -translate-y-1/2"
+              />
+            )}
           </Link>
         </Button>
 
