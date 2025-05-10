@@ -248,7 +248,7 @@ const PlaceDetailPage = () => {
                 variant="outline"
                 size="sm"
                 className="bg-white/80 hover:bg-white"
-                onClick={() => router.push("/dashboard")}
+                onClick={() => router.push("/map")}
               >
                 <ChevronLeft className="h-4 w-4 mr-2" />
                 Back
@@ -299,7 +299,7 @@ const PlaceDetailPage = () => {
               <div className="mt-4 sm:mt-0 space-x-2">
                 <Button>RSVP to Event</Button>
                 <Button variant="outline" asChild>
-                  <Link href={`/dashboard/events/create?placeId=${place.id}`}>
+                  <Link href={`/events/create?placeId=${place.id}`}>
                     Create Event
                   </Link>
                 </Button>
@@ -397,7 +397,7 @@ const PlaceDetailPage = () => {
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-lg font-medium">Upcoming Events</h2>
               <Button variant="outline" asChild>
-                <Link href={`/dashboard/events/create?placeId=${place.id}`}>
+                <Link href={`/events/create?placeId=${place.id}`}>
                   Create Event
                 </Link>
               </Button>
@@ -420,9 +420,7 @@ const PlaceDetailPage = () => {
                     </div>
                     <div className="bg-gray-50 px-4 py-2 border-t border-gray-100 flex justify-end">
                       <Button size="sm" asChild>
-                        <Link href={`/dashboard/events/${event.id}`}>
-                          View Details
-                        </Link>
+                        <Link href={`/events/${event.id}`}>View Details</Link>
                       </Button>
                     </div>
                   </Card>
@@ -436,7 +434,7 @@ const PlaceDetailPage = () => {
                   Be the first to create an event at this place
                 </p>
                 <Button className="mt-4" asChild>
-                  <Link href={`/dashboard/events/create?placeId=${place.id}`}>
+                  <Link href={`/events/create?placeId=${place.id}`}>
                     Create Event
                   </Link>
                 </Button>

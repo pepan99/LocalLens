@@ -5,74 +5,15 @@ import { MapContainer, TileLayer, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css"; // Must imported to make the leaflet work correctly
 import "leaflet/dist/leaflet.js"; // Must imported to make the leaflet work correctly
 
+import { RSVPStatusEnum } from "@/components/events/rsvp";
+import { MOCK_EVENTS } from "@/components/events/utils";
 import { Button } from "@/components/ui/button";
+import { FriendType } from "@/types/friends";
 import { Compass, Locate, Minus, Plus } from "lucide-react";
+import { toast } from "sonner";
 import EventMarker from "../markers/event-marker";
 import UserMarker from "../markers/user-marker";
 
-type EventType = {
-  id: string;
-  title: string;
-  category: string;
-  date: string;
-  location: string;
-  coordinates: [number, number];
-  attendees: number;
-  rating: number;
-};
-// Mock data for events - in a real app, this would come from your API
-const MOCK_EVENTS: EventType[] = [
-  {
-    id: "1",
-    title: "Tech Meetup in Brno",
-    category: "Technology",
-    date: "2025-05-10T18:00:00",
-    location: "Impact Hub, Brno",
-    coordinates: [49.19, 16.61],
-    attendees: 24,
-    rating: 4.5,
-  },
-  {
-    id: "2",
-    title: "Weekend Farmers Market",
-    category: "Food",
-    date: "2025-05-09T09:00:00",
-    location: "Freedom Square, Brno",
-    coordinates: [49.2, 16.6],
-    attendees: 120,
-    rating: 4.8,
-  },
-  {
-    id: "3",
-    title: "Art Exhibition Opening",
-    category: "Arts",
-    date: "2025-05-15T17:00:00",
-    location: "Moravian Gallery, Brno",
-    coordinates: [49.195, 16.605],
-    attendees: 45,
-    rating: 4.3,
-  },
-  {
-    id: "4",
-    title: "Weekly Running Club",
-    category: "Sports",
-    date: "2025-05-07T19:00:00",
-    location: "Lužánky Park, Brno",
-    coordinates: [49.205, 16.615],
-    attendees: 18,
-    rating: 4.6,
-  },
-];
-
-type FriendType = {
-  id: string;
-  name: string;
-  imageUrl: string;
-  coordinates: [number, number];
-  lastUpdated: Date;
-};
-
-// Mock data for friends - in a real app, this would come from your API
 const MOCK_FRIENDS: FriendType[] = [
   {
     id: "1",
@@ -163,6 +104,7 @@ const Map = ({
     [number, number] | null
   >(null);
   const mapRef = useRef<L.Map | null>(null);
+  const [eventsState, setEventsState] = useState(MOCK_EVENTS);
 
   // Handle getting user's current location
   useEffect(() => {
@@ -200,6 +142,27 @@ const Map = ({
       if (mapRef.current) {
         mapRef.current.setView(currentLocation, 15);
       }
+    }
+  };
+
+  // Handle RSVP status changes
+  const handleRSVPChange = (eventId: string, status: RSVPStatusEnum) => {
+    // Find the event
+    const event = eventsState.find(e => e.id === eventId);
+
+    if (event) {
+      // Show a toast notification
+      const message =
+        status === RSVPStatusEnum.GOING
+          ? `You're going to ${event.title}!`
+          : status === RSVPStatusEnum.MAYBE
+            ? `You might attend ${event.title}.`
+            : `You've declined ${event.title}.`;
+
+      toast(message);
+
+      // In a real app, you might update the marker state or trigger a refresh
+      // For now, we'll leave the visual update to the marker component itself
     }
   };
 
@@ -271,7 +234,13 @@ const Map = ({
 
       {/* Event markers */}
       {showEvents &&
-        MOCK_EVENTS.map(event => <EventMarker key={event.id} event={event} />)}
+        eventsState.map(event => (
+          <EventMarker
+            key={event.id}
+            event={event}
+            onRSVPChange={handleRSVPChange}
+          />
+        ))}
 
       {/* Friend markers */}
       {showFriends &&

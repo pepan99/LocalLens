@@ -1,5 +1,11 @@
 "use client";
 
+import {
+  getUserRSVPStatus,
+  isUserAttending,
+  RSVPManager,
+  RSVPStatusEnum,
+} from "@/components/events/rsvp";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -10,13 +16,23 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import L from "leaflet";
-import { Calendar, MapPin, Star, Users } from "lucide-react";
+import {
+  Calendar,
+  Check,
+  Clock,
+  HelpCircle,
+  MapPin,
+  Star,
+  Users,
+  X,
+} from "lucide-react";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { Marker, Popup } from "react-leaflet";
 
-// Define custom icon for event markers
-const createEventIcon = (category: string) => {
-  // You can customize icons based on category
+// Define custom icon for event markers with RSVP status
+const createEventIcon = (category: string, rsvpStatus: RSVPStatusEnum) => {
+  // Base color by category
   let color = "#0ea5e9"; // Default blue
 
   switch (category) {
@@ -39,9 +55,30 @@ const createEventIcon = (category: string) => {
       color = "#0ea5e9"; // Default blue
   }
 
+  // RSVP status indicator
+  let rsvpIndicator = "";
+  if (rsvpStatus === RSVPStatusEnum.GOING) {
+    rsvpIndicator = `<div style="position: absolute; top: -5px; right: -5px; width: 16px; height: 16px; background-color: #10b981; border-radius: 50%; border: 2px solid white; display: flex; justify-content: center; align-items: center;">
+                      <span style="color: white; font-size: 10px;">✓</span>
+                     </div>`;
+  } else if (rsvpStatus === RSVPStatusEnum.MAYBE) {
+    rsvpIndicator = `<div style="position: absolute; top: -5px; right: -5px; width: 16px; height: 16px; background-color: #f59e0b; border-radius: 50%; border: 2px solid white; display: flex; justify-content: center; align-items: center;">
+                      <span style="color: white; font-size: 10px;">?</span>
+                     </div>`;
+  } else if (rsvpStatus === RSVPStatusEnum.NOT_GOING) {
+    rsvpIndicator = `<div style="position: absolute; top: -5px; right: -5px; width: 16px; height: 16px; background-color: #ef4444; border-radius: 50%; border: 2px solid white; display: flex; justify-content: center; align-items: center;">
+                      <span style="color: white; font-size: 10px;">✕</span>
+                     </div>`;
+  }
+
   return L.divIcon({
     className: "custom-event-marker",
-    html: `<div style="background-color: ${color}; width: 30px; height: 30px; border-radius: 50%; display: flex; justify-content: center; align-items: center; border: 2px solid white; box-shadow: 0 2px 6px rgba(0,0,0,0.3);"><span style="color: white; font-weight: bold;">E</span></div>`,
+    html: `<div style="position: relative; width: 30px; height: 30px;">
+             <div style="background-color: ${color}; width: 30px; height: 30px; border-radius: 50%; display: flex; justify-content: center; align-items: center; border: 2px solid white; box-shadow: 0 2px 6px rgba(0,0,0,0.3);">
+               <span style="color: white; font-weight: bold;">E</span>
+             </div>
+             ${rsvpIndicator}
+           </div>`,
     iconSize: [30, 30],
     iconAnchor: [15, 15],
   });
@@ -58,6 +95,7 @@ type EventMarkerProps = {
     attendees: number;
     rating: number;
   };
+  onRSVPChange?: (eventId: string, status: RSVPStatusEnum) => void;
 };
 
 const formatEventDate = (dateString: string) => {
@@ -71,9 +109,69 @@ const formatEventDate = (dateString: string) => {
   });
 };
 
-const EventMarker = ({ event }: EventMarkerProps) => {
+const EventMarker = ({ event, onRSVPChange }: EventMarkerProps) => {
+  const [rsvpStatus, setRsvpStatus] = useState<RSVPStatusEnum>(
+    RSVPStatusEnum.NO_RESPONSE,
+  );
+  const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const [marker, setMarker] = useState<L.Marker | null>(null);
+
+  // Get the current RSVP status when component mounts and when RSVP changes
+  useEffect(() => {
+    const status = getUserRSVPStatus(event.id);
+    setRsvpStatus(status);
+
+    // Update marker icon if marker ref exists
+    if (marker) {
+      marker.setIcon(createEventIcon(event.category, status));
+    }
+  }, [event.id, event.category, marker]);
+
+  // Handle RSVP status change
+  const handleRSVPChange = (eventId: string, status: RSVPStatusEnum) => {
+    setRsvpStatus(status);
+
+    // Update the marker icon with the new status
+    if (marker) {
+      marker.setIcon(createEventIcon(event.category, status));
+    }
+
+    if (onRSVPChange) {
+      onRSVPChange(eventId, status);
+    }
+  };
+
+  // Handle marker reference
+  const setMarkerRef = (ref: L.Marker) => {
+    setMarker(ref);
+    // Set initial icon with RSVP status once we have the marker reference
+    if (ref) {
+      ref.setIcon(createEventIcon(event.category, rsvpStatus));
+    }
+  };
+
+  // Check if popup is open/closed
+  const handlePopupOpen = () => {
+    setIsPopupOpen(true);
+    // Refresh RSVP status when popup opens
+    const status = getUserRSVPStatus(event.id);
+    setRsvpStatus(status);
+  };
+
+  const handlePopupClose = () => {
+    setIsPopupOpen(false);
+  };
+
   return (
-    <Marker position={event.coordinates} icon={createEventIcon(event.category)}>
+    <Marker
+      position={event.coordinates}
+      icon={createEventIcon(event.category, rsvpStatus)}
+      ref={setMarkerRef}
+      eventHandlers={{
+        popupopen: handlePopupOpen,
+        popupclose: handlePopupClose,
+      }}
+    >
       <Popup className="event-popup" minWidth={280} maxWidth={320}>
         <Card className="border-0 shadow-none">
           <CardHeader className="pb-2 pt-1 px-3">
@@ -104,11 +202,15 @@ const EventMarker = ({ event }: EventMarkerProps) => {
           </CardContent>
           <CardFooter className="flex justify-between pt-0 px-3 pb-1">
             <Button size="sm" variant="ghost" asChild>
-              <Link href={`/dashboard/events/${event.id}`}>View Details</Link>
+              <Link href={`/events/${event.id}`}>View Details</Link>
             </Button>
-            <Button size="sm" variant="default">
-              RSVP
-            </Button>
+            <RSVPManager
+              eventId={event.id}
+              eventTitle={event.title}
+              buttonVariant="default"
+              buttonSize="sm"
+              onRSVPChange={handleRSVPChange}
+            />
           </CardFooter>
         </Card>
       </Popup>

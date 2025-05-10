@@ -1,236 +1,262 @@
 "use client";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
+// Import dialog components
+import AddFriendDialog from "@/components/friends/add-friend-dialog";
+import AddMembersDialog from "@/components/friends/add-members-dialog";
+import CreateGroupDialog from "@/components/friends/create-group-dialog";
+import DeleteGroupDialog from "@/components/friends/delete-group-dialog";
+import EditGroupDialog from "@/components/friends/edit-group-dialog";
+import FriendGroupsList from "@/components/friends/sections/friend-groups-list";
+// Import section components
+import FriendsList from "@/components/friends/sections/friends-list";
+import LocationSharingSettings from "@/components/friends/sections/location-sharing-settings";
+import PendingRequestsList from "@/components/friends/sections/pending-requests-list";
+// Import types and mock data
+import {
+  FriendGroup,
+  LocationSharingSettingsType as LocationSettings,
+} from "@/components/friends/types";
+import ViewGroupDialog from "@/components/friends/view-group-dialog";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
-import { Separator } from "@/components/ui/separator";
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
-import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  Bell,
-  Check,
-  Clock,
-  Group,
-  MapPin,
-  Plus,
-  Search,
-  Share,
-  User,
-  UserPlus,
-  Users,
-  X,
-} from "lucide-react";
+import { Group, Search, Users } from "lucide-react";
 import { useState } from "react";
-
-// Mock data for friends
-const MOCK_FRIENDS = [
-  {
-    id: "1",
-    name: "Marie Novotná",
-    username: "marie_novotna",
-    imageUrl: "/placeholder-user-1.jpg",
-    location: "Brno, Czech Republic",
-    isOnline: true,
-    lastActive: new Date(Date.now() - 5 * 60 * 1000), // 5 minutes ago
-    isSharingLocation: true,
-    coordinates: [49.197, 16.608],
-  },
-  {
-    id: "2",
-    name: "Jan Svoboda",
-    username: "jan_svoboda",
-    imageUrl: "/placeholder-user-2.jpg",
-    location: "Prague, Czech Republic",
-    isOnline: false,
-    lastActive: new Date(Date.now() - 3 * 60 * 60 * 1000), // 3 hours ago
-    isSharingLocation: true,
-    coordinates: [49.199, 16.599],
-  },
-  {
-    id: "3",
-    name: "Eva Dvořáková",
-    username: "eva_dvorakova",
-    imageUrl: "/placeholder-user-3.jpg",
-    location: "Brno, Czech Republic",
-    isOnline: false,
-    lastActive: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000), // 1 day ago
-    isSharingLocation: false,
-    coordinates: null,
-  },
-];
-
-// Mock data for pending friend requests
-const MOCK_PENDING_REQUESTS = [
-  {
-    id: "4",
-    name: "Petr Novák",
-    username: "petr_novak",
-    imageUrl: "/placeholder-user-4.jpg",
-    location: "Ostrava, Czech Republic",
-    sentAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), // 2 days ago
-    direction: "incoming" as const,
-  },
-  {
-    id: "5",
-    name: "Lucie Procházková",
-    username: "lucie_prochazkova",
-    imageUrl: "/placeholder-user-5.jpg",
-    location: "Brno, Czech Republic",
-    sentAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000), // 1 day ago
-    direction: "outgoing" as const,
-  },
-];
-
-// Mock data for friend groups
-const MOCK_FRIEND_GROUPS = [
-  {
-    id: "1",
-    name: "Close Friends",
-    memberCount: 5,
-    members: MOCK_FRIENDS.slice(0, 2),
-  },
-  {
-    id: "2",
-    name: "Work Colleagues",
-    memberCount: 8,
-    members: MOCK_FRIENDS.slice(1, 3),
-  },
-  {
-    id: "3",
-    name: "Hiking Buddies",
-    memberCount: 4,
-    members: MOCK_FRIENDS.slice(0, 1),
-  },
-];
-
-const formatTimeAgo = (date: Date) => {
-  const now = new Date();
-  const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
-
-  if (diffInSeconds < 60) {
-    return "just now";
-  }
-
-  const diffInMinutes = Math.floor(diffInSeconds / 60);
-  if (diffInMinutes < 60) {
-    return `${diffInMinutes} min ago`;
-  }
-
-  const diffInHours = Math.floor(diffInMinutes / 60);
-  if (diffInHours < 24) {
-    return `${diffInHours} hr ago`;
-  }
-
-  const diffInDays = Math.floor(diffInHours / 24);
-  if (diffInDays < 30) {
-    return `${diffInDays} day${diffInDays > 1 ? "s" : ""} ago`;
-  }
-
-  return date.toLocaleDateString();
-};
+import { toast } from "sonner";
+import {
+  MOCK_FRIEND_GROUPS,
+  MOCK_FRIENDS,
+  MOCK_LOCATION_SETTINGS,
+  MOCK_PENDING_REQUESTS,
+} from "./mock_friends";
 
 const FriendsPage = () => {
+  // General state
   const [searchQuery, setSearchQuery] = useState("");
   const [_selectedFriendId, setSelectedFriendId] = useState<string | null>(
     null,
   );
+  const [activeTab, setActiveTab] = useState("friends");
+  const [locationSettings, setLocationSettings] = useState<LocationSettings>(
+    MOCK_LOCATION_SETTINGS,
+  );
+
+  // Local state for all groups
+  const [groups, setGroups] = useState<FriendGroup[]>(MOCK_FRIEND_GROUPS);
+
+  // Dialog states
+  const [isAddFriendDialogOpen, setIsAddFriendDialogOpen] = useState(false);
   const [isCreateGroupDialogOpen, setIsCreateGroupDialogOpen] = useState(false);
-  const [newGroupName, setNewGroupName] = useState("");
-  const [selectedFriendsForGroup, setSelectedFriendsForGroup] = useState<
-    string[]
-  >([]);
-  const [locationSharingEnabled, setLocationSharingEnabled] = useState(true);
+
+  // Group management dialog states
+  const [isViewGroupDialogOpen, setIsViewGroupDialogOpen] = useState(false);
+  const [isAddMembersDialogOpen, setIsAddMembersDialogOpen] = useState(false);
+  const [isEditGroupDialogOpen, setIsEditGroupDialogOpen] = useState(false);
+  const [isDeleteGroupDialogOpen, setIsDeleteGroupDialogOpen] = useState(false);
+  const [selectedGroup, setSelectedGroup] = useState<FriendGroup | null>(null);
 
   // Filter friends based on search query
   const filteredFriends = MOCK_FRIENDS.filter(friend => {
+    if (!searchQuery.trim()) return true;
+
     return (
       friend.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       friend.username.toLowerCase().includes(searchQuery.toLowerCase())
     );
   });
 
-  // Handle removing a friend
+  // Friend management handlers
   const handleRemoveFriend = (friendId: string) => {
     // In a real app, this would call an API to remove the friend
     console.log(`Removing friend with ID: ${friendId}`);
+    toast("The friend has been removed from your list.");
   };
 
-  // Handle accepting a friend request
+  const handleViewProfile = (friendId: string) => {
+    setSelectedFriendId(friendId);
+    console.log(`Viewing profile of friend with ID: ${friendId}`);
+    // In a real app, this would navigate to the friend's profile page
+  };
+
+  // Friend request handlers
   const handleAcceptRequest = (requestId: string) => {
     // In a real app, this would call an API to accept the request
     console.log(`Accepting friend request with ID: ${requestId}`);
+    toast("You are now friends!");
   };
 
-  // Handle rejecting a friend request
   const handleRejectRequest = (requestId: string) => {
     // In a real app, this would call an API to reject the request
     console.log(`Rejecting friend request with ID: ${requestId}`);
+    toast("The request has been declined.");
   };
 
-  // Handle cancelling an outgoing friend request
   const handleCancelRequest = (requestId: string) => {
     // In a real app, this would call an API to cancel the request
     console.log(`Cancelling friend request with ID: ${requestId}`);
+    toast("Your outgoing request has been cancelled.");
   };
 
-  // Handle creating a new friend group
-  const handleCreateGroup = () => {
-    // In a real app, this would call an API to create the group
-    console.log(
-      `Creating group "${newGroupName}" with friends: ${selectedFriendsForGroup.join(", ")}`,
-    );
-    setIsCreateGroupDialogOpen(false);
-    setNewGroupName("");
-    setSelectedFriendsForGroup([]);
-  };
-
-  // Toggle friend selection for group creation
-  const toggleFriendSelection = (friendId: string) => {
-    if (selectedFriendsForGroup.includes(friendId)) {
-      setSelectedFriendsForGroup(
-        selectedFriendsForGroup.filter(id => id !== friendId),
-      );
-    } else {
-      setSelectedFriendsForGroup([...selectedFriendsForGroup, friendId]);
-    }
-  };
-
-  // Handle sending a friend request
   const handleSendFriendRequest = (username: string) => {
     // In a real app, this would call an API to send the request
     console.log(`Sending friend request to: ${username}`);
+    setIsAddFriendDialogOpen(false);
+    toast(`We've sent a request to ${username}.`);
+  };
+
+  // Group management handlers
+  const handleCreateGroup = (name: string, friendIds: string[]) => {
+    // In a real app, this would call an API to create the group
+    console.log(
+      `Creating group "${name}" with friends: ${friendIds.join(", ")}`,
+    );
+
+    // Create a new group with the selected friends
+    const newGroup: FriendGroup = {
+      id: `group-${Date.now()}`,
+      name,
+      memberCount: friendIds.length,
+      members: MOCK_FRIENDS.filter(friend => friendIds.includes(friend.id)),
+    };
+
+    setGroups([...groups, newGroup]);
+    setIsCreateGroupDialogOpen(false);
+
+    toast(`Your group "${name}" has been created successfully.`);
+
+    // Switch to the Groups tab
+    setActiveTab("groups");
+  };
+
+  const handleViewGroup = (groupId: string) => {
+    const group = groups.find(g => g.id === groupId);
+    if (group) {
+      setSelectedGroup(group);
+      setIsViewGroupDialogOpen(true);
+    }
+  };
+
+  const handleAddMembersToGroup = (groupId: string) => {
+    const group = groups.find(g => g.id === groupId);
+    if (group) {
+      setSelectedGroup(group);
+      setIsAddMembersDialogOpen(true);
+    }
+  };
+
+  const handleEditGroup = (groupId: string) => {
+    const group = groups.find(g => g.id === groupId);
+    if (group) {
+      setSelectedGroup(group);
+      setIsEditGroupDialogOpen(true);
+    }
+  };
+
+  const handleEditGroupSubmit = (groupId: string, name: string) => {
+    // Update the group name
+    setGroups(
+      groups.map(group => (group.id === groupId ? { ...group, name } : group)),
+    );
+
+    toast(`Group name has been updated to "${name}".`);
+  };
+
+  const handleRemoveMemberFromGroup = (groupId: string, memberId: string) => {
+    // Find the group
+    const group = groups.find(g => g.id === groupId);
+    if (!group) return;
+
+    // Remove the member
+    const updatedGroup = {
+      ...group,
+      memberCount: group.memberCount - 1,
+      members: group.members.filter(member => member.id !== memberId),
+    };
+
+    // Update state
+    setGroups(groups.map(g => (g.id === groupId ? updatedGroup : g)));
+    setSelectedGroup(updatedGroup);
+
+    toast("The member has been removed from this group.");
+  };
+
+  const handleAddMembersSubmit = (groupId: string, memberIds: string[]) => {
+    // Find the group
+    const group = groups.find(g => g.id === groupId);
+    if (!group || memberIds.length === 0) return;
+
+    // Get the new members
+    const newMembers = MOCK_FRIENDS.filter(
+      friend =>
+        memberIds.includes(friend.id) &&
+        !group.members.some(m => m.id === friend.id),
+    );
+
+    // Add the new members to the group
+    const updatedGroup = {
+      ...group,
+      memberCount: group.memberCount + newMembers.length,
+      members: [...group.members, ...newMembers],
+    };
+
+    // Update state
+    setGroups(groups.map(g => (g.id === groupId ? updatedGroup : g)));
+    setSelectedGroup(updatedGroup);
+    setIsAddMembersDialogOpen(false);
+
+    toast(
+      `${newMembers.length} ${newMembers.length === 1 ? "member has" : "members have"} been added to the group.`,
+    );
+  };
+
+  const handleDeleteGroup = (groupId: string) => {
+    const group = groups.find(g => g.id === groupId);
+    if (group) {
+      setSelectedGroup(group);
+      setIsDeleteGroupDialogOpen(true);
+    }
+  };
+
+  const handleConfirmDeleteGroup = (groupId: string) => {
+    // Remove the group
+    setGroups(groups.filter(group => group.id !== groupId));
+    setIsDeleteGroupDialogOpen(false);
+
+    toast("The group has been permanently deleted.");
+  };
+
+  const handleInviteGroupToEvent = (groupId: string) => {
+    const group = groups.find(g => g.id === groupId);
+    if (!group) return;
+
+    console.log(`Inviting group "${group.name}" to event`);
+
+    toast(`Redirecting to event creation with ${group.name} selected...`);
+
+    // In a real app, this would navigate to the event creation page with the group pre-selected
+  };
+
+  const handleShareGroup = (groupId: string) => {
+    const group = groups.find(g => g.id === groupId);
+    if (!group) return;
+
+    console.log(`Sharing group "${group.name}"`);
+
+    // In a real app, this would open a share dialog or copy a link to clipboard
+    toast("A link to join this group has been copied to your clipboard.");
+  };
+
+  // Location sharing handlers
+  const handleLocationSettingsChange = (newSettings: LocationSettings) => {
+    setLocationSettings(newSettings);
+    console.log("Location settings updated:", newSettings);
+  };
+
+  const handleSaveLocationSettings = (settings: LocationSettings) => {
+    // In a real app, this would call an API to save the settings
+    console.log("Saving location settings:", settings);
+
+    toast("Your location sharing settings have been updated.");
   };
 
   return (
@@ -254,66 +280,24 @@ const FriendsPage = () => {
               Create Group
             </Button>
 
-            <Sheet>
-              <SheetTrigger asChild>
-                <Button>
-                  <UserPlus className="h-4 w-4 mr-2" />
-                  Add Friend
-                </Button>
-              </SheetTrigger>
-              <SheetContent>
-                <SheetHeader>
-                  <SheetTitle>Add a Friend</SheetTitle>
-                  <SheetDescription>
-                    Send a friend request to connect with someone on LocalLens
-                  </SheetDescription>
-                </SheetHeader>
-                <div className="mt-6 space-y-4">
-                  <div className="space-y-2">
-                    <label htmlFor="username" className="text-sm font-medium">
-                      Username or Email
-                    </label>
-                    <div className="relative">
-                      <Input
-                        id="username"
-                        placeholder="e.g. john_doe or john@example.com"
-                        className="pl-10"
-                      />
-                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                    </div>
-                  </div>
-
-                  <Button
-                    className="w-full"
-                    onClick={() => handleSendFriendRequest("username")}
-                  >
-                    Send Friend Request
-                  </Button>
-
-                  <Separator />
-
-                  <div className="space-y-2">
-                    <h3 className="text-sm font-medium">QR Code</h3>
-                    <p className="text-sm text-gray-500">
-                      Have your friend scan your unique QR code to connect
-                    </p>
-                    <div className="bg-gray-100 aspect-square rounded-lg flex items-center justify-center p-4">
-                      <div className="w-48 h-48 bg-gray-300 rounded-md flex items-center justify-center">
-                        <p className="text-gray-600 text-sm">
-                          QR Code Placeholder
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex justify-center">
-                      <Button variant="outline" size="sm">
-                        <Share className="h-4 w-4 mr-2" />
-                        Share Profile Link
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              </SheetContent>
-            </Sheet>
+            <Button onClick={() => setIsAddFriendDialogOpen(true)}>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="h-4 w-4 mr-2"
+              >
+                <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                <circle cx="8.5" cy="7" r="4" />
+                <line x1="20" y1="8" x2="20" y2="14" />
+                <line x1="23" y1="11" x2="17" y2="11" />
+              </svg>
+              Add Friend
+            </Button>
           </div>
         </div>
 
@@ -328,482 +312,121 @@ const FriendsPage = () => {
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
         </div>
 
-        <Tabs defaultValue="friends">
+        <Tabs
+          defaultValue="friends"
+          value={activeTab}
+          onValueChange={setActiveTab}
+        >
           <TabsList className="mb-6">
             <TabsTrigger value="friends">Friends</TabsTrigger>
-            <TabsTrigger value="pending">Pending</TabsTrigger>
+            <TabsTrigger value="pending">
+              Pending
+              {MOCK_PENDING_REQUESTS.length > 0 && (
+                <span className="ml-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-indigo-100 text-xs font-medium text-indigo-700">
+                  {MOCK_PENDING_REQUESTS.length}
+                </span>
+              )}
+            </TabsTrigger>
             <TabsTrigger value="groups">Groups</TabsTrigger>
             <TabsTrigger value="location">Location Sharing</TabsTrigger>
           </TabsList>
 
           <TabsContent value="friends">
-            {filteredFriends.length === 0 ? (
-              <div className="text-center py-12 bg-gray-50 rounded-lg">
-                <User className="mx-auto h-12 w-12 text-gray-400" />
-                <h3 className="mt-2 text-lg font-medium">No friends found</h3>
-                <p className="mt-1 text-gray-500">
-                  Try adjusting your search or add new friends
-                </p>
-                <Button className="mt-4" asChild>
-                  <Sheet>
-                    <SheetTrigger asChild>
-                      <Button>Add Friend</Button>
-                    </SheetTrigger>
-                    {/* Sheet content would be here (same as above) */}
-                  </Sheet>
-                </Button>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {filteredFriends.map(friend => (
-                  <Card key={friend.id} className="overflow-hidden">
-                    <CardHeader className="pb-2">
-                      <div className="flex justify-between items-start">
-                        <div className="flex items-center gap-3">
-                          <Avatar className="h-10 w-10">
-                            <AvatarImage src={friend.imageUrl} />
-                            <AvatarFallback>
-                              <User className="h-6 w-6" />
-                            </AvatarFallback>
-                          </Avatar>
-                          <div>
-                            <CardTitle className="text-base">
-                              {friend.name}
-                            </CardTitle>
-                            <p className="text-sm text-gray-500">
-                              @{friend.username}
-                            </p>
-                          </div>
-                        </div>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon">
-                              <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                width="16"
-                                height="16"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth="2"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                              >
-                                <circle cx="12" cy="12" r="1" />
-                                <circle cx="12" cy="5" r="1" />
-                                <circle cx="12" cy="19" r="1" />
-                              </svg>
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem
-                              onClick={() => setSelectedFriendId(friend.id)}
-                            >
-                              View Profile
-                            </DropdownMenuItem>
-                            <DropdownMenuItem>Send Message</DropdownMenuItem>
-                            <DropdownMenuItem>Invite to Event</DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem
-                              onClick={() => handleRemoveFriend(friend.id)}
-                              className="text-red-600"
-                            >
-                              Remove Friend
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </div>
-                    </CardHeader>
-                    <CardContent className="pb-3">
-                      <div className="flex items-center text-sm text-gray-500 mb-1">
-                        <MapPin className="h-4 w-4 mr-1" />
-                        <span>{friend.location}</span>
-                      </div>
-                      <div className="flex items-center text-sm mb-2">
-                        {friend.isOnline ? (
-                          <span className="flex items-center text-green-600">
-                            <span className="h-2 w-2 bg-green-500 rounded-full mr-1.5" />
-                            Online
-                          </span>
-                        ) : (
-                          <span className="flex items-center text-gray-500">
-                            <Clock className="h-3.5 w-3.5 mr-1" />
-                            Last active {formatTimeAgo(friend.lastActive)}
-                          </span>
-                        )}
-                      </div>
-                    </CardContent>
-                    <CardFooter className="bg-gray-50 px-4 py-3 flex justify-between items-center">
-                      {friend.isSharingLocation ? (
-                        <Badge
-                          variant="outline"
-                          className="flex items-center text-green-600 bg-green-50 border-green-200"
-                        >
-                          <MapPin className="h-3 w-3 mr-1" />
-                          Sharing location
-                        </Badge>
-                      ) : (
-                        <Badge
-                          variant="outline"
-                          className="flex items-center text-gray-500"
-                        >
-                          <MapPin className="h-3 w-3 mr-1" />
-                          Not sharing
-                        </Badge>
-                      )}
-                      <Button variant="outline" size="sm">
-                        Message
-                      </Button>
-                    </CardFooter>
-                  </Card>
-                ))}
-              </div>
-            )}
+            <FriendsList
+              friends={MOCK_FRIENDS}
+              filteredFriends={filteredFriends}
+              searchQuery={searchQuery}
+              onRemoveFriend={handleRemoveFriend}
+              onViewProfile={handleViewProfile}
+              onAddFriendClick={() => setIsAddFriendDialogOpen(true)}
+            />
           </TabsContent>
 
           <TabsContent value="pending">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {MOCK_PENDING_REQUESTS.map(request => (
-                <Card key={request.id} className="overflow-hidden">
-                  <CardHeader className="pb-2">
-                    <div className="flex justify-between items-start">
-                      <div className="flex items-center gap-3">
-                        <Avatar className="h-10 w-10">
-                          <AvatarImage src={request.imageUrl} />
-                          <AvatarFallback>
-                            <User className="h-6 w-6" />
-                          </AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <CardTitle className="text-base flex items-center gap-2">
-                            {request.name}
-                            <Badge
-                              variant={
-                                request.direction === "incoming"
-                                  ? "secondary"
-                                  : "outline"
-                              }
-                            >
-                              {request.direction === "incoming"
-                                ? "Incoming"
-                                : "Sent"}
-                            </Badge>
-                          </CardTitle>
-                          <p className="text-sm text-gray-500">
-                            @{request.username}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="pb-3">
-                    <div className="flex items-center text-sm text-gray-500 mb-1">
-                      <MapPin className="h-4 w-4 mr-1" />
-                      <span>{request.location}</span>
-                    </div>
-                    <div className="flex items-center text-sm text-gray-500 mb-2">
-                      <Clock className="h-4 w-4 mr-1" />
-                      <span>
-                        {request.direction === "incoming" ? "Received" : "Sent"}{" "}
-                        {formatTimeAgo(request.sentAt)}
-                      </span>
-                    </div>
-                  </CardContent>
-                  <CardFooter className="bg-gray-50 px-4 py-3 flex justify-end items-center gap-2">
-                    {request.direction === "incoming" ? (
-                      <>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleRejectRequest(request.id)}
-                        >
-                          <X className="h-4 w-4 mr-1" />
-                          Decline
-                        </Button>
-                        <Button
-                          size="sm"
-                          onClick={() => handleAcceptRequest(request.id)}
-                        >
-                          <Check className="h-4 w-4 mr-1" />
-                          Accept
-                        </Button>
-                      </>
-                    ) : (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleCancelRequest(request.id)}
-                      >
-                        <X className="h-4 w-4 mr-1" />
-                        Cancel Request
-                      </Button>
-                    )}
-                  </CardFooter>
-                </Card>
-              ))}
-            </div>
+            <PendingRequestsList
+              requests={MOCK_PENDING_REQUESTS}
+              onAcceptRequest={handleAcceptRequest}
+              onRejectRequest={handleRejectRequest}
+              onCancelRequest={handleCancelRequest}
+            />
           </TabsContent>
 
           <TabsContent value="groups">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {MOCK_FRIEND_GROUPS.map(group => (
-                <Card key={group.id} className="overflow-hidden">
-                  <CardHeader className="pb-3">
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <CardTitle className="text-lg">{group.name}</CardTitle>
-                        <p className="text-sm text-gray-500">
-                          {group.memberCount} members
-                        </p>
-                      </div>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon">
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              width="16"
-                              height="16"
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              stroke="currentColor"
-                              strokeWidth="2"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                            >
-                              <circle cx="12" cy="12" r="1" />
-                              <circle cx="12" cy="5" r="1" />
-                              <circle cx="12" cy="19" r="1" />
-                            </svg>
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem>View All Members</DropdownMenuItem>
-                          <DropdownMenuItem>Add Members</DropdownMenuItem>
-                          <DropdownMenuItem>Edit Group</DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem className="text-red-600">
-                            Delete Group
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="pb-4">
-                    <div className="flex -space-x-2 overflow-hidden">
-                      {group.members.map(member => (
-                        <Avatar
-                          key={member.id}
-                          className="h-8 w-8 border-2 border-white"
-                        >
-                          <AvatarImage src={member.imageUrl} />
-                          <AvatarFallback>
-                            <User className="h-4 w-4" />
-                          </AvatarFallback>
-                        </Avatar>
-                      ))}
-                      {group.memberCount > group.members.length && (
-                        <div className="flex items-center justify-center h-8 w-8 rounded-full bg-gray-200 border-2 border-white">
-                          <span className="text-xs font-medium">
-                            +{group.memberCount - group.members.length}
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                  </CardContent>
-                  <CardFooter className="bg-gray-50 px-4 py-3 flex justify-between items-center">
-                    <Button variant="outline" size="sm">
-                      <Plus className="h-4 w-4 mr-1" />
-                      Add
-                    </Button>
-                    <Button variant="default" size="sm">
-                      <Bell className="h-4 w-4 mr-1" />
-                      Invite to Event
-                    </Button>
-                  </CardFooter>
-                </Card>
-              ))}
-            </div>
+            <FriendGroupsList
+              groups={groups}
+              onViewGroup={handleViewGroup}
+              onAddMembersToGroup={handleAddMembersToGroup}
+              onEditGroup={handleEditGroup}
+              onDeleteGroup={handleDeleteGroup}
+              onInviteGroupToEvent={handleInviteGroupToEvent}
+              onCreateGroupClick={() => setIsCreateGroupDialogOpen(true)}
+            />
           </TabsContent>
 
           <TabsContent value="location">
-            <Card>
-              <CardHeader>
-                <CardTitle>Location Sharing Settings</CardTitle>
-                <CardDescription>
-                  Manage how you share your location with friends on LocalLens
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <h3 className="text-base font-medium">Share My Location</h3>
-                    <p className="text-sm text-gray-500">
-                      Allow friends to see your location on the map
-                    </p>
-                  </div>
-                  <Switch
-                    checked={locationSharingEnabled}
-                    onCheckedChange={setLocationSharingEnabled}
-                  />
-                </div>
-
-                <Separator />
-
-                {locationSharingEnabled && (
-                  <>
-                    <div className="space-y-4">
-                      <h3 className="text-base font-medium">Share With</h3>
-                      <div className="space-y-3">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2">
-                            <User className="h-5 w-5 text-gray-500" />
-                            <span>All Friends</span>
-                          </div>
-                          <Switch defaultChecked={false} />
-                        </div>
-                        {MOCK_FRIEND_GROUPS.map(group => (
-                          <div
-                            key={group.id}
-                            className="flex items-center justify-between"
-                          >
-                            <div className="flex items-center gap-2">
-                              <Group className="h-5 w-5 text-gray-500" />
-                              <span>{group.name}</span>
-                            </div>
-                            <Switch defaultChecked={group.id === "1"} />
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    <Separator />
-
-                    <div className="space-y-4">
-                      <h3 className="text-base font-medium">
-                        Privacy Settings
-                      </h3>
-                      <div className="space-y-3">
-                        <div className="flex items-center justify-between">
-                          <div className="space-y-0.5">
-                            <h4 className="text-sm font-medium">
-                              Location History
-                            </h4>
-                            <p className="text-xs text-gray-500">
-                              Keep history of your location
-                            </p>
-                          </div>
-                          <Switch defaultChecked={false} />
-                        </div>
-                        <div className="flex items-center justify-between">
-                          <div className="space-y-0.5">
-                            <h4 className="text-sm font-medium">
-                              Location Precision
-                            </h4>
-                            <p className="text-xs text-gray-500">
-                              Share exact location vs approximate area
-                            </p>
-                          </div>
-                          <Switch defaultChecked />
-                        </div>
-                        <div className="flex items-center justify-between">
-                          <div className="space-y-0.5">
-                            <h4 className="text-sm font-medium">
-                              Background Tracking
-                            </h4>
-                            <p className="text-xs text-gray-500">
-                              Update location even when app is closed
-                            </p>
-                          </div>
-                          <Switch defaultChecked={false} />
-                        </div>
-                      </div>
-                    </div>
-                  </>
-                )}
-              </CardContent>
-              <CardFooter className="flex justify-end gap-2 bg-gray-50 px-6 py-4">
-                <Button variant="outline">Reset to Default</Button>
-                <Button>Save Settings</Button>
-              </CardFooter>
-            </Card>
+            <LocationSharingSettings
+              settings={locationSettings}
+              groups={groups}
+              onSettingsChanged={handleLocationSettingsChange}
+              onSaveSettings={handleSaveLocationSettings}
+            />
           </TabsContent>
         </Tabs>
       </div>
 
-      {/* Create Group Dialog */}
-      <Dialog
-        open={isCreateGroupDialogOpen}
+      {/* Friend Dialogs */}
+      <AddFriendDialog
+        isOpen={isAddFriendDialogOpen}
+        onOpenChange={setIsAddFriendDialogOpen}
+        onSendRequest={handleSendFriendRequest}
+      />
+
+      {/* Group Management Dialogs */}
+      <CreateGroupDialog
+        isOpen={isCreateGroupDialogOpen}
         onOpenChange={setIsCreateGroupDialogOpen}
-      >
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Create Friend Group</DialogTitle>
-            <DialogDescription>
-              Create a new group to organize your friends and share with them
-              easily.
-            </DialogDescription>
-          </DialogHeader>
+        friends={MOCK_FRIENDS}
+        onCreateGroup={handleCreateGroup}
+      />
 
-          <div className="space-y-4 py-2">
-            <div className="space-y-2">
-              <label htmlFor="group-name" className="text-sm font-medium">
-                Group Name
-              </label>
-              <Input
-                id="group-name"
-                placeholder="e.g. Close Friends, Work Colleagues"
-                value={newGroupName}
-                onChange={e => setNewGroupName(e.target.value)}
-              />
-            </div>
+      <ViewGroupDialog
+        isOpen={isViewGroupDialogOpen}
+        onOpenChange={setIsViewGroupDialogOpen}
+        group={selectedGroup}
+        onEditClick={groupId => {
+          setIsViewGroupDialogOpen(false);
+          handleEditGroup(groupId);
+        }}
+        onAddMembersClick={groupId => {
+          setIsViewGroupDialogOpen(false);
+          handleAddMembersToGroup(groupId);
+        }}
+        onInviteToEventClick={handleInviteGroupToEvent}
+        onShareGroupClick={handleShareGroup}
+      />
 
-            <div className="space-y-2">
-              <span className="text-sm font-medium">Select Friends</span>
-              <div className="border rounded-md max-h-60 overflow-y-auto">
-                {MOCK_FRIENDS.map(friend => (
-                  <div
-                    key={friend.id}
-                    className="flex items-center justify-between p-2 hover:bg-gray-50"
-                  >
-                    <div className="flex items-center gap-2">
-                      <Avatar className="h-8 w-8">
-                        <AvatarImage src={friend.imageUrl} />
-                        <AvatarFallback>
-                          <User className="h-4 w-4" />
-                        </AvatarFallback>
-                      </Avatar>
-                      <span>{friend.name}</span>
-                    </div>
-                    <input
-                      type="checkbox"
-                      checked={selectedFriendsForGroup.includes(friend.id)}
-                      onChange={() => toggleFriendSelection(friend.id)}
-                      className="h-4 w-4 rounded border-gray-300 text-primary"
-                    />
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
+      <AddMembersDialog
+        isOpen={isAddMembersDialogOpen}
+        onOpenChange={setIsAddMembersDialogOpen}
+        group={selectedGroup}
+        friends={MOCK_FRIENDS}
+        onAddMembers={handleAddMembersSubmit}
+      />
 
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setIsCreateGroupDialogOpen(false)}
-            >
-              Cancel
-            </Button>
-            <Button
-              onClick={handleCreateGroup}
-              disabled={
-                !newGroupName.trim() || selectedFriendsForGroup.length === 0
-              }
-            >
-              Create Group
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <EditGroupDialog
+        isOpen={isEditGroupDialogOpen}
+        onOpenChange={setIsEditGroupDialogOpen}
+        group={selectedGroup}
+        onEditGroup={handleEditGroupSubmit}
+        onRemoveMember={handleRemoveMemberFromGroup}
+      />
+
+      <DeleteGroupDialog
+        isOpen={isDeleteGroupDialogOpen}
+        onOpenChange={setIsDeleteGroupDialogOpen}
+        group={selectedGroup}
+        onConfirmDelete={handleConfirmDeleteGroup}
+      />
     </div>
   );
 };
