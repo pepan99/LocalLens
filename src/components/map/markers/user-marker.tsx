@@ -9,24 +9,24 @@ import { Card, CardContent, CardFooter, CardHeader } from "../../ui/card";
 import "./user-marker.css";
 
 // Create custom icon for user markers
-const createUserIcon = (imageUrl?: string) => {
+const createUserIcon = (_imageUrl?: string) => {
   const defaultIcon = `
 <div style="background-color: #3b82f6; width: 36px; height: 36px; border-radius: 50%; display: flex; justify-content: center; align-items: center; border: 3px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.25);">
 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
 </div>
 `;
 
-  const customIcon = imageUrl
-    ? `
-<div style="width: 36px; height: 36px; border-radius: 50%; border: 3px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.25); overflow: hidden;">
-<img src="${imageUrl}" style="width: 100%; height: 100%; object-fit: cover;" />
-</div>
-`
-    : defaultIcon;
+  //   const customIcon = imageUrl
+  //     ? `
+  // <div style="width: 36px; height: 36px; border-radius: 50%; border: 3px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.25); overflow: hidden;">
+  // <img src="${imageUrl}" style="width: 100%; height: 100%; object-fit: cover;" />
+  // </div>
+  // `
+  //     : defaultIcon;
 
   return L.divIcon({
     className: "custom-user-marker",
-    html: customIcon,
+    html: defaultIcon,
     iconSize: [36, 36],
     iconAnchor: [18, 18],
   });

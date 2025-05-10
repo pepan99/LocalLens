@@ -2,6 +2,7 @@
 
 import {
   getUserRSVPStatus,
+  isUserAttending,
   RSVPManager,
   RSVPStatusEnum,
 } from "@/components/events/rsvp";
@@ -15,7 +16,16 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import L from "leaflet";
-import { Calendar, MapPin, Star, Users } from "lucide-react";
+import {
+  Calendar,
+  Check,
+  Clock,
+  HelpCircle,
+  MapPin,
+  Star,
+  Users,
+  X,
+} from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Marker, Popup } from "react-leaflet";
@@ -48,15 +58,15 @@ const createEventIcon = (category: string, rsvpStatus: RSVPStatusEnum) => {
   // RSVP status indicator
   let rsvpIndicator = "";
   if (rsvpStatus === RSVPStatusEnum.GOING) {
-    rsvpIndicator = `<div style="position: absolute; top: -8px; right: -8px; width: 20px; height: 20px; background-color: #10b981; border-radius: 50%; border: 2px solid white; display: flex; justify-content: center; align-items: center;">
+    rsvpIndicator = `<div style="position: absolute; top: -5px; right: -5px; width: 16px; height: 16px; background-color: #10b981; border-radius: 50%; border: 2px solid white; display: flex; justify-content: center; align-items: center;">
                       <span style="color: white; font-size: 10px;">✓</span>
                      </div>`;
   } else if (rsvpStatus === RSVPStatusEnum.MAYBE) {
-    rsvpIndicator = `<div style="position: absolute; top: -8px; right: -8px; width: 20px; height: 20px; background-color: #f59e0b; border-radius: 50%; border: 2px solid white; display: flex; justify-content: center; align-items: center;">
+    rsvpIndicator = `<div style="position: absolute; top: -5px; right: -5px; width: 16px; height: 16px; background-color: #f59e0b; border-radius: 50%; border: 2px solid white; display: flex; justify-content: center; align-items: center;">
                       <span style="color: white; font-size: 10px;">?</span>
                      </div>`;
   } else if (rsvpStatus === RSVPStatusEnum.NOT_GOING) {
-    rsvpIndicator = `<div style="position: absolute; top: -8px; right: -8px; width: 20px; height: 20px; background-color: #ef4444; border-radius: 50%; border: 2px solid white; display: flex; justify-content: center; align-items: center;">
+    rsvpIndicator = `<div style="position: absolute; top: -5px; right: -5px; width: 16px; height: 16px; background-color: #ef4444; border-radius: 50%; border: 2px solid white; display: flex; justify-content: center; align-items: center;">
                       <span style="color: white; font-size: 10px;">✕</span>
                      </div>`;
   }
@@ -104,26 +114,48 @@ const EventMarker = ({ event, onRSVPChange }: EventMarkerProps) => {
     RSVPStatusEnum.NO_RESPONSE,
   );
   const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const [marker, setMarker] = useState<L.Marker | null>(null);
 
-  // Get the current RSVP status when component mounts or popup opens
+  // Get the current RSVP status when component mounts and when RSVP changes
   useEffect(() => {
-    if (isPopupOpen) {
-      const status = getUserRSVPStatus(event.id);
-      setRsvpStatus(status);
+    const status = getUserRSVPStatus(event.id);
+    setRsvpStatus(status);
+
+    // Update marker icon if marker ref exists
+    if (marker) {
+      marker.setIcon(createEventIcon(event.category, status));
     }
-  }, [event.id, isPopupOpen]);
+  }, [event.id, event.category, marker]);
 
   // Handle RSVP status change
   const handleRSVPChange = (eventId: string, status: RSVPStatusEnum) => {
     setRsvpStatus(status);
+
+    // Update the marker icon with the new status
+    if (marker) {
+      marker.setIcon(createEventIcon(event.category, status));
+    }
+
     if (onRSVPChange) {
       onRSVPChange(eventId, status);
+    }
+  };
+
+  // Handle marker reference
+  const setMarkerRef = (ref: L.Marker) => {
+    setMarker(ref);
+    // Set initial icon with RSVP status once we have the marker reference
+    if (ref) {
+      ref.setIcon(createEventIcon(event.category, rsvpStatus));
     }
   };
 
   // Check if popup is open/closed
   const handlePopupOpen = () => {
     setIsPopupOpen(true);
+    // Refresh RSVP status when popup opens
+    const status = getUserRSVPStatus(event.id);
+    setRsvpStatus(status);
   };
 
   const handlePopupClose = () => {
@@ -134,6 +166,7 @@ const EventMarker = ({ event, onRSVPChange }: EventMarkerProps) => {
     <Marker
       position={event.coordinates}
       icon={createEventIcon(event.category, rsvpStatus)}
+      ref={setMarkerRef}
       eventHandlers={{
         popupopen: handlePopupOpen,
         popupclose: handlePopupClose,
