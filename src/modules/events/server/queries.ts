@@ -1,9 +1,9 @@
 import { auth } from "@/auth";
 import { db } from "@/db";
+import { eventAttendance } from "@/db/schemas/event-attendance";
 import { events } from "@/db/schemas/events";
-import { eventAttendance } from "@/db/schemas/schema";
 import { EventType } from "@/modules/events/types/events";
-import { and, count, desc, eq, sql } from "drizzle-orm";
+import { and, count, desc, eq, isNull, sql } from "drizzle-orm";
 import { mapEventsToEventTypes, mapEventToEventType } from "..";
 
 /**
@@ -17,8 +17,23 @@ export const getEvents = async (
     const session = await auth();
     const userId = session?.user?.id;
 
+    // Get events
     // Start with a base query
-    const baseQuery = db.select().from(events);
+    const baseQuery = db
+      .select({
+        event: events,
+        userAttendance: eventAttendance,
+      })
+      .from(events)
+      .leftJoin(
+        eventAttendance,
+        and(
+          eq(events.id, eventAttendance.eventId),
+          userId
+            ? eq(eventAttendance.userId, userId)
+            : isNull(eventAttendance.userId),
+        ),
+      );
 
     // Apply filter conditions based on user authentication
     let filteredQuery;
@@ -38,7 +53,9 @@ export const getEvents = async (
       .limit(limit)
       .offset((page - 1) * limit);
 
-    return mapEventsToEventTypes(await finalQuery);
+    const results = await finalQuery;
+
+    return mapEventsToEventTypes(results);
   } catch (error) {
     console.error("Error fetching events:", error);
     return [];
@@ -55,13 +72,26 @@ export const getUserEvents = async (): Promise<EventType[]> => {
       return [];
     }
 
-    return mapEventsToEventTypes(
-      await db
-        .select()
-        .from(events)
-        .where(eq(events.creatorId, session.user.id))
-        .orderBy(desc(events.date)),
-    );
+    const userId = session.user.id;
+
+    // Get events created by the user with their attendance status
+    const results = await db
+      .select({
+        event: events,
+        userAttendance: eventAttendance,
+      })
+      .from(events)
+      .leftJoin(
+        eventAttendance,
+        and(
+          eq(events.id, eventAttendance.eventId),
+          eq(eventAttendance.userId, userId),
+        ),
+      )
+      .where(eq(events.creatorId, userId))
+      .orderBy(desc(events.date));
+
+    return mapEventsToEventTypes(results);
   } catch (error) {
     console.error("Error fetching user events:", error);
     return [];
@@ -78,24 +108,38 @@ export const getEventById = async (
     const session = await auth();
     const userId = session?.user?.id;
 
-    const [event] = await db
-      .select()
-      .from(events)
-      .where(eq(events.id, eventId));
+    // Get the event with attendance status if user is logged in
+    const query = db
+      .select({
+        event: events,
+        userAttendance: userId
+          ? eventAttendance
+          : sql<null>`NULL`.as("userAttendance"),
+      })
+      .from(events);
 
-    if (!event) {
+    // Add left join for attendance if user is logged in
+    let asdf;
+    if (userId) {
+      asdf = query.leftJoin(
+        eventAttendance,
+        and(
+          eq(events.id, eventAttendance.eventId),
+          eq(eventAttendance.userId, userId),
+        ),
+      );
+    }
+
+    // Apply where clause
+    const results = await (asdf ?? query).where(eq(events.id, eventId));
+
+    if (results.length === 0) {
       return null;
     }
 
-    // Check if the user has permission to view this event
-    if (event.isPrivate && event.creatorId !== userId) {
-      return null;
-    }
+    const result = results[0];
 
-    if (event !== null) {
-      return mapEventToEventType(event);
-    }
-    return null;
+    return mapEventToEventType(result);
   } catch (error) {
     console.error("Error fetching event:", error);
     return null;
@@ -115,21 +159,36 @@ export const getNearbyEvents = async (
     const session = await auth();
     const userId = session?.user?.id;
 
-    // This is a simplified approach. For production, you'd want a more sophisticated
-    // geospatial query, possibly using a spatial index or external service.
-    // Here we're using a basic bounding box approach.
-
-    // Convert radius to approximate latitude/longitude degrees
-    // This is a rough approximation as 1 degree of latitude is ~111km
     const latDelta = radiusInKm / 111;
     const lonDelta = radiusInKm / (111 * Math.cos(latitude * (Math.PI / 180)));
 
-    const query = db.select().from(events);
-    // If user is logged in, include both public events and their private events
+    // Build query with attendance data if user is logged in
+    const query = db
+      .select({
+        event: events,
+        userAttendance: userId
+          ? eventAttendance
+          : sql<null>`NULL`.as("userAttendance"),
+      })
+      .from(events);
 
+    // Add left join for attendance if user is logged in
+    let asdf;
+    if (userId) {
+      asdf = query.leftJoin(
+        eventAttendance,
+        and(
+          eq(events.id, eventAttendance.eventId),
+          eq(eventAttendance.userId, userId),
+        ),
+      );
+    }
+    asdf ??= query;
+
+    // Apply location and permission filters
     let filteredQuery;
     if (userId) {
-      filteredQuery = query.where(
+      filteredQuery = asdf.where(
         and(
           sql`${events.latitude} BETWEEN ${latitude - latDelta} AND ${latitude + latDelta}`,
           sql`${events.longitude} BETWEEN ${longitude - lonDelta} AND ${longitude + lonDelta}`,
@@ -138,7 +197,7 @@ export const getNearbyEvents = async (
       );
     } else {
       // If not logged in, only include public events
-      filteredQuery = query.where(
+      filteredQuery = asdf.where(
         and(
           sql`${events.latitude} BETWEEN ${latitude - latDelta} AND ${latitude + latDelta}`,
           sql`${events.longitude} BETWEEN ${longitude - lonDelta} AND ${longitude + lonDelta}`,
@@ -147,9 +206,9 @@ export const getNearbyEvents = async (
       );
     }
 
-    const finalQuery = filteredQuery.orderBy(desc(events.date)).limit(limit);
+    const results = await filteredQuery.orderBy(desc(events.date)).limit(limit);
 
-    return mapEventsToEventTypes(await finalQuery);
+    return mapEventsToEventTypes(results);
   } catch (error) {
     console.error("Error fetching nearby events:", error);
     return [];
@@ -170,38 +229,59 @@ export const searchEvents = async (
     // Note: SQLite's LIKE is case insensitive by default
     const searchPattern = `%${searchTerm}%`;
 
-    const query = db.select().from(events);
+    // Build query with attendance data if user is logged in
+    const query = db
+      .select({
+        event: events,
+        userAttendance: userId
+          ? eventAttendance
+          : sql<null>`NULL`.as("userAttendance"),
+      })
+      .from(events);
 
-    // If user is logged in, include both public events and their private events
+    // Add left join for attendance if user is logged in
+    let asdf;
+    if (userId) {
+      asdf = query.leftJoin(
+        eventAttendance,
+        and(
+          eq(events.id, eventAttendance.eventId),
+          eq(eventAttendance.userId, userId),
+        ),
+      );
+    }
+    asdf ??= query;
+
+    // Apply search and permission filters
     let filteredQuery;
     if (userId) {
-      filteredQuery = query.where(
+      filteredQuery = asdf.where(
         and(
           sql`(
             ${events.title} LIKE ${searchPattern} OR
             ${events.location} LIKE ${searchPattern} OR
             ${events.description} LIKE ${searchPattern}
-			)`,
+          )`,
           sql`${events.isPrivate} = 0 OR ${events.creatorId} = ${userId}`,
         ),
       );
     } else {
       // If not logged in, only include public events
-      filteredQuery = query.where(
+      filteredQuery = asdf.where(
         and(
           sql`(
             ${events.title} LIKE ${searchPattern} OR
             ${events.location} LIKE ${searchPattern} OR
             ${events.description} LIKE ${searchPattern}
-			)`,
+          )`,
           eq(events.isPrivate, false),
         ),
       );
     }
 
-    const finalQuery = filteredQuery.orderBy(desc(events.date)).limit(limit);
+    const results = await filteredQuery.orderBy(desc(events.date)).limit(limit);
 
-    return mapEventsToEventTypes(await finalQuery);
+    return mapEventsToEventTypes(results);
   } catch (error) {
     console.error("Error searching events:", error);
     return [];
@@ -223,4 +303,44 @@ export const getUserEventStats = async (userId: string) => {
     createdEvents: createdEventsResult.count,
     attendedEvents: attendedEventsResult.count,
   };
+};
+/**
+ * Get all events the user is attending
+ */
+export const getAttendingEvents = async (
+  limit: number = 20,
+  page: number = 1,
+): Promise<EventType[]> => {
+  try {
+    const session = await auth();
+    const userId = session?.user?.id;
+
+    if (!userId) {
+      return [];
+    }
+
+    // Get events the user is attending
+    const results = await db
+      .select({
+        event: events,
+        userAttendance: eventAttendance,
+      })
+      .from(events)
+      .innerJoin(
+        eventAttendance,
+        and(
+          eq(events.id, eventAttendance.eventId),
+          eq(eventAttendance.userId, userId),
+          eq(eventAttendance.status, "going"),
+        ),
+      )
+      .orderBy(desc(events.date))
+      .limit(limit)
+      .offset((page - 1) * limit);
+
+    return mapEventsToEventTypes(results);
+  } catch (error) {
+    console.error("Error fetching attending events:", error);
+    return [];
+  }
 };

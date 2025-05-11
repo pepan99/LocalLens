@@ -1,12 +1,6 @@
 "use client";
 
-// RSVP Status Types
-export enum RSVPStatusEnum {
-  GOING = "going",
-  MAYBE = "maybe",
-  NOT_GOING = "not_going",
-  NO_RESPONSE = "no_response",
-}
+import { RSVPStatusEnum } from "@/db/schemas/schema";
 
 // RSVP Response Type
 export type RSVPResponse = {

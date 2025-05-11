@@ -1,10 +1,6 @@
 "use client";
 
-import {
-  getUserRSVPStatus,
-  RSVPManager,
-  RSVPStatusEnum,
-} from "@/components/events/rsvp";
+import { getUserRSVPStatus, RSVPManager } from "@/components/events/rsvp";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -14,7 +10,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { EventType } from "@/modules/events/types/events";
+import { EventType, RSVPStatusEnum } from "@/modules/events/types/events";
 import L from "leaflet";
 import { Calendar, MapPin, Star, Users } from "lucide-react";
 import Link from "next/link";

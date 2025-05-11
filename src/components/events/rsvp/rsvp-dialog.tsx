@@ -21,12 +21,13 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { RSVPStatusEnum } from "@/db/schemas/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CalendarCheck, CalendarClock, CalendarX } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { mockRSVPStore, RSVPStatusEnum } from "./utils";
+import { mockRSVPStore } from "./utils";
 
 // Schema for RSVP form
 const rsvpFormSchema = z.object({

@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { RSVPStatusEnum } from "../types/events";
 
 // Define the schema for event creation form
 export const createEventSchema = z.object({
@@ -32,11 +33,16 @@ export const createEventSchema = z.object({
 // Type for the form values
 export type CreateEventFormValues = z.infer<typeof createEventSchema>;
 
-// // Schema for RSVP form
-// const rsvpFormSchema = z.object({
-//   status: z.string(),
-//   guests: z.number().min(0).max(10).optional(),
-//   note: z.string().max(200).optional(),
-// });
+// Schema for RSVP form
+export const rsvpFormSchema = z.object({
+  status: z.enum([
+    RSVPStatusEnum.GOING,
+    RSVPStatusEnum.MAYBE,
+    RSVPStatusEnum.NOT_GOING,
+    RSVPStatusEnum.NO_RESPONSE,
+  ]),
+  guests: z.number().min(0).max(10).optional(),
+  note: z.string().max(200).optional(),
+});
 
-// type RSVPFormValues = z.infer<typeof rsvpFormSchema>;
+export type RSVPFormValues = z.infer<typeof rsvpFormSchema>;

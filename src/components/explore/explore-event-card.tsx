@@ -1,8 +1,8 @@
 "use client";
 
-import { RSVPManager, RSVPStatusEnum } from "@/components/events/rsvp";
+import { RSVPManager } from "@/components/events/rsvp";
 import { Button } from "@/components/ui/button";
-import { EventType } from "@/modules/events/types/events";
+import { EventType, RSVPStatusEnum } from "@/modules/events/types/events";
 import { Calendar, MapPin, Star, Users } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { THEME_COLOR } from "./utils";

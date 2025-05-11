@@ -1,10 +1,15 @@
+import { eventAttendance } from "@/db/schemas/event-attendance";
 import { events } from "@/db/schemas/events";
 import { InferSelectModel } from "drizzle-orm";
-import { EventType } from "./types/events";
+import { EventType, RSVPStatusEnum } from "./types/events";
 
-export const mapEventToEventType = (
-  event: InferSelectModel<typeof events>,
-): EventType => {
+export const mapEventToEventType = ({
+  event,
+  userAttendance,
+}: {
+  event: InferSelectModel<typeof events>;
+  userAttendance: InferSelectModel<typeof eventAttendance> | null;
+}): EventType => {
   return {
     id: event.id,
     creatorId: event.creatorId,
@@ -21,12 +26,22 @@ export const mapEventToEventType = (
     attendees: 0, // You may want to calculate this from a related table
     rating: 0, // You may want to calculate this from a related table
     imageUrl: event.imageUrl || null,
+    rsvp: userAttendance
+      ? {
+          note: userAttendance.note,
+          guests: userAttendance.guests,
+          status: userAttendance.status as RSVPStatusEnum,
+        }
+      : null,
   };
 };
 
 // Helper function to map multiple events
 export const mapEventsToEventTypes = (
-  eventArray: InferSelectModel<typeof events>[],
+  eventArray: {
+    event: InferSelectModel<typeof events>;
+    userAttendance: InferSelectModel<typeof eventAttendance> | null;
+  }[],
 ): EventType[] => {
   return eventArray.map(mapEventToEventType);
 };

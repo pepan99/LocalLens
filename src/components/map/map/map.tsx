@@ -5,9 +5,8 @@ import { MapContainer, TileLayer, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css"; // Must imported to make the leaflet work correctly
 import "leaflet/dist/leaflet.js"; // Must imported to make the leaflet work correctly
 
-import { RSVPStatusEnum } from "@/components/events/rsvp";
 import { Button } from "@/components/ui/button";
-import { EventType } from "@/modules/events/types/events";
+import { EventType, RSVPStatusEnum } from "@/modules/events/types/events";
 import { FriendType } from "@/types/friends";
 import { Compass, Locate, Minus, Plus } from "lucide-react";
 import { toast } from "sonner";

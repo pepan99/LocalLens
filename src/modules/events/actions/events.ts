@@ -3,12 +3,19 @@
 import { randomUUID } from "crypto";
 import { auth } from "@/auth";
 import { db } from "@/db";
+import { eventAttendance } from "@/db/schemas/event-attendance";
 import { events } from "@/db/schemas/events";
-import { eventAttendance, eventInvitations } from "@/db/schemas/schema";
+import { eventInvitations } from "@/db/schemas/schema";
 import { ActionResult } from "@/types/result";
 import { and, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
-import { CreateEventFormValues, createEventSchema } from "../schemas/schemas";
+import {
+  CreateEventFormValues,
+  createEventSchema,
+  rsvpFormSchema,
+  RSVPFormValues,
+} from "../schemas/schemas";
+import { getEventById } from "../server/queries";
 import { EventType } from "../types/events";
 
 /**
@@ -37,18 +44,10 @@ export const createEvent = async (
 
     // Insert the event into the database
     await db.insert(events).values({
+      ...eventData,
       id: randomUUID(),
-      title: eventData.title,
-      time: eventData.time,
-      date: eventData.date,
-      location: eventData.location,
-      description: eventData.description,
-      category: eventData.category,
-      capacity: eventData.capacity,
       latitude: coordinates[0],
       longitude: coordinates[1],
-      isPrivate: eventData.isPrivate,
-      imageUrl: eventData.imageUrl,
       creatorId: session.user.id,
     });
 
@@ -80,6 +79,16 @@ export const updateEvent = async (
       return { type: "error", message: "Not authenticated" };
     }
 
+    // Parse and validate the form data
+    const parsedData = createEventSchema.safeParse(updatedEvent);
+
+    if (!parsedData.success) {
+      console.error("Validation error:", parsedData.error);
+      return { type: "error", message: "Invalid event data" };
+    }
+
+    const eventData = parsedData.data;
+
     // Check if the event exists and is owned by the current user
     const [existingEvent] = await db
       .select()
@@ -95,32 +104,15 @@ export const updateEvent = async (
       };
     }
 
-    // Parse and validate the form data
-    const parsedData = createEventSchema.safeParse(updatedEvent);
-
-    if (!parsedData.success) {
-      console.error("Validation error:", parsedData.error);
-      return { type: "error", message: "Invalid event data" };
-    }
-
-    const eventData = parsedData.data;
-
     // Update the event
     await db
       .update(events)
       .set({
-        title: eventData.title,
-        time: eventData.time,
-        date: eventData.date,
-        location: eventData.location,
-        description: eventData.description,
-        category: eventData.category,
-        capacity: eventData.capacity,
+        ...eventData,
+        id: randomUUID(),
         latitude: coordinates[0],
         longitude: coordinates[1],
-        isPrivate: eventData.isPrivate,
-        imageUrl: eventData.imageUrl,
-        updatedAt: new Date(),
+        creatorId: session.user.id,
       })
       .where(eq(events.id, eventId));
 
@@ -184,69 +176,82 @@ export const deleteEvent = async (eventId: string): Promise<ActionResult> => {
   }
 };
 
-// /**
-//  * RSVP to an event (attend, maybe, not attend)
-//  */
-// export const respondToEvent = async (
-//   eventId: string,
-//   status: "going" | "maybe" | "not_going",
-// ): Promise<{ success: boolean } | ActionError> => {
-//   try {
-//     const session = await auth();
-//     if (!session?.user?.id) {
-//       return { error: "Not authenticated" };
-//     }
+/**
+ * RSVP to an event (attend, maybe, not attend)
+ */
+export const respondToEvent = async (
+  eventId: string,
+  status: RSVPFormValues,
+): Promise<ActionResult> => {
+  try {
+    const session = await auth();
+    if (!session?.user?.id) {
+      return { type: "error", message: "Not authenticated" };
+    }
+    const userId = session.user.id;
 
-//     const userId = session.user.id;
+    // Validate input
+    // Parse and validate the form data
+    const parsedData = rsvpFormSchema.safeParse(status);
 
-//     // Check if the event exists and user has permission to view it
-//     const event = await getEventById(eventId);
-//     if (!event) {
-//       return {
-//         error: "Event not found or you don't have permission to view it",
-//       };
-//     }
+    if (!parsedData.success) {
+      console.error("Validation error:", parsedData.error);
+      return { type: "error", message: "Invalid event data" };
+    }
 
-//     // Check if there's an existing response
-//     const [existingResponse] = await db
-//       .select()
-//       .from(eventAttendance)
-//       .where(
-//         and(
-//           eq(eventAttendance.eventId, eventId),
-//           eq(eventAttendance.userId, userId),
-//         ),
-//       );
+    const rsvp = parsedData.data;
 
-//     if (existingResponse) {
-//       // Update existing response
-//       await db
-//         .update(eventAttendance)
-//         .set({ status })
-//         .where(
-//           and(
-//             eq(eventAttendance.eventId, eventId),
-//             eq(eventAttendance.userId, userId),
-//           ),
-//         );
-//     } else {
-//       // Create new response
-//       await db.insert(eventAttendance).values({
-//         eventId,
-//         userId,
-//         status,
-//       });
-//     }
+    // Check if the event exists and user has permission to view it
+    const event = await getEventById(eventId);
+    if (!event) {
+      return {
+        type: "error",
+        message: "Event not found or you don't have permission to view it",
+      };
+    }
 
-//     // Revalidate the event page
-//     revalidatePath(`/events/${eventId}`);
+    // Check if there's an existing response
+    const [existingResponse] = await db
+      .select()
+      .from(eventAttendance)
+      .where(
+        and(
+          eq(eventAttendance.eventId, eventId),
+          eq(eventAttendance.userId, userId),
+        ),
+      );
 
-//     return { success: true };
-//   } catch (error) {
-//     console.error("Error responding to event:", error);
-//     return { error: "Failed to respond to event" };
-//   }
-// };
+    if (existingResponse) {
+      // Update existing response
+      await db
+        .update(eventAttendance)
+        .set({ status: rsvp.status, guests: rsvp.guests, note: rsvp.note })
+        .where(
+          and(
+            eq(eventAttendance.eventId, eventId),
+            eq(eventAttendance.userId, userId),
+          ),
+        );
+    } else {
+      // Create new response
+      await db.insert(eventAttendance).values({
+        userId: session.user.id,
+        eventId: eventId,
+        status: rsvp.status,
+        guests: rsvp.guests,
+        note: rsvp.note,
+      });
+    }
+
+    // Revalidate the event page
+    revalidatePath(`/events/${eventId}`);
+
+    return { type: "error", message: "Rsvp updated" };
+  } catch (error) {
+    console.error("Error responding to event:", error);
+    return { type: "error", message: "Failed to respond to event" };
+  }
+};
 
 // /**
 //  * Invite users to an event
