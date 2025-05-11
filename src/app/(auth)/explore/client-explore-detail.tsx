@@ -1,6 +1,5 @@
 "use client";
 
-import { RSVPStatusEnum } from "@/components/events/rsvp";
 import {
   EventsList,
   ExploreHeader,
@@ -10,7 +9,7 @@ import {
   FilterTab,
   FilterTabs,
 } from "@/components/explore";
-import { EventType } from "@/modules/events/types/events";
+import { EventType, RSVPStatusEnum } from "@/modules/events/types/events";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 
@@ -33,7 +32,7 @@ const ExploreEvents = ({ sourceEvents }: ExploreEventsProps) => {
 
     // Then apply custom filters
     if (filters.maxDistance > 0) {
-      toast.error("You need to provide your location to filter by distance.");
+      console.log("You need to provide your location to filter by distance.");
     }
 
     if (filters.categories.length > 0) {

@@ -33,5 +33,6 @@ export enum RSVPStatusEnum {
 export type AttendingUser = {
   id: string;
   name: string;
+  image: string | null;
   rsvp: RSVP;
 };

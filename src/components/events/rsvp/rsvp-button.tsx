@@ -1,17 +1,13 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { EventType, RSVPStatusEnum } from "@/modules/events/types/events";
 import { CalendarCheck, CalendarClock, CalendarX } from "lucide-react";
-import {
-  getRSVPStatusColor,
-  getRSVPStatusText,
-  getUserRSVPStatus,
-  RSVPStatusEnum,
-} from "./utils";
+import { getRSVPStatusColor, getRSVPStatusText } from "./utils";
 
 interface RSVPButtonProps {
-  eventId: string;
-  onOpenDialog: (eventId: string) => void;
+  event: EventType;
+  onOpenDialog: () => void;
   className?: string;
   variant?:
     | "default"
@@ -24,14 +20,13 @@ interface RSVPButtonProps {
 }
 
 const RSVPButton = ({
-  eventId,
+  event,
   onOpenDialog,
   className = "",
   variant = "default",
   size = "sm",
 }: RSVPButtonProps) => {
-  const status = getUserRSVPStatus(eventId);
-
+  const status = event.rsvp?.status ?? RSVPStatusEnum.NO_RESPONSE;
   // Get appropriate icon based on RSVP status
   const getStatusIcon = () => {
     switch (status) {
@@ -53,12 +48,13 @@ const RSVPButton = ({
     }
     return "outline" as const;
   };
+  console.log("RSVPButton status", event);
 
   return (
     <Button
       size={size}
       variant={getButtonVariant()}
-      onClick={() => onOpenDialog(eventId)}
+      onClick={() => onOpenDialog()}
       className={`flex items-center ${className}`}
     >
       {getStatusIcon()}

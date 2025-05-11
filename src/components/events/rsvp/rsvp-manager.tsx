@@ -1,12 +1,11 @@
 "use client";
 
-import { EventType } from "@/modules/events/types/events";
+import { respondToEvent } from "@/modules/events/actions/events";
+import { EventType, RSVPStatusEnum } from "@/modules/events/types/events";
 import { useState } from "react";
 import { toast } from "sonner";
 import RSVPButton from "./rsvp-button";
 import RSVPDialog from "./rsvp-dialog";
-import { RSVPService } from "./rsvp-service";
-import { RSVPStatusEnum } from "./utils";
 
 type RSVPManagerProps = {
   event: EventType;
@@ -51,7 +50,16 @@ const RSVPManager = ({
     setIsSubmitting(true);
 
     try {
-      await RSVPService.submitRSVP(eventId, status, guests || 0, note);
+      const res = await respondToEvent(eventId, {
+        status: status,
+        guests: guests,
+        note: note,
+      });
+
+      if (!res || res.type === "error") {
+        toast.error("Failed to submit your RSVP. Please try again.");
+        return;
+      }
 
       const message =
         status === RSVPStatusEnum.GOING
@@ -75,7 +83,7 @@ const RSVPManager = ({
   return (
     <>
       <RSVPButton
-        eventId={event.id}
+        event={event}
         onOpenDialog={handleOpenDialog}
         variant={buttonVariant}
         size={buttonSize}
@@ -85,7 +93,7 @@ const RSVPManager = ({
       <RSVPDialog
         isOpen={isDialogOpen}
         onClose={handleCloseDialog}
-        eventId={event.id}
+        event={event}
         eventTitle={eventTitle}
         onRSVP={handleRSVP}
       />

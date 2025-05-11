@@ -8,7 +8,9 @@ import { AttendingUser, RSVPStatusEnum } from "../types/events";
 /**
  * Get all users attending an event
  */
-export const getAttendingEvents = async (): Promise<AttendingUser[]> => {
+export const getAttendingUsers = async (
+  eventId: string,
+): Promise<AttendingUser[]> => {
   try {
     const session = await auth();
     const userId = session?.user?.id;
@@ -30,11 +32,14 @@ export const getAttendingEvents = async (): Promise<AttendingUser[]> => {
           eq(users.id, eventAttendance.userId),
           eq(eventAttendance.userId, userId),
         ),
-      );
+      )
+      .where(eq(eventAttendance.eventId, eventId))
+      .orderBy(users.name);
 
     return results.map(({ user, userAttendance }) => ({
       id: user.id,
       name: user.name ?? "Unknown",
+      image: user.image,
       rsvp: {
         status: userAttendance.status as RSVPStatusEnum,
         guests: userAttendance.guests,

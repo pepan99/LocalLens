@@ -6,9 +6,13 @@ import {
   EventHeader,
   EventInformation,
 } from "@/components/events/event-detail";
-import { RSVPAttendees, RSVPStatusEnum } from "@/components/events/rsvp";
+import { RSVPAttendees } from "@/components/events/rsvp";
 import { deleteEvent } from "@/modules/events/actions/events";
-import { EventType } from "@/modules/events/types/events";
+import {
+  AttendingUser,
+  EventType,
+  RSVPStatusEnum,
+} from "@/modules/events/types/events";
 import { useSession } from "next-auth/react";
 import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
@@ -16,10 +20,12 @@ import { toast } from "sonner";
 
 interface ClientEventDetailPageProps {
   initialEvent: EventType;
+  attendees: AttendingUser[];
 }
 
 const ClientEventDetailPage = ({
   initialEvent,
+  attendees,
 }: ClientEventDetailPageProps) => {
   const { id } = useParams();
   const eventId = Array.isArray(id) ? id[0] : (id as string);
@@ -79,7 +85,7 @@ const ClientEventDetailPage = ({
           {/* Attendees list - only show if not owner */}
           {!isOwner && (
             <div className="mt-6">
-              <RSVPAttendees eventId={eventId} />
+              <RSVPAttendees attendees={attendees} />
             </div>
           )}
         </div>
@@ -92,7 +98,7 @@ const ClientEventDetailPage = ({
           />
 
           {/* Attendees list - only show if owner */}
-          {isOwner && <RSVPAttendees eventId={eventId} />}
+          {isOwner && <RSVPAttendees attendees={attendees} />}
         </div>
       </div>
 

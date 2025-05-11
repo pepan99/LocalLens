@@ -42,7 +42,7 @@ const EventInformation = ({ event }: EventInformationProps) => {
             </span>
             <span className="flex items-center gap-1 mt-1">
               <Clock className="h-4 w-4" />
-              {event.date.toDateString()}
+              {event.time}
             </span>
           </div>
         </div>

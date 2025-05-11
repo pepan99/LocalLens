@@ -1,6 +1,6 @@
 "use client";
 
-import { getUserRSVPStatus, RSVPManager } from "@/components/events/rsvp";
+import { RSVPManager } from "@/components/events/rsvp";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -84,14 +84,14 @@ const EventMarker = ({ event, onRSVPChange }: EventMarkerProps) => {
 
   // Get the current RSVP status when component mounts and when RSVP changes
   useEffect(() => {
-    const status = getUserRSVPStatus(event.id);
+    const status = event.rsvp?.status ?? RSVPStatusEnum.NO_RESPONSE;
     setRsvpStatus(status);
 
     // Update marker icon if marker ref exists
     if (marker) {
       marker.setIcon(createEventIcon(event.category, status));
     }
-  }, [event.id, event.category, marker]);
+  }, [event.id, event.category, marker, event.rsvp?.status]);
 
   // Handle RSVP status change
   const handleRSVPChange = (eventId: string, status: RSVPStatusEnum) => {
