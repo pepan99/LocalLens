@@ -21,8 +21,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { RSVPStatusEnum } from "@/db/schemas/schema";
-import { EventType } from "@/modules/events/types/events";
+import { EventType, RSVPStatusEnum } from "@/modules/events/types/events";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CalendarCheck, CalendarClock, CalendarX } from "lucide-react";
 import { useState } from "react";

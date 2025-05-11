@@ -3,11 +3,13 @@ import { getEventById } from "@/modules/events/server/queries";
 import { notFound } from "next/navigation";
 
 type EditEventPageProps = {
-  params: { id: string };
+  params: {
+    id: string;
+  };
 };
 
 const EditEventPage = async ({ params }: EditEventPageProps) => {
-  const eventId = await params.id;
+  const eventId = (await params).id;
   const event = await getEventById(eventId);
 
   if (!event) {

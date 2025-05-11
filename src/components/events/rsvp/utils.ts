@@ -1,6 +1,6 @@
 "use client";
 
-import { RSVPStatusEnum } from "@/db/schemas/schema";
+import { RSVPStatusEnum } from "@/modules/events/types/events";
 
 // Helper to get color for RSVP status
 export const getRSVPStatusColor = (status: RSVPStatusEnum): string => {

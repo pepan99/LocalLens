@@ -107,15 +107,6 @@ const Map = ({
   const mapRef = useRef<L.Map | null>(null);
   // const [events, setEventsState] = useState<EventType[]>([]);
 
-  useEffect(() => {
-    // Fetch events from the server or use a mock
-    // const fetchEvents = async () => {
-    //   var events = await getUserEvents()
-    //   setEventsState(events);
-    // };
-    // fetchEvents();
-  });
-
   // Handle getting user's current location
   useEffect(() => {
     if (trackLocation) {
@@ -175,6 +166,7 @@ const Map = ({
       // For now, we'll leave the visual update to the marker component itself
     }
   };
+  console.log("Map component rendered with events:", events);
 
   return (
     <MapContainer

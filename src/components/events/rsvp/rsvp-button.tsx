@@ -48,7 +48,6 @@ const RSVPButton = ({
     }
     return "outline" as const;
   };
-  console.log("RSVPButton status", event);
 
   return (
     <Button

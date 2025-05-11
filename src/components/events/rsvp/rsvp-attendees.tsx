@@ -3,8 +3,7 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { RSVPStatusEnum } from "@/db/schemas/schema";
-import { AttendingUser } from "@/modules/events/types/events";
+import { AttendingUser, RSVPStatusEnum } from "@/modules/events/types/events";
 import { CalendarCheck, CalendarClock, User } from "lucide-react";
 
 interface RSVPAttendeesProps {
