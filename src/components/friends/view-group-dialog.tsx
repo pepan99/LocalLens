@@ -109,10 +109,6 @@ const ViewGroupDialog = ({
             <Share className="h-5 w-5 mb-1" />
             <span className="text-xs">Share</span>
           </Button>
-          <Button variant="ghost" className="flex flex-col h-auto py-2">
-            <MessageSquare className="h-5 w-5 mb-1" />
-            <span className="text-xs">Message</span>
-          </Button>
         </div>
 
         <Separator />

@@ -333,7 +333,6 @@ const FriendsPage = () => {
 
           <TabsContent value="friends">
             <FriendsList
-              friends={MOCK_FRIENDS}
               filteredFriends={filteredFriends}
               searchQuery={searchQuery}
               onRemoveFriend={handleRemoveFriend}

@@ -6,7 +6,6 @@ import FriendCard from "../friend-card";
 import { Friend } from "../types";
 
 interface FriendsListProps {
-  friends: Friend[];
   filteredFriends: Friend[];
   searchQuery: string;
   onRemoveFriend: (friendId: string) => void;
@@ -15,11 +14,9 @@ interface FriendsListProps {
 }
 
 const FriendsList = ({
-  friends,
   filteredFriends,
   searchQuery,
   onRemoveFriend,
-  onViewProfile,
   onAddFriendClick,
 }: FriendsListProps) => {
   if (filteredFriends.length === 0) {
@@ -49,7 +46,6 @@ const FriendsList = ({
           key={friend.id}
           friend={friend}
           onRemoveFriend={onRemoveFriend}
-          onViewProfile={onViewProfile}
         />
       ))}
     </div>
