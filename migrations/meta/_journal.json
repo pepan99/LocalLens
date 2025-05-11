@@ -15,6 +15,13 @@
       "when": 1746461572333,
       "tag": "0001_majestic_chameleon",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1746976472826,
+      "tag": "0002_nifty_siren",
+      "breakpoints": true
     }
   ]
 }
