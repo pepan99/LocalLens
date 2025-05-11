@@ -17,6 +17,7 @@ import {
   CreateEventFormValues,
   createEventSchema,
 } from "@/modules/events/schemas/schemas";
+import { EventType } from "@/modules/events/types/events";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowLeftIcon } from "lucide-react";
 import { useState } from "react";
@@ -27,8 +28,14 @@ import DateDetailsStep from "./date-details-step";
 import FormNavigation from "./form-navigation";
 import LocationStep from "./location-step";
 
-const CreateEventForm = () => {
-  const [coordinates, setCoordinates] = useState<[number, number] | null>(null);
+export type CreateEventFormProps = {
+  event?: EventType;
+};
+
+const CreateEventForm = ({ event }: CreateEventFormProps) => {
+  const [coordinates, setCoordinates] = useState<[number, number]>([
+    49.19503, 16.60826,
+  ]);
   const totalSteps = 3;
   const stepLabels = ["Basic Info", "Location", "Date & Details"];
   const [isValidating, setIsValidating] = useState(false);
@@ -36,16 +43,16 @@ const CreateEventForm = () => {
   const form = useForm<CreateEventFormValues>({
     resolver: zodResolver(createEventSchema),
     defaultValues: {
-      title: "",
-      description: "",
-      category: "",
-      location: "",
-      customLocation: "",
-      date: undefined,
-      time: "",
-      capacity: "",
-      isPrivate: false,
-      imageUrl: "",
+      title: event?.title || "",
+      description: event?.description || "",
+      category: event?.category || "",
+      location: event?.location || "",
+      customLocation: event?.location || "",
+      date: event?.date ? new Date(event.date) : undefined,
+      time: event?.time || "",
+      capacity: event?.capacity || 0,
+      isPrivate: event?.isEventPrivate || false,
+      imageUrl: event?.imageUrl || "",
     },
     mode: "onBlur",
   });
@@ -113,19 +120,30 @@ const CreateEventForm = () => {
         return;
       }
 
-      // Call the createEvent server action and handle the response
-      const result = await createEvent(values, coordinates);
+      // Update exisitng event
+      if (event) {
+        // Call the updateEvent server action and handle the response
+        const result = await createEvent(values, coordinates);
 
-      if (result.type === "success") {
-        toast.success(result.message || "Event created successfully!");
-
-        // Redirect to map page after successful creation
-        setTimeout(() => {
-          window.location.href = "/map";
-        }, 1500);
+        if (result.type === "success") {
+          toast.success(result.message || "Event updated successfully!");
+          window.location.href = `/events/${event.id}`;
+        } else {
+          toast.error(result.message || "Failed to update event");
+        }
       } else {
-        // Handle error case
-        toast.error(result.message || "Failed to create event");
+        // Call the createEvent server action and handle the response
+        const result = await createEvent(values, coordinates);
+
+        if (result.type === "success") {
+          toast.success(result.message || "Event created successfully!");
+
+          // Redirect to map page after successful creation
+          window.location.href = "/map";
+        } else {
+          // Handle error case
+          toast.error(result.message || "Failed to create event");
+        }
       }
     } finally {
       setIsValidating(false);
@@ -223,19 +241,6 @@ const CreateEventForm = () => {
               />
             )}
             {currentStep === 3 && <DateDetailsStep form={form} />}
-
-            {getStepErrors().length > 0 && (
-              <div className="text-sm text-red-500 bg-red-50 p-3 rounded-md mt-4">
-                <p className="font-semibold">
-                  Please fix the following errors:
-                </p>
-                <ul className="list-disc list-inside mt-1">
-                  {getStepErrors().map((error, index) => (
-                    <li key={index}>{String(error)}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
           </form>
         </Form>
       </CardContent>
@@ -249,6 +254,7 @@ const CreateEventForm = () => {
           onCancel={handleCancel}
           isValidating={isValidating}
           hasErrors={hasStepErrors()}
+          isEdit={!!event}
         />
       </CardFooter>
     </Card>

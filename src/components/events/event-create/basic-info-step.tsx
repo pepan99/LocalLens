@@ -1,6 +1,5 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
 import {
   FormControl,
   FormDescription,
@@ -20,7 +19,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { CreateEventFormValues } from "@/modules/events/schemas/schemas";
-import { Check, ImageIcon } from "lucide-react";
+import { Check } from "lucide-react";
 import { useEffect } from "react";
 import { UseFormReturn } from "react-hook-form";
 import { EVENT_CATEGORIES } from "./utils";
@@ -51,13 +50,6 @@ const BasicInfoStep = ({ form }: BasicInfoStepProps) => {
 
   return (
     <div className="space-y-6">
-      <div className="text-sm text-blue-600 bg-blue-50 p-3 rounded-md mb-4">
-        <p>
-          Please enter the basic information about your event. All fields marked
-          with <span className="text-red-500">*</span> are required.
-        </p>
-      </div>
-
       <FormField
         control={form.control}
         name="title"
@@ -100,7 +92,6 @@ const BasicInfoStep = ({ form }: BasicInfoStepProps) => {
           <FormItem>
             <FormLabel className="flex items-center">
               Description
-              <span className="text-red-500 ml-1">*</span>
               {isDescriptionValid && (
                 <Check className="h-4 w-4 ml-2 text-green-500" />
               )}
@@ -137,7 +128,6 @@ const BasicInfoStep = ({ form }: BasicInfoStepProps) => {
           <FormItem>
             <FormLabel className="flex items-center">
               Category
-              <span className="text-red-500 ml-1">*</span>
               {isCategoryValid && (
                 <Check className="h-4 w-4 ml-2 text-green-500" />
               )}
@@ -194,19 +184,9 @@ const BasicInfoStep = ({ form }: BasicInfoStepProps) => {
                   {...field}
                   value={field.value || ""}
                 />
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="icon"
-                  className="ml-2"
-                >
-                  <ImageIcon className="h-4 w-4" />
-                </Button>
               </div>
             </FormControl>
-            <FormDescription>
-              Add an image URL or upload an image for your event
-            </FormDescription>
+            <FormDescription>Add an image URL</FormDescription>
             <FormMessage />
           </FormItem>
         )}

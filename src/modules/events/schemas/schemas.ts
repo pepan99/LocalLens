@@ -25,11 +25,18 @@ export const createEventSchema = z.object({
     required_error: "Please select a time.",
   }),
   imageUrl: z.string().optional(),
-  capacity: z.string().min(1, {
-    message: "Please specify a capacity.",
-  }),
+  capacity: z.coerce.number().int(),
   isPrivate: z.boolean(),
 });
 
 // Type for the form values
 export type CreateEventFormValues = z.infer<typeof createEventSchema>;
+
+// // Schema for RSVP form
+// const rsvpFormSchema = z.object({
+//   status: z.string(),
+//   guests: z.number().min(0).max(10).optional(),
+//   note: z.string().max(200).optional(),
+// });
+
+// type RSVPFormValues = z.infer<typeof rsvpFormSchema>;

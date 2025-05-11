@@ -1,5 +1,6 @@
 "use client";
 
+import { EventType } from "@/modules/events/types/events";
 import { useState } from "react";
 import { toast } from "sonner";
 import RSVPButton from "./rsvp-button";
@@ -8,7 +9,7 @@ import { RSVPService } from "./rsvp-service";
 import { RSVPStatusEnum } from "./utils";
 
 type RSVPManagerProps = {
-  eventId: string;
+  event: EventType;
   eventTitle: string;
   buttonVariant?:
     | "default"
@@ -23,7 +24,7 @@ type RSVPManagerProps = {
 };
 
 const RSVPManager = ({
-  eventId,
+  event,
   eventTitle,
   buttonVariant = "default",
   buttonSize = "sm",
@@ -74,7 +75,7 @@ const RSVPManager = ({
   return (
     <>
       <RSVPButton
-        eventId={eventId}
+        eventId={event.id}
         onOpenDialog={handleOpenDialog}
         variant={buttonVariant}
         size={buttonSize}
@@ -84,7 +85,7 @@ const RSVPManager = ({
       <RSVPDialog
         isOpen={isDialogOpen}
         onClose={handleCloseDialog}
-        eventId={eventId}
+        eventId={event.id}
         eventTitle={eventTitle}
         onRSVP={handleRSVP}
       />

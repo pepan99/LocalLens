@@ -25,9 +25,15 @@ type EditEventFormProps = {
     coordinates: [number, number] | null,
   ) => void;
   onCancel: () => void;
+  isSubmitting?: boolean;
 };
 
-const EditEventForm = ({ event, onSubmit, onCancel }: EditEventFormProps) => {
+const EditEventForm = ({
+  event,
+  onSubmit,
+  onCancel,
+  isSubmitting = false,
+}: EditEventFormProps) => {
   const [step, setStep] = useState(1);
   const [coordinates, setCoordinates] = useState<[number, number] | null>(
     event.coordinates,
@@ -51,7 +57,7 @@ const EditEventForm = ({ event, onSubmit, onCancel }: EditEventFormProps) => {
       date: eventDate,
       time: timeString,
       capacity: event.capacity,
-      isEventPrivate: event.isEventPrivate,
+      isEventPrivate: event.isPrivate,
       imageUrl: "",
     },
   });
@@ -92,6 +98,7 @@ const EditEventForm = ({ event, onSubmit, onCancel }: EditEventFormProps) => {
           onSubmit={form.handleSubmit(handleSubmit)}
           onCancel={onCancel}
           form={form}
+          isSubmitting={isSubmitting}
         />
       </CardFooter>
     </Card>

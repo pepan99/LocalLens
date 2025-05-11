@@ -6,8 +6,8 @@ import "leaflet/dist/leaflet.css"; // Must imported to make the leaflet work cor
 import "leaflet/dist/leaflet.js"; // Must imported to make the leaflet work correctly
 
 import { RSVPStatusEnum } from "@/components/events/rsvp";
-import { MOCK_EVENTS } from "@/components/events/utils";
 import { Button } from "@/components/ui/button";
+import { EventType } from "@/modules/events/types/events";
 import { FriendType } from "@/types/friends";
 import { Compass, Locate, Minus, Plus } from "lucide-react";
 import { toast } from "sonner";
@@ -83,6 +83,7 @@ type MapProps = {
   showEvents?: boolean;
   showFriends?: boolean;
   trackLocation?: boolean;
+  events: EventType[];
 } & Omit<
   React.ComponentProps<typeof MapContainer>,
   "center" | "zoom" | "children"
@@ -95,6 +96,7 @@ const Map = ({
   showEvents = true,
   showFriends = true,
   trackLocation = false,
+  events = [],
   ...otherProps
 }: MapProps) => {
   const [center, setCenter] = useState<[number, number] | undefined>(
@@ -104,7 +106,16 @@ const Map = ({
     [number, number] | null
   >(null);
   const mapRef = useRef<L.Map | null>(null);
-  const [eventsState, setEventsState] = useState(MOCK_EVENTS);
+  // const [events, setEventsState] = useState<EventType[]>([]);
+
+  useEffect(() => {
+    // Fetch events from the server or use a mock
+    // const fetchEvents = async () => {
+    //   var events = await getUserEvents()
+    //   setEventsState(events);
+    // };
+    // fetchEvents();
+  });
 
   // Handle getting user's current location
   useEffect(() => {
@@ -148,7 +159,7 @@ const Map = ({
   // Handle RSVP status changes
   const handleRSVPChange = (eventId: string, status: RSVPStatusEnum) => {
     // Find the event
-    const event = eventsState.find(e => e.id === eventId);
+    const event = events.find(e => e.id === eventId);
 
     if (event) {
       // Show a toast notification
@@ -234,7 +245,7 @@ const Map = ({
 
       {/* Event markers */}
       {showEvents &&
-        eventsState.map(event => (
+        events.map(event => (
           <EventMarker
             key={event.id}
             event={event}

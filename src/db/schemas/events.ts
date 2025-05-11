@@ -13,7 +13,7 @@ export const events = sqliteTable("events", {
   location: text("location"),
   description: text("description").notNull(),
   category: text("category").notNull(),
-  capacity: text("capacity").notNull(),
+  capacity: integer("capacity").notNull(),
   latitude: real("latitude").notNull(),
   longitude: real("longitude").notNull(),
   isPrivate: integer("is_private", { mode: "boolean" })

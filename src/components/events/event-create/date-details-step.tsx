@@ -48,13 +48,6 @@ const DateDetailsStep = ({ form }: DateDetailsStepProps) => {
 
   return (
     <div className="space-y-6">
-      <div className="text-sm text-blue-600 bg-blue-50 p-3 rounded-md mb-4">
-        <p>
-          Please specify when your event will take place and how many people can
-          attend.
-        </p>
-      </div>
-
       <FormField
         control={form.control}
         name="date"
@@ -218,10 +211,6 @@ const DateDetailsStep = ({ form }: DateDetailsStepProps) => {
           </FormItem>
         )}
       />
-
-      <div className="text-sm text-muted-foreground mt-6">
-        <span className="text-red-500">*</span> Required fields
-      </div>
     </div>
   );
 };

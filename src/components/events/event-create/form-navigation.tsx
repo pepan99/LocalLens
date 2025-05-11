@@ -19,6 +19,7 @@ interface FormNavigationProps {
   onCancel: () => void;
   isValidating?: boolean;
   hasErrors?: boolean;
+  isEdit?: boolean;
 }
 
 const FormNavigation = ({
@@ -30,6 +31,7 @@ const FormNavigation = ({
   onCancel,
   isValidating = false,
   hasErrors = false,
+  isEdit = false,
 }: FormNavigationProps) => {
   const isFirstStep = currentStep === 1;
   const isLastStep = currentStep === totalSteps;
@@ -93,12 +95,12 @@ const FormNavigation = ({
           {isLoading ? (
             <>
               <Loader2 className="h-4 w-4 animate-spin" />
-              Creating...
+              {isEdit ? "Updating..." : "Creating..."}
             </>
           ) : (
             <>
               <Save className="h-4 w-4" />
-              Create Event
+              {isEdit ? "Update Event" : "Create Event"}
             </>
           )}
         </Button>

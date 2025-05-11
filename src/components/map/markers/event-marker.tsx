@@ -2,7 +2,6 @@
 
 import {
   getUserRSVPStatus,
-  isUserAttending,
   RSVPManager,
   RSVPStatusEnum,
 } from "@/components/events/rsvp";
@@ -15,17 +14,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { EventType } from "@/modules/events/types/events";
 import L from "leaflet";
-import {
-  Calendar,
-  Check,
-  Clock,
-  HelpCircle,
-  MapPin,
-  Star,
-  Users,
-  X,
-} from "lucide-react";
+import { Calendar, MapPin, Star, Users } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Marker, Popup } from "react-leaflet";
@@ -85,35 +76,14 @@ const createEventIcon = (category: string, rsvpStatus: RSVPStatusEnum) => {
 };
 
 type EventMarkerProps = {
-  event: {
-    id: string;
-    title: string;
-    category: string;
-    date: string;
-    location: string;
-    coordinates: [number, number];
-    attendees: number;
-    rating: number;
-  };
+  event: EventType;
   onRSVPChange?: (eventId: string, status: RSVPStatusEnum) => void;
-};
-
-const formatEventDate = (dateString: string) => {
-  const date = new Date(dateString);
-  return date.toLocaleDateString("en-US", {
-    weekday: "short",
-    month: "short",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
 };
 
 const EventMarker = ({ event, onRSVPChange }: EventMarkerProps) => {
   const [rsvpStatus, setRsvpStatus] = useState<RSVPStatusEnum>(
     RSVPStatusEnum.NO_RESPONSE,
   );
-  const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [marker, setMarker] = useState<L.Marker | null>(null);
 
   // Get the current RSVP status when component mounts and when RSVP changes
@@ -150,27 +120,11 @@ const EventMarker = ({ event, onRSVPChange }: EventMarkerProps) => {
     }
   };
 
-  // Check if popup is open/closed
-  const handlePopupOpen = () => {
-    setIsPopupOpen(true);
-    // Refresh RSVP status when popup opens
-    const status = getUserRSVPStatus(event.id);
-    setRsvpStatus(status);
-  };
-
-  const handlePopupClose = () => {
-    setIsPopupOpen(false);
-  };
-
   return (
     <Marker
       position={event.coordinates}
       icon={createEventIcon(event.category, rsvpStatus)}
       ref={setMarkerRef}
-      eventHandlers={{
-        popupopen: handlePopupOpen,
-        popupclose: handlePopupClose,
-      }}
     >
       <Popup className="event-popup" minWidth={280} maxWidth={320}>
         <Card className="border-0 shadow-none">
@@ -183,7 +137,7 @@ const EventMarker = ({ event, onRSVPChange }: EventMarkerProps) => {
           <CardContent className="pb-2 px-3">
             <div className="flex items-center text-sm text-gray-500 mb-1">
               <Calendar className="h-4 w-4 mr-1" />
-              <span>{formatEventDate(event.date)}</span>
+              <span>{event.date.toDateString()}</span>
             </div>
             <div className="flex items-center text-sm text-gray-500 mb-1">
               <MapPin className="h-4 w-4 mr-1" />
@@ -205,7 +159,7 @@ const EventMarker = ({ event, onRSVPChange }: EventMarkerProps) => {
               <Link href={`/events/${event.id}`}>View Details</Link>
             </Button>
             <RSVPManager
-              eventId={event.id}
+              event={event}
               eventTitle={event.title}
               buttonVariant="default"
               buttonSize="sm"

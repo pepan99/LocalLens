@@ -4,12 +4,13 @@ export type EventType = {
   title: string;
   time: string;
   category: string;
-  date: string;
+  date: Date;
   location: string;
   description: string;
-  capacity: string;
+  capacity: number;
   isEventPrivate: boolean;
   coordinates: [number, number];
   attendees: number;
   rating: number;
+  imageUrl: string | null;
 };

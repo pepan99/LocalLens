@@ -26,7 +26,7 @@ import { AVAILABLE_LOCATIONS, locationCoordinates } from "./utils";
 
 type LocationStepProps = {
   form: UseFormReturn<CreateEventFormValues>;
-  coordinates: [number, number] | null;
+  coordinates: [number, number];
   setCoordinates: (coordinates: [number, number]) => void;
 };
 
@@ -60,14 +60,6 @@ const LocationStep = ({
 
   return (
     <div className="space-y-6">
-      <div className="text-sm text-blue-600 bg-blue-50 p-3 rounded-md mb-4">
-        <p>
-          Please select the location for your event by choosing from the
-          predefined locations or entering a custom one. Then, pinpoint the
-          exact location on the map.
-        </p>
-      </div>
-
       <FormField
         control={form.control}
         name="location"
@@ -179,10 +171,6 @@ const LocationStep = ({
             Click on the map to select a precise location
           </p>
         )}
-      </div>
-
-      <div className="text-sm text-muted-foreground mt-6">
-        <span className="text-red-500">*</span> Required fields
       </div>
     </div>
   );

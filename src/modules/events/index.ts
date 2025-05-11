@@ -11,15 +11,16 @@ export const mapEventToEventType = (
     title: event.title,
     time: event.time,
     category: event.category,
-    date: new Date(event.date).toISOString(),
+    date: new Date(event.date),
     location: event.location || "",
     description: event.description,
     capacity: event.capacity,
     isEventPrivate: Boolean(event.isPrivate),
-    coordinates: [event.longitude, event.latitude],
+    coordinates: [event.latitude, event.longitude],
     // These fields don't exist in the original schema, so default values are assigned
     attendees: 0, // You may want to calculate this from a related table
     rating: 0, // You may want to calculate this from a related table
+    imageUrl: event.imageUrl || null,
   };
 };
 
