@@ -1,6 +1,6 @@
 "use client";
 
-import { EventType } from "@/types/events";
+import { EventType } from "@/modules/events/types/events";
 import { z } from "zod";
 
 export const editEventSchema = z.object({
@@ -75,6 +75,8 @@ export const MOCK_EVENTS: EventWithOwner[] = [
     id: "1",
     title: "Tech Meetup in Brno",
     category: "Technology",
+    creatorId: "user123",
+    time: "18:00",
     date: "2025-05-10T18:00:00",
     location: "Impact Hub, Brno",
     coordinates: [49.19, 16.61],
@@ -90,6 +92,8 @@ export const MOCK_EVENTS: EventWithOwner[] = [
     id: "2",
     title: "Weekend Farmers Market",
     category: "Food",
+    creatorId: "user123",
+    time: "18:00",
     date: "2025-05-09T09:00:00",
     location: "Freedom Square, Brno",
     coordinates: [49.2, 16.6],
@@ -105,6 +109,8 @@ export const MOCK_EVENTS: EventWithOwner[] = [
     id: "3",
     title: "Art Exhibition Opening",
     category: "Arts",
+    creatorId: "user123",
+    time: "18:00",
     date: "2025-05-15T17:00:00",
     location: "Moravian Gallery, Brno",
     coordinates: [49.195, 16.605],
@@ -120,6 +126,8 @@ export const MOCK_EVENTS: EventWithOwner[] = [
     id: "4",
     title: "Weekly Running Club",
     category: "Sports",
+    creatorId: "user123",
+    time: "18:00",
     date: "2025-05-07T19:00:00",
     location: "Lužánky Park, Brno",
     coordinates: [49.205, 16.615],
@@ -135,6 +143,8 @@ export const MOCK_EVENTS: EventWithOwner[] = [
     id: "5",
     title: "Jazz Night",
     category: "Music",
+    creatorId: "user123",
+    time: "18:00",
     date: "2025-05-12T20:00:00",
     location: "Music Lab, Brno",
     coordinates: [49.198, 16.607],

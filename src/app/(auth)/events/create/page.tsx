@@ -1,24 +1,34 @@
 "use client";
 
-import {
-  CreateEventForm,
-  CreateEventFormValues,
-} from "@/components/events/event-create";
+import { CreateEventForm } from "@/components/events/event-create";
+import { createEvent } from "@/modules/events/actions/events";
+import { CreateEventFormValues } from "@/modules/events/schemas/schemas";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 const CreateEventPage = () => {
   const router = useRouter();
 
   // Handle form submission
-  const handleSubmit = (
+  const handleSubmit = async (
     values: CreateEventFormValues,
-    coordinates: [number, number] | null,
+    coordinates: [number, number],
   ) => {
-    console.log("Creating event:", { ...values, coordinates });
+    const res = await createEvent(
+      {
+        ...values,
+      },
+      coordinates,
+    );
 
-    setTimeout(() => {
-      router.push("/events");
-    }, 1000);
+    if (res.type === "error") {
+      toast.error("Error creating event");
+      return;
+    }
+
+    console.log("Event created with values:", values);
+
+    router.push("/events");
   };
 
   // Handle cancel button

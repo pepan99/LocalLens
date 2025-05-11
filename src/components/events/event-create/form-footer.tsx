@@ -1,8 +1,8 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { CreateEventFormValues } from "@/modules/events/schemas/schemas";
 import { UseFormReturn } from "react-hook-form";
-import { CreateEventFormValues } from "./utils";
 
 interface FormFooterProps {
   step: number;

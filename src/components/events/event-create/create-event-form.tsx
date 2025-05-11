@@ -9,6 +9,10 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Form } from "@/components/ui/form";
+import {
+  CreateEventFormValues,
+  createEventSchema,
+} from "@/modules/events/schemas/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -16,19 +20,20 @@ import BasicInfoStep from "./basic-info-step";
 import DateDetailsStep from "./date-details-step";
 import FormFooter from "./form-footer";
 import LocationStep from "./location-step";
-import { CreateEventFormValues, createEventSchema } from "./utils";
 
 interface CreateEventFormProps {
   onSubmit: (
     values: CreateEventFormValues,
-    coordinates: [number, number] | null,
+    coordinates: [number, number],
   ) => void;
   onCancel: () => void;
 }
 
 const CreateEventForm = ({ onSubmit, onCancel }: CreateEventFormProps) => {
   const [step, setStep] = useState(1);
-  const [coordinates, setCoordinates] = useState<[number, number] | null>(null);
+  const [coordinates, setCoordinates] = useState<[number, number]>([
+    49.19514, 16.6083,
+  ]);
   const totalSteps = 3;
 
   // Initialize form with default values
