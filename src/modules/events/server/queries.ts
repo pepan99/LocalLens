@@ -1,8 +1,9 @@
 import { auth } from "@/auth";
 import { db } from "@/db";
 import { events } from "@/db/schemas/events";
+import { eventAttendance } from "@/db/schemas/schema";
 import { EventType } from "@/modules/events/types/events";
-import { and, desc, eq, sql } from "drizzle-orm";
+import { and, count, desc, eq, sql } from "drizzle-orm";
 import { mapEventsToEventTypes, mapEventToEventType } from "..";
 
 /**
@@ -205,4 +206,21 @@ export const searchEvents = async (
     console.error("Error searching events:", error);
     return [];
   }
+};
+
+export const getUserEventStats = async (userId: string) => {
+  const [createdEventsResult] = await db
+    .select({ count: count() })
+    .from(events)
+    .where(eq(events.creatorId, userId));
+
+  const [attendedEventsResult] = await db
+    .select({ count: count() })
+    .from(eventAttendance)
+    .where(eq(eventAttendance.userId, userId));
+
+  return {
+    createdEvents: createdEventsResult.count,
+    attendedEvents: attendedEventsResult.count,
+  };
 };
