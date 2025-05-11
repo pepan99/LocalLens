@@ -99,3 +99,19 @@ export const userLocation = sqliteTable("user_location", {
   longitude: text("longitude"),
   updatedAt: text("updated_at").default(sql`CURRENT_TIMESTAMP`),
 });
+
+export const friendRequests = sqliteTable("friend_requests", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  fromUserId: text("from_user_id")
+    .notNull()
+    .references(() => users.id),
+  toUserId: text("to_user_id")
+    .notNull()
+    .references(() => users.id),
+  status: text("status") // "pending" | "accepted" | "rejected"
+    .notNull()
+    .default("pending"),
+  createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`),
+});

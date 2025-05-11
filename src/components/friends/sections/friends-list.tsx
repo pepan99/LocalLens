@@ -9,7 +9,6 @@ interface FriendsListProps {
   filteredFriends: Friend[];
   searchQuery: string;
   onRemoveFriend: (friendId: string) => void;
-  onViewProfile: (friendId: string) => void;
   onAddFriendClick: () => void;
 }
 

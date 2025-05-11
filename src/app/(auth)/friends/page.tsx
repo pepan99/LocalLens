@@ -20,6 +20,11 @@ import ViewGroupDialog from "@/components/friends/view-group-dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  acceptFriendRequest,
+  cancelFriendRequest,
+  rejectFriendRequest,
+} from "@/modules/events/actions/friends";
 import { Group, Search, Users } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -72,29 +77,19 @@ const FriendsPage = () => {
     toast("The friend has been removed from your list.");
   };
 
-  const handleViewProfile = (friendId: string) => {
-    setSelectedFriendId(friendId);
-    console.log(`Viewing profile of friend with ID: ${friendId}`);
-    // In a real app, this would navigate to the friend's profile page
-  };
-
-  // Friend request handlers
-  const handleAcceptRequest = (requestId: string) => {
-    // In a real app, this would call an API to accept the request
-    console.log(`Accepting friend request with ID: ${requestId}`);
+  const handleAcceptRequest = async (requestId: string) => {
+    await acceptFriendRequest(requestId);
     toast("You are now friends!");
   };
 
-  const handleRejectRequest = (requestId: string) => {
-    // In a real app, this would call an API to reject the request
-    console.log(`Rejecting friend request with ID: ${requestId}`);
-    toast("The request has been declined.");
+  const handleRejectRequest = async (requestId: string) => {
+    await rejectFriendRequest(requestId);
+    toast("Friend request declined.");
   };
 
-  const handleCancelRequest = (requestId: string) => {
-    // In a real app, this would call an API to cancel the request
-    console.log(`Cancelling friend request with ID: ${requestId}`);
-    toast("Your outgoing request has been cancelled.");
+  const handleCancelRequest = async (requestId: string) => {
+    await cancelFriendRequest(requestId);
+    toast("Friend request cancelled.");
   };
 
   const handleSendFriendRequest = (username: string) => {
@@ -336,7 +331,6 @@ const FriendsPage = () => {
               filteredFriends={filteredFriends}
               searchQuery={searchQuery}
               onRemoveFriend={handleRemoveFriend}
-              onViewProfile={handleViewProfile}
               onAddFriendClick={() => setIsAddFriendDialogOpen(true)}
             />
           </TabsContent>
