@@ -2,10 +2,17 @@ import { auth } from "@/auth";
 import MapReturnButton from "@/components/buttons/map-return-button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
+import { getUserEventStats } from "@/modules/events/server/queries";
 
 const ProfilePage = async () => {
   const session = await auth();
   const user = session?.user;
+
+  if (!user) {
+    return <div className="p-6 text-center">You must be logged in.</div>;
+  }
+
+  const stats = await getUserEventStats(user.id);
 
   return (
     <div className="container mx-auto p-4">
@@ -39,11 +46,11 @@ const ProfilePage = async () => {
               <p className="underline underline-offset-1">
                 Number of attended events:
               </p>
-              <p className="text-xl font-semibold">69</p>
+              <p className="text-xl font-semibold">{stats.attendedEvents}</p>
               <p className="py-2 underline underline-offset-1">
                 Number of created events:
               </p>
-              <p className="text-xl font-semibold">10</p>
+              <p className="text-xl font-semibold">{stats.createdEvents}</p>
             </div>
           </CardContent>
         </Card>
