@@ -20,6 +20,9 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { CreateEventFormValues } from "@/modules/events/schemas/schemas";
 import { ImageIcon } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Check, ImageIcon } from "lucide-react";
+import { useEffect } from "react";
 import { UseFormReturn } from "react-hook-form";
 import { EVENT_CATEGORIES } from "./utils";
 
@@ -28,17 +31,64 @@ interface BasicInfoStepProps {
 }
 
 const BasicInfoStep = ({ form }: BasicInfoStepProps) => {
+  // Validate fields on mount
+  useEffect(() => {
+    // Trigger validation for existing values if any
+    if (
+      form.getValues("title") ||
+      form.getValues("description") ||
+      form.getValues("category")
+    ) {
+      form.trigger(["title", "description", "category"]);
+    }
+  }, [form]);
+
+  // Check if fields are valid
+  const isTitleValid = !form.formState.errors.title && form.getValues("title");
+  const isDescriptionValid =
+    !form.formState.errors.description && form.getValues("description");
+  const isCategoryValid =
+    !form.formState.errors.category && form.getValues("category");
+
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
+      <div className="text-sm text-blue-600 bg-blue-50 p-3 rounded-md mb-4">
+        <p>
+          Please enter the basic information about your event. All fields marked
+          with <span className="text-red-500">*</span> are required.
+        </p>
+      </div>
+
       <FormField
         control={form.control}
         name="title"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Event Title</FormLabel>
+            <FormLabel className="flex items-center">
+              Event Title
+              <span className="text-red-500 ml-1">*</span>
+              {isTitleValid && (
+                <Check className="h-4 w-4 ml-2 text-green-500" />
+              )}
+            </FormLabel>
             <FormControl>
-              <Input placeholder="Tech Meetup in Brno" {...field} />
+              <Input
+                placeholder="Tech Meetup in Brno"
+                className={cn(
+                  form.formState.errors.title ? "border-red-300" : "",
+                  isTitleValid ? "border-green-300" : "",
+                )}
+                {...field}
+                onChange={e => {
+                  field.onChange(e);
+                  // Trigger validation after change
+                  form.trigger("title");
+                }}
+              />
             </FormControl>
+            <FormDescription>
+              A clear, concise title for your event
+            </FormDescription>
             <FormMessage />
           </FormItem>
         )}
@@ -49,14 +99,33 @@ const BasicInfoStep = ({ form }: BasicInfoStepProps) => {
         name="description"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Description</FormLabel>
+            <FormLabel className="flex items-center">
+              Description
+              <span className="text-red-500 ml-1">*</span>
+              {isDescriptionValid && (
+                <Check className="h-4 w-4 ml-2 text-green-500" />
+              )}
+            </FormLabel>
             <FormControl>
               <Textarea
                 placeholder="Tell people about your event..."
-                className="resize-none min-h-[120px]"
+                className={cn(
+                  "resize-none min-h-[120px]",
+                  form.formState.errors.description ? "border-red-300" : "",
+                  isDescriptionValid ? "border-green-300" : "",
+                )}
                 {...field}
+                onChange={e => {
+                  field.onChange(e);
+                  // Trigger validation after change
+                  form.trigger("description");
+                }}
               />
             </FormControl>
+            <FormDescription>
+              Minimum 10 characters. Provide details about what attendees can
+              expect.
+            </FormDescription>
             <FormMessage />
           </FormItem>
         )}
@@ -67,10 +136,27 @@ const BasicInfoStep = ({ form }: BasicInfoStepProps) => {
         name="category"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Category</FormLabel>
-            <Select onValueChange={field.onChange} defaultValue={field.value}>
+            <FormLabel className="flex items-center">
+              Category
+              <span className="text-red-500 ml-1">*</span>
+              {isCategoryValid && (
+                <Check className="h-4 w-4 ml-2 text-green-500" />
+              )}
+            </FormLabel>
+            <Select
+              onValueChange={value => {
+                field.onChange(value);
+                form.trigger("category");
+              }}
+              defaultValue={field.value}
+            >
               <FormControl>
-                <SelectTrigger>
+                <SelectTrigger
+                  className={cn(
+                    form.formState.errors.category ? "border-red-300" : "",
+                    isCategoryValid ? "border-green-300" : "",
+                  )}
+                >
                   <SelectValue placeholder="Select a category" />
                 </SelectTrigger>
               </FormControl>
@@ -88,6 +174,9 @@ const BasicInfoStep = ({ form }: BasicInfoStepProps) => {
                 ))}
               </SelectContent>
             </Select>
+            <FormDescription>
+              Choose the category that best fits your event
+            </FormDescription>
             <FormMessage />
           </FormItem>
         )}
