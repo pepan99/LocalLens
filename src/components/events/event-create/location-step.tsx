@@ -16,17 +16,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { CreateEventFormValues } from "@/modules/events/schemas/schemas";
 import dynamic from "next/dynamic";
 import { UseFormReturn } from "react-hook-form";
-import {
-  AVAILABLE_LOCATIONS,
-  CreateEventFormValues,
-  locationCoordinates,
-} from "./utils";
+import { AVAILABLE_LOCATIONS, locationCoordinates } from "./utils";
 
 type LocationStepProps = {
   form: UseFormReturn<CreateEventFormValues>;
-  coordinates: [number, number] | null;
+  coordinates: [number, number];
   setCoordinates: (coordinates: [number, number]) => void;
 };
 

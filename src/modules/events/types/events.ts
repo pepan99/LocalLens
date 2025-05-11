@@ -1,6 +1,8 @@
 export type EventType = {
   id: string;
+  creatorId: string;
   title: string;
+  time: string;
   category: string;
   date: string;
   location: string;

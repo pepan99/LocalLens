@@ -1,14 +1,15 @@
 import { sql } from "drizzle-orm";
 import { sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { events } from "./events";
+import { users } from "./users";
 
-export const users = sqliteTable("users", {
-  id: text("id").primaryKey(),
-  username: text("username").notNull().unique(),
-  email: text("email").notNull().unique(),
-  createdAt: text("created_at")
-    .notNull()
-    .default(sql`CURRENT_TIMESTAMP`),
-});
+// Enum for RSVP Status
+export enum RSVPStatusEnum {
+  GOING = "going",
+  MAYBE = "maybe",
+  NOT_GOING = "not_going",
+  NO_RESPONSE = "no_response",
+}
 
 export const friends = sqliteTable("friends", {
   userId: text("user_id")
@@ -34,19 +35,6 @@ export const friendGroupMembers = sqliteTable("friend_group_members", {
   userId: text("user_id")
     .notNull()
     .references(() => users.id),
-});
-
-export const events = sqliteTable("events", {
-  id: text("id").primaryKey(),
-  title: text("title").notNull(),
-  description: text("description"),
-  location: text("location"),
-  latitude: text("latitude"),
-  longitude: text("longitude"),
-  ownerId: text("owner_id")
-    .notNull()
-    .references(() => users.id),
-  date: text("date").notNull(),
 });
 
 export const eventInvitations = sqliteTable("event_invitations", {

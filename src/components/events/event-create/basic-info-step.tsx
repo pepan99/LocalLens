@@ -18,9 +18,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { CreateEventFormValues } from "@/modules/events/schemas/schemas";
 import { ImageIcon } from "lucide-react";
 import { UseFormReturn } from "react-hook-form";
-import { CreateEventFormValues, EVENT_CATEGORIES } from "./utils";
+import { EVENT_CATEGORIES } from "./utils";
 
 interface BasicInfoStepProps {
   form: UseFormReturn<CreateEventFormValues>;

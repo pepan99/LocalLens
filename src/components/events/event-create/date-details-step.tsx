@@ -17,10 +17,10 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
+import { CreateEventFormValues } from "@/modules/events/schemas/schemas";
 import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 import { UseFormReturn } from "react-hook-form";
-import { CreateEventFormValues } from "./utils";
 
 interface DateDetailsStepProps {
   form: UseFormReturn<CreateEventFormValues>;
