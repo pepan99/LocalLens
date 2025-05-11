@@ -18,9 +18,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { CreateEventFormValues } from "@/modules/events/schemas/schemas";
-import { ImageIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { CreateEventFormValues } from "@/modules/events/schemas/schemas";
 import { Check, ImageIcon } from "lucide-react";
 import { useEffect } from "react";
 import { UseFormReturn } from "react-hook-form";

@@ -1,5 +1,6 @@
 "use server";
 
+import { randomUUID } from "crypto";
 import { auth } from "@/auth";
 import { db } from "@/db";
 import { events } from "@/db/schemas/events";
@@ -63,6 +64,7 @@ export const createEvent = async (
 
     // Insert the event into the database
     await db.insert(events).values({
+      id: randomUUID(),
       title: eventData.title,
       time: eventData.time,
       date: eventData.date,

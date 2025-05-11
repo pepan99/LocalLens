@@ -16,8 +16,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { CreateEventFormValues } from "@/modules/events/schemas/schemas";
 import { cn } from "@/lib/utils";
+import { CreateEventFormValues } from "@/modules/events/schemas/schemas";
 import { Check, MapPin } from "lucide-react";
 import dynamic from "next/dynamic";
 import { useEffect } from "react";
@@ -26,7 +26,7 @@ import { AVAILABLE_LOCATIONS, locationCoordinates } from "./utils";
 
 type LocationStepProps = {
   form: UseFormReturn<CreateEventFormValues>;
-  coordinates: [number, number];
+  coordinates: [number, number] | null;
   setCoordinates: (coordinates: [number, number]) => void;
 };
 

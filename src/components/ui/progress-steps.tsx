@@ -40,9 +40,10 @@ export const ProgressSteps = ({
           return (
             <Button
               key={stepNumber}
+              variant="ghost"
               className={cn(
                 "flex flex-col items-center relative",
-                isClickable && "cursor-pointer",
+                isClickable ? "cursor-pointer" : "cursor-default",
               )}
               onClick={() => isClickable && onStepClick(stepNumber)}
             >

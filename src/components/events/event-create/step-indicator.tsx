@@ -2,11 +2,11 @@
 
 import { Check } from "lucide-react";
 
-interface StepIndicatorProps {
+type StepIndicatorProps = {
   currentStep: number;
   totalSteps: number;
   completedSteps: Record<number, boolean>;
-}
+};
 
 const StepIndicator = ({
   currentStep,
@@ -40,7 +40,6 @@ const StepIndicator = ({
               <div className="mt-2 text-xs font-medium text-center">
                 {stepLabels[i]}
               </div>
-
               {/* Connector line */}
               {i < totalSteps - 1 && (
                 <div
