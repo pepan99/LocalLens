@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { use, useEffect, useRef, useState } from "react";
 import { MapContainer, TileLayer, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css"; // Must imported to make the leaflet work correctly
 import "leaflet/dist/leaflet.js"; // Must imported to make the leaflet work correctly
@@ -10,6 +10,7 @@ import { EventType, RSVPStatusEnum } from "@/modules/events/types/events";
 import { FriendType } from "@/types/friends";
 import { Compass, Locate, Minus, Plus } from "lucide-react";
 import { toast } from "sonner";
+import { useLocation } from "../location_provider";
 import EventMarker from "../markers/event-marker";
 import UserMarker from "../markers/user-marker";
 
@@ -105,7 +106,12 @@ const Map = ({
     [number, number] | null
   >(null);
   const mapRef = useRef<L.Map | null>(null);
-  // const [events, setEventsState] = useState<EventType[]>([]);
+
+  const userLocation = useLocation();
+
+  useEffect(() => {
+    console.log("User location:", userLocation);
+  }, [userLocation]);
 
   // Handle getting user's current location
   useEffect(() => {
@@ -138,10 +144,10 @@ const Map = ({
   };
 
   const handleRecenter = () => {
-    if (currentLocation) {
-      setCenter(currentLocation);
+    if (userLocation?.position) {
+      setCenter(userLocation?.position || currentLocation);
       if (mapRef.current) {
-        mapRef.current.setView(currentLocation, 15);
+        mapRef.current.setView(userLocation?.position, 15);
       }
     }
   };
@@ -166,7 +172,6 @@ const Map = ({
       // For now, we'll leave the visual update to the marker component itself
     }
   };
-  console.log("Map component rendered with events:", events);
 
   return (
     <MapContainer
@@ -217,7 +222,7 @@ const Map = ({
               size="icon"
               className="h-10 w-10 rounded-none hover:bg-gray-100"
               onClick={handleRecenter}
-              disabled={!currentLocation}
+              disabled={!userLocation?.position}
             >
               <Locate className="h-5 w-5" />
             </Button>
@@ -251,12 +256,12 @@ const Map = ({
         ))}
 
       {/* Current user marker */}
-      {currentLocation && (
+      {userLocation?.position && (
         <UserMarker
           user={{
             id: "current-user",
             name: "You",
-            coordinates: currentLocation,
+            coordinates: userLocation.position,
           }}
           isCurrentUser
         />
