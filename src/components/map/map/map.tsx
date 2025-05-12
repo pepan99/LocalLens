@@ -11,6 +11,7 @@ import { FriendType } from "@/types/friends";
 import { Compass, Locate, Minus, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { useLocation } from "../location_provider";
+import CurrentUserMarker from "../markers/current-user-marker";
 import EventMarker from "../markers/event-marker";
 import UserMarker from "../markers/user-marker";
 
@@ -229,19 +230,16 @@ const Map = ({
       {/* Friend markers */}
       {showFriends &&
         MOCK_FRIENDS.map(friend => (
-          <UserMarker key={friend.id} user={friend} />
+          <UserMarker
+            key={friend.id}
+            user={friend}
+            coordinates={friend.coordinates}
+          />
         ))}
 
       {/* Current user marker */}
       {userLocation?.position && (
-        <UserMarker
-          user={{
-            id: "current-user",
-            name: "You",
-            coordinates: userLocation.position,
-          }}
-          isCurrentUser
-        />
+        <CurrentUserMarker coordinates={userLocation.position} />
       )}
 
       {children}

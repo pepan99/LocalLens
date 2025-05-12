@@ -7,7 +7,7 @@ export type UserLocation = {
 export type UserWithLocation = {
   id: string;
   name: string;
-  imageUrl?: string;
-  coordinates: [number, number];
-  lastUpdated?: Date;
+  imageUrl: string | null;
+  coordinates: [number, number] | null;
+  lastUpdated: Date | null;
 };

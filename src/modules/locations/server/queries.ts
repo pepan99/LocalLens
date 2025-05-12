@@ -1,6 +1,10 @@
+"use server";
+
 import { auth } from "@/auth";
 import { db } from "@/db";
+import { friends } from "@/db/schemas/friends";
 import { userLocation } from "@/db/schemas/user-locations";
+import { users } from "@/db/schemas/users";
 import { ActionResultWithData } from "@/types/result";
 import { eq } from "drizzle-orm";
 import { mapDbLocationToUserLocation } from "..";
@@ -37,9 +41,33 @@ export const getUsersWithLocation = async (): Promise<UserWithLocation[]> => {
     if (!userId) {
       return [];
     }
-    return [];
+
+    const results = await db
+      .select({
+        id: users.id,
+        name: users.name,
+        imageUrl: users.imageUrl,
+        latitude: userLocation.latitude,
+        longitude: userLocation.longitude,
+        updatedAt: userLocation.updatedAt,
+      })
+      .from(friends)
+      .innerJoin(users, eq(friends.friendId, users.id))
+      .leftJoin(userLocation, eq(users.id, userLocation.userId))
+      .where(eq(friends.userId, userId));
+
+    return results.map(friend => ({
+      id: friend.id,
+      name: friend.name ?? "Unknown",
+      imageUrl: friend.imageUrl,
+      coordinates:
+        friend.latitude === null || friend.longitude === null
+          ? null
+          : [friend.latitude, friend.longitude],
+      lastUpdated: friend.updatedAt ? new Date(friend.updatedAt) : null,
+    }));
   } catch (error) {
-    console.error("Error fetching events:", error);
+    console.error("Error fetching friends with location:", error);
     return [];
   }
 };
