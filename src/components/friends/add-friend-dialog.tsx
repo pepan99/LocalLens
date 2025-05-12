@@ -10,8 +10,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Separator } from "@/components/ui/separator";
-import { Search, Share } from "lucide-react";
+import { Search } from "lucide-react";
 import { useState } from "react";
 
 interface AddFriendDialogProps {
