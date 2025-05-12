@@ -109,10 +109,8 @@ export const updateEvent = async (
       .update(events)
       .set({
         ...eventData,
-        id: randomUUID(),
         latitude: coordinates[0],
         longitude: coordinates[1],
-        creatorId: session.user.id,
       })
       .where(eq(events.id, eventId));
 
