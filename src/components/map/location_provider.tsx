@@ -95,11 +95,6 @@ export const LocationProvider = ({ children }: LocationProviderProps) => {
         console.warn(errorMsg, err);
         setError(errorMsg);
         setLoading(false);
-        if (err.code === err.TIMEOUT) {
-          setTimeout(() => {
-            updatePosition();
-          }, 10);
-        }
       },
       options,
     );

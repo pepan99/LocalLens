@@ -1,7 +1,6 @@
 "use client";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
 import L from "leaflet";
 import { Clock, MapPin, User } from "lucide-react";
 import { Marker, Popup } from "react-leaflet";
@@ -13,21 +12,28 @@ import { UserWithLocation } from "@/modules/locations/types/locations";
  * Generates a random CSS color in hexadecimal format
  * @returns A random color in the format #RRGGBB
  */
-const generateRandomColor = (): string => {
-  // Generate a random number and convert it to a hexadecimal string
-  const randomColor = Math.floor(Math.random() * 16777215).toString(16);
+const generateRandomColor = (input: string): string => {
+  let hash = 0;
 
-  // Ensure the color has 6 digits by padding with leading zeros if needed
-  const paddedColor = randomColor.padStart(6, "0");
+  // Generate hash from string
+  for (let i = 0; i < input.length; i++) {
+    hash = input.charCodeAt(i) + ((hash << 5) - hash);
+  }
 
-  // Return the color with a # prefix
-  return `#${paddedColor}`;
+  // Convert hash to 6-digit hex color
+  let color = "#";
+  for (let i = 0; i < 3; i++) {
+    const value = (hash >> (i * 8)) & 0xff;
+    color += ("00" + value.toString(16)).slice(-2);
+  }
+
+  return color;
 };
 
 // Create custom icon for user markers
 const createUserIcon = (user: UserWithLocation) => {
   const defaultIcon = `<div style="position: relative; width: 30px; height: 30px;">
-             <div style="background-color: ${generateRandomColor()}; width: 30px; height: 30px; border-radius: 50%; display: flex; justify-content: center; align-items: center; border: 2px solid white; box-shadow: 0 2px 6px rgba(0,0,0,0.3);">
+             <div style="background-color: ${generateRandomColor(user.id)}; width: 30px; height: 30px; border-radius: 50%; display: flex; justify-content: center; align-items: center; border: 2px solid white; box-shadow: 0 2px 6px rgba(0,0,0,0.3);">
                <span style="color: white; font-weight: bold;">${user.name[0] ?? "O"}</span>
              </div>
            </div>,
@@ -97,13 +103,6 @@ const UserMarker = ({
               </div>
             )}
           </CardContent>
-          {!isCurrentUser && (
-            <CardFooter className="py-2 px-3 gap-2">
-              <Button size="sm" variant="default">
-                Invite
-              </Button>
-            </CardFooter>
-          )}
         </Card>
       </Popup>
     </Marker>

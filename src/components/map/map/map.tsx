@@ -7,30 +7,14 @@ import "leaflet/dist/leaflet.js"; // Must imported to make the leaflet work corr
 
 import { Button } from "@/components/ui/button";
 import { EventType, RSVPStatusEnum } from "@/modules/events/types/events";
-import { FriendType } from "@/types/friends";
+import { getFriendsWithLocation } from "@/modules/locations/server/queries";
+import { UserWithLocation } from "@/modules/locations/types/locations";
 import { Compass, Locate, Minus, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { useLocation } from "../location_provider";
 import CurrentUserMarker from "../markers/current-user-marker";
 import EventMarker from "../markers/event-marker";
 import UserMarker from "../markers/user-marker";
-
-const MOCK_FRIENDS: FriendType[] = [
-  {
-    id: "1",
-    name: "Marie Novotná",
-    imageUrl: "/placeholder-user-1.jpg",
-    coordinates: [49.197, 16.608],
-    lastUpdated: new Date(Date.now() - 5 * 60 * 1000), // 5 minutes ago
-  },
-  {
-    id: "2",
-    name: "Jan Svoboda",
-    imageUrl: "/placeholder-user-2.jpg",
-    coordinates: [49.199, 16.599],
-    lastUpdated: new Date(Date.now() - 15 * 60 * 1000), // 15 minutes ago
-  },
-];
 
 // Component to handle map functionality like centering and zooming
 const MapController = ({
@@ -95,7 +79,6 @@ const Map = ({
   initialCenter = [49.21, 16.599], // Default center (Brno)
   initialZoom = 13,
   showEvents = true,
-  showFriends = true,
   trackLocation = false,
   events = [],
   ...otherProps
@@ -103,9 +86,25 @@ const Map = ({
   const [center, setCenter] = useState<[number, number] | undefined>(
     initialCenter,
   );
+
+  const [showFriends, setShowFriends] = useState(true);
+
+  const [friends, setFriends] = useState<UserWithLocation[]>([]);
+
   const mapRef = useRef<L.Map | null>(null);
 
   const userLocation = useLocation();
+
+  useEffect(() => {
+    const intervalId = setInterval(async () => {
+      const res = await getFriendsWithLocation();
+      if (res) {
+        setFriends(res);
+      }
+    }, 10000);
+
+    return () => clearInterval(intervalId);
+  }, []);
 
   const handleZoomIn = () => {
     if (mapRef.current) {
@@ -229,13 +228,16 @@ const Map = ({
 
       {/* Friend markers */}
       {showFriends &&
-        MOCK_FRIENDS.map(friend => (
-          <UserMarker
-            key={friend.id}
-            user={friend}
-            coordinates={friend.coordinates}
-          />
-        ))}
+        friends.map(
+          friend =>
+            friend.coordinates && (
+              <UserMarker
+                key={friend.id}
+                user={friend}
+                coordinates={friend.coordinates}
+              />
+            ),
+        )}
 
       {/* Current user marker */}
       {userLocation?.position && (

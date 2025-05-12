@@ -11,3 +11,7 @@ export type UserWithLocation = {
   coordinates: [number, number] | null;
   lastUpdated: Date | null;
 };
+
+export type LocationSharingConfig = {
+  isSharingLocation: boolean;
+};

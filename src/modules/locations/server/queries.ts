@@ -6,9 +6,13 @@ import { friends } from "@/db/schemas/friends";
 import { userLocation } from "@/db/schemas/user-locations";
 import { users } from "@/db/schemas/users";
 import { ActionResultWithData } from "@/types/result";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { mapDbLocationToUserLocation } from "..";
-import { UserLocation, UserWithLocation } from "../types/locations";
+import {
+  LocationSharingConfig,
+  UserLocation,
+  UserWithLocation,
+} from "../types/locations";
 
 export const getUserLocation = async (): Promise<
   ActionResultWithData<UserLocation | null>
@@ -34,7 +38,7 @@ export const getUserLocation = async (): Promise<
 /**
  * Get all friends and their location
  */
-export const getUsersWithLocation = async (): Promise<UserWithLocation[]> => {
+export const getFriendsWithLocation = async (): Promise<UserWithLocation[]> => {
   try {
     const session = await auth();
     const userId = session?.user?.id;
@@ -54,7 +58,9 @@ export const getUsersWithLocation = async (): Promise<UserWithLocation[]> => {
       .from(friends)
       .innerJoin(users, eq(friends.friendId, users.id))
       .leftJoin(userLocation, eq(users.id, userLocation.userId))
-      .where(eq(friends.userId, userId));
+      .where(
+        and(eq(friends.userId, userId), eq(users.isSharingLocation, true)),
+      );
 
     return results.map(friend => ({
       id: friend.id,
@@ -71,3 +77,22 @@ export const getUsersWithLocation = async (): Promise<UserWithLocation[]> => {
     return [];
   }
 };
+
+export const getLocationSharingConfig =
+  async (): Promise<LocationSharingConfig> => {
+    const session = await auth();
+    if (!session?.user?.id) {
+      return { isSharingLocation: false };
+    }
+
+    const rows = await db
+      .select({
+        isSharingLocation: users.isSharingLocation,
+      })
+      .from(users)
+      .where(eq(users.id, session.user.id));
+
+    return {
+      isSharingLocation: rows.length > 0 ? rows[0].isSharingLocation : false,
+    };
+  };
