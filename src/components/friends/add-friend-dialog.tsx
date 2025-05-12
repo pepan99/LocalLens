@@ -46,12 +46,12 @@ const AddFriendDialog = ({
         <div className="mt-6 space-y-4">
           <div className="space-y-2">
             <label htmlFor="username" className="text-sm font-medium">
-              Username or Email
+              Name or Username or Email
             </label>
             <div className="relative">
               <Input
                 id="username"
-                placeholder="e.g. john_doe or john@example.com"
+                placeholder="e.g. John Doe or john_doe or john@example.com"
                 className="pl-10"
                 value={usernameOrEmail}
                 onChange={e => setUsernameOrEmail(e.target.value)}

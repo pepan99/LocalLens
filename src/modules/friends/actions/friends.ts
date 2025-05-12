@@ -126,7 +126,7 @@ export const cancelFriendRequest = async (
 };
 
 export const sendFriendRequest = async (
-  username: string,
+  formInput: string,
 ): Promise<ActionResult> => {
   try {
     const session = await auth();
@@ -137,7 +137,13 @@ export const sendFriendRequest = async (
     const [recipient] = await db
       .select()
       .from(users)
-      .where(eq(users.username, username));
+      .where(
+        or(
+          eq(users.username, formInput),
+          eq(users.email, formInput),
+          eq(users.name, formInput),
+        ),
+      );
 
     if (!recipient) {
       return { type: "error", message: "User not found" };
@@ -178,7 +184,7 @@ export const sendFriendRequest = async (
 
     revalidatePath("/friends");
 
-    return { type: "success", message: `Request sent to ${username}` };
+    return { type: "success", message: `Request sent to ${formInput}` };
   } catch (error) {
     console.error("Error sending friend request:", error);
     return { type: "error", message: "Failed to send friend request" };
