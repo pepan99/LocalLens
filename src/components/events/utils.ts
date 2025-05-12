@@ -1,5 +1,7 @@
 "use client";
 
+import { EventType } from "@/modules/events/types/events";
+
 // Event type definition
 export type Event = {
   id: string;
@@ -97,7 +99,7 @@ export const formatEventDate = (dateString: string) => {
 };
 
 // Sort events by different criteria
-export const sortEvents = (events: Event[], sortBy: string) => {
+export const sortEvents = (events: EventType[], sortBy: string) => {
   switch (sortBy) {
     case "date-asc":
       return [...events].sort(

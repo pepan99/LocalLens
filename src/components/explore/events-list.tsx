@@ -1,12 +1,11 @@
 "use client";
 
-import { RSVPStatusEnum } from "../events/rsvp";
+import { EventType, RSVPStatusEnum } from "@/modules/events/types/events";
 import { ScrollArea } from "../ui/scroll-area";
 import ExploreEventCard from "./explore-event-card";
-import { ExploreEvent } from "./utils";
 
 interface EventsListProps {
-  events: ExploreEvent[];
+  events: EventType[];
   onRSVPChange?: (eventId: string, status: RSVPStatusEnum) => void;
   activeTab: string;
 }

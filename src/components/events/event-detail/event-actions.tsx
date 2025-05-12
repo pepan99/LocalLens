@@ -8,19 +8,23 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { EventType, RSVPStatusEnum } from "@/modules/events/types/events";
 import { Edit, Share, Trash } from "lucide-react";
+import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { toast } from "sonner";
-import { RSVPManager, RSVPStatusEnum } from "../rsvp";
-import { EventDetail } from "./utils";
+import { RSVPManager } from "../rsvp";
 
 interface EventActionsProps {
-  event: EventDetail;
+  event: EventType;
   onDelete: () => void;
   onRSVPChange?: (eventId: string, status: RSVPStatusEnum) => void;
 }
 
 const EventActions = ({ event, onDelete, onRSVPChange }: EventActionsProps) => {
+  const session = useSession();
+  const isOwner = event.creatorId === session.data?.user?.id;
+
   const handleShare = () => {
     // In a real app, this would open a sharing dialog
     if (navigator.share) {
@@ -53,7 +57,7 @@ const EventActions = ({ event, onDelete, onRSVPChange }: EventActionsProps) => {
         <CardTitle>Event Actions</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        {event.isOwner ? (
+        {isOwner ? (
           <>
             <Button className="w-full" asChild>
               <Link href={`/events/${event.id}/edit`}>
@@ -66,7 +70,7 @@ const EventActions = ({ event, onDelete, onRSVPChange }: EventActionsProps) => {
           </>
         ) : (
           <RSVPManager
-            eventId={event.id}
+            event={event}
             eventTitle={event.title}
             buttonVariant="default"
             buttonSize="default"
@@ -86,11 +90,11 @@ const EventActions = ({ event, onDelete, onRSVPChange }: EventActionsProps) => {
           </p>
           <p>
             <span className="font-medium">Visibility:</span>{" "}
-            {event.isPrivate ? "Private Event" : "Public Event"}
+            {event.isEventPrivate ? "Private Event" : "Public Event"}
           </p>
           <p>
             <span className="font-medium">Created by:</span>{" "}
-            {event.isOwner ? "You" : "Event Organizer"}
+            {isOwner ? "You" : "Event Organizer"}
           </p>
         </div>
       </CardFooter>

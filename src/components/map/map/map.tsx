@@ -5,9 +5,8 @@ import { MapContainer, TileLayer, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css"; // Must imported to make the leaflet work correctly
 import "leaflet/dist/leaflet.js"; // Must imported to make the leaflet work correctly
 
-import { RSVPStatusEnum } from "@/components/events/rsvp";
-import { MOCK_EVENTS } from "@/components/events/utils";
 import { Button } from "@/components/ui/button";
+import { EventType, RSVPStatusEnum } from "@/modules/events/types/events";
 import { FriendType } from "@/types/friends";
 import { Compass, Locate, Minus, Plus } from "lucide-react";
 import { toast } from "sonner";
@@ -83,6 +82,7 @@ type MapProps = {
   showEvents?: boolean;
   showFriends?: boolean;
   trackLocation?: boolean;
+  events: EventType[];
 } & Omit<
   React.ComponentProps<typeof MapContainer>,
   "center" | "zoom" | "children"
@@ -95,6 +95,7 @@ const Map = ({
   showEvents = true,
   showFriends = true,
   trackLocation = false,
+  events = [],
   ...otherProps
 }: MapProps) => {
   const [center, setCenter] = useState<[number, number] | undefined>(
@@ -104,7 +105,7 @@ const Map = ({
     [number, number] | null
   >(null);
   const mapRef = useRef<L.Map | null>(null);
-  const [eventsState, setEventsState] = useState(MOCK_EVENTS);
+  // const [events, setEventsState] = useState<EventType[]>([]);
 
   // Handle getting user's current location
   useEffect(() => {
@@ -148,7 +149,7 @@ const Map = ({
   // Handle RSVP status changes
   const handleRSVPChange = (eventId: string, status: RSVPStatusEnum) => {
     // Find the event
-    const event = eventsState.find(e => e.id === eventId);
+    const event = events.find(e => e.id === eventId);
 
     if (event) {
       // Show a toast notification
@@ -165,6 +166,7 @@ const Map = ({
       // For now, we'll leave the visual update to the marker component itself
     }
   };
+  console.log("Map component rendered with events:", events);
 
   return (
     <MapContainer
@@ -234,7 +236,7 @@ const Map = ({
 
       {/* Event markers */}
       {showEvents &&
-        eventsState.map(event => (
+        events.map(event => (
           <EventMarker
             key={event.id}
             event={event}

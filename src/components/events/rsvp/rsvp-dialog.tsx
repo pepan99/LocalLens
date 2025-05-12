@@ -21,12 +21,12 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { EventType, RSVPStatusEnum } from "@/modules/events/types/events";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CalendarCheck, CalendarClock, CalendarX } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { mockRSVPStore, RSVPStatusEnum } from "./utils";
 
 // Schema for RSVP form
 const rsvpFormSchema = z.object({
@@ -40,7 +40,7 @@ type RSVPFormValues = z.infer<typeof rsvpFormSchema>;
 interface RSVPDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  eventId: string;
+  event: EventType;
   eventTitle: string;
   onRSVP: (
     eventId: string,
@@ -53,30 +53,21 @@ interface RSVPDialogProps {
 const RSVPDialog = ({
   isOpen,
   onClose,
-  eventId,
+  event,
   eventTitle,
   onRSVP,
 }: RSVPDialogProps) => {
   const [selectedStatus, setSelectedStatus] = useState<RSVPStatusEnum>(
-    mockRSVPStore[eventId]?.status || RSVPStatusEnum.GOING,
+    event.rsvp?.status || RSVPStatusEnum.GOING,
   );
-
-  // Get initial values from store if they exist
-  const initialValues = mockRSVPStore[eventId]
-    ? {
-        status: mockRSVPStore[eventId].status,
-        guests: mockRSVPStore[eventId].guests || 0,
-        note: mockRSVPStore[eventId].note || "",
-      }
-    : {
-        status: RSVPStatusEnum.GOING,
-        guests: 0,
-        note: "",
-      };
 
   const form = useForm<RSVPFormValues>({
     resolver: zodResolver(rsvpFormSchema),
-    defaultValues: initialValues,
+    defaultValues: {
+      status: event.rsvp?.status || RSVPStatusEnum.GOING,
+      guests: event.rsvp?.guests || 0,
+      note: event.rsvp?.note || "",
+    },
   });
 
   const handleStatusSelect = (status: RSVPStatusEnum) => {
@@ -85,7 +76,7 @@ const RSVPDialog = ({
   };
 
   const handleSubmit = (values: RSVPFormValues) => {
-    onRSVP(eventId, selectedStatus, values.guests, values.note);
+    onRSVP(event.id, selectedStatus, values.guests, values.note);
     onClose();
   };
 

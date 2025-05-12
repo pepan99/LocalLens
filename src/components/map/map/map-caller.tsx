@@ -1,5 +1,6 @@
 "use client";
 
+import { EventType } from "@/modules/events/types/events";
 import dynamic from "next/dynamic";
 import { MapContainer } from "react-leaflet";
 
@@ -16,6 +17,7 @@ type MapCallerProps = {
   showFriends?: boolean;
   trackLocation?: boolean;
   enabledInteraction?: boolean;
+  events: EventType[];
 } & Omit<
   React.ComponentProps<typeof MapContainer>,
   "center" | "zoom" | "children"
