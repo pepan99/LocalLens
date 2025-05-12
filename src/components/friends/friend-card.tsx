@@ -30,14 +30,9 @@ import { formatTimeAgo } from "./utils";
 interface FriendCardProps {
   friend: Friend;
   onRemoveFriend: (friendId: string) => void;
-  onViewProfile: (friendId: string) => void;
 }
 
-const FriendCard = ({
-  friend,
-  onRemoveFriend,
-  onViewProfile,
-}: FriendCardProps) => {
+const FriendCard = ({ friend, onRemoveFriend }: FriendCardProps) => {
   return (
     <Card className="overflow-hidden group border hover:border-gray-300 transition-colors duration-300 hover:shadow-sm">
       <CardHeader className="pb-2 px-4 pt-4 flex-row items-start gap-3">
@@ -70,19 +65,6 @@ const FriendCard = ({
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuItem onClick={() => onViewProfile(friend.id)}>
-                  <User className="mr-2 h-4 w-4" />
-                  <span>View Profile</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link
-                    href={`/messages/${friend.id}`}
-                    className="flex w-full cursor-pointer items-center"
-                  >
-                    <MessageSquare className="mr-2 h-4 w-4" />
-                    <span>Send Message</span>
-                  </Link>
-                </DropdownMenuItem>
                 <DropdownMenuItem>
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -183,16 +165,6 @@ const FriendCard = ({
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
-
-        <Button variant="outline" size="sm" className="font-medium" asChild>
-          <Link
-            href={`/messages/${friend.id}`}
-            className="flex items-center gap-1.5"
-          >
-            <MessageSquare className="h-4 w-4" />
-            Message
-          </Link>
-        </Button>
       </CardFooter>
     </Card>
   );

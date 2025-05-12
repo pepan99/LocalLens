@@ -2,7 +2,7 @@ import { auth } from "@/auth";
 import MapReturnButton from "@/components/buttons/map-return-button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
-import { getUserEventStats } from "@/modules/events/server/queries";
+import { getUserEventStats } from "@/modules/profile/server/queries";
 
 const ProfilePage = async () => {
   const session = await auth();

@@ -83,9 +83,6 @@ const UserMarker = ({ user, isCurrentUser = false }: UserMarkerProps) => {
           </CardContent>
           {!isCurrentUser && (
             <CardFooter className="py-2 px-3 gap-2">
-              <Button size="sm" variant="outline">
-                Message
-              </Button>
               <Button size="sm" variant="default">
                 Invite
               </Button>

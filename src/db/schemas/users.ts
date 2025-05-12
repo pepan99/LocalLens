@@ -7,13 +7,18 @@ import {
 import { AdapterAccountType } from "next-auth/adapters";
 
 export const users = sqliteTable("user", {
-  id: text("id")
-    .primaryKey()
-    .$defaultFn(() => crypto.randomUUID()),
+  id: text("id").primaryKey(),
   name: text("name"),
+  username: text("username"),
   email: text("email").unique(),
   emailVerified: integer("emailVerified", { mode: "timestamp_ms" }),
   image: text("image"),
+  imageUrl: text("imageUrl"),
+  location: text("location"),
+  isOnline: integer("isOnline", { mode: "boolean" }),
+  lastActive: integer("lastActive", { mode: "timestamp_ms" }),
+  isSharingLocation: integer("isSharingLocation", { mode: "boolean" }),
+  coordinates: text("coordinates"),
 });
 
 /* Auth.js schemas */

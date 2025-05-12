@@ -3,7 +3,7 @@ import { db } from "@/db";
 import { eventAttendance } from "@/db/schemas/event-attendance";
 import { events } from "@/db/schemas/events";
 import { EventType } from "@/modules/events/types/events";
-import { and, count, desc, eq, isNull, sql } from "drizzle-orm";
+import { and, desc, eq, isNull, sql } from "drizzle-orm";
 import { mapEventsToEventTypes, mapEventToEventType } from "..";
 
 /**
@@ -282,22 +282,6 @@ export const searchEvents = async (
   }
 };
 
-export const getUserEventStats = async (userId: string) => {
-  const [createdEventsResult] = await db
-    .select({ count: count() })
-    .from(events)
-    .where(eq(events.creatorId, userId));
-
-  const [attendedEventsResult] = await db
-    .select({ count: count() })
-    .from(eventAttendance)
-    .where(eq(eventAttendance.userId, userId));
-
-  return {
-    createdEvents: createdEventsResult.count,
-    attendedEvents: attendedEventsResult.count,
-  };
-};
 /**
  * Get all events the user is attending
  */
