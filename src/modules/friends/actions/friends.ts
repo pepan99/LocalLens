@@ -3,8 +3,9 @@
 import { auth } from "@/auth";
 import { db } from "@/db";
 import { friendRequests, friends } from "@/db/schemas/schema";
+import { users } from "@/db/schemas/users";
 import { ActionResult } from "@/types/result";
-import { eq } from "drizzle-orm";
+import { and, eq, or } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
 export const acceptFriendRequest = async (
@@ -120,5 +121,99 @@ export const cancelFriendRequest = async (
   } catch (error) {
     console.error("Error cancelling friend request:", error);
     return { type: "error", message: "Failed to cancel request" };
+  }
+};
+
+export const sendFriendRequest = async (
+  username: string,
+): Promise<ActionResult> => {
+  try {
+    const session = await auth();
+    if (!session?.user?.id) {
+      return { type: "error", message: "Not authenticated" };
+    }
+
+    const [recipient] = await db
+      .select()
+      .from(users)
+      .where(eq(users.username, username));
+
+    if (!recipient) {
+      return { type: "error", message: "User not found" };
+    }
+
+    if (recipient.id === session.user.id) {
+      return { type: "error", message: "You can't add yourself" };
+    }
+
+    // Check for existing pending or accepted request
+    const [existing] = await db
+      .select()
+      .from(friendRequests)
+      .where(
+        and(
+          or(
+            and(
+              eq(friendRequests.fromUserId, session.user.id),
+              eq(friendRequests.toUserId, recipient.id),
+            ),
+            and(
+              eq(friendRequests.fromUserId, recipient.id),
+              eq(friendRequests.toUserId, session.user.id),
+            ),
+          ),
+          eq(friendRequests.status, "pending"),
+        ),
+      );
+
+    if (existing) {
+      return { type: "error", message: "Request already exists" };
+    }
+
+    await db.insert(friendRequests).values({
+      fromUserId: session.user.id,
+      toUserId: recipient.id,
+    });
+
+    revalidatePath("/friends");
+
+    return { type: "success", message: `Request sent to ${username}` };
+  } catch (error) {
+    console.error("Error sending friend request:", error);
+    return { type: "error", message: "Failed to send friend request" };
+  }
+};
+
+export const removeFriend = async (friendId: string): Promise<ActionResult> => {
+  try {
+    const session = await auth();
+    if (!session?.user?.id) {
+      return { type: "error", message: "Not authenticated" };
+    }
+
+    await db
+      .delete(friends)
+      .where(
+        and(
+          eq(friends.userId, session.user.id),
+          eq(friends.friendId, friendId),
+        ),
+      );
+
+    await db
+      .delete(friends)
+      .where(
+        and(
+          eq(friends.userId, friendId),
+          eq(friends.friendId, session.user.id),
+        ),
+      );
+
+    revalidatePath("/friends");
+
+    return { type: "success", message: "Friend removed" };
+  } catch (error) {
+    console.error("Error removing friend:", error);
+    return { type: "error", message: "Failed to remove friend" };
   }
 };
