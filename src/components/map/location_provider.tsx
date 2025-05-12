@@ -1,3 +1,5 @@
+import { updateUserLocation } from "@/modules/locations/actions/locations";
+import { useSession } from "next-auth/react";
 import {
   createContext,
   ReactNode,
@@ -38,6 +40,8 @@ export const LocationProvider = ({ children }: LocationProviderProps) => {
   const [position, setPosition] = useState<[number, number] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
+  const session = useSession();
+  const userId = session?.data?.user?.id;
 
   /**
    * Update user position
@@ -46,7 +50,7 @@ export const LocationProvider = ({ children }: LocationProviderProps) => {
   const updatePosition = useCallback(() => {
     const options = {
       enableHighAccuracy: true,
-      timeout: 5000,
+      timeout: 8000,
       maximumAge: 1,
     };
 
@@ -57,15 +61,21 @@ export const LocationProvider = ({ children }: LocationProviderProps) => {
       return;
     }
 
+    console.log("Getting user location");
+
     setLoading(true);
     setError(null);
 
     navigator.geolocation.getCurrentPosition(
-      (pos: GeolocationPosition) => {
+      async (pos: GeolocationPosition) => {
         const crd = pos.coords;
 
         setPosition([crd.latitude, crd.longitude] as [number, number]);
         setLoading(false);
+
+        if (userId !== null) {
+          await updateUserLocation([crd.latitude, crd.longitude]);
+        }
       },
       (err: GeolocationPositionError) => {
         let errorMsg = "Error getting location";

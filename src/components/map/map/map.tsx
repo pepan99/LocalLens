@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { MapContainer, TileLayer, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css"; // Must imported to make the leaflet work correctly
 import "leaflet/dist/leaflet.js"; // Must imported to make the leaflet work correctly
@@ -102,32 +102,9 @@ const Map = ({
   const [center, setCenter] = useState<[number, number] | undefined>(
     initialCenter,
   );
-  const [currentLocation, setCurrentLocation] = useState<
-    [number, number] | null
-  >(null);
   const mapRef = useRef<L.Map | null>(null);
 
   const userLocation = useLocation();
-
-  useEffect(() => {
-    console.log("User location:", userLocation);
-  }, [userLocation]);
-
-  // Handle getting user's current location
-  useEffect(() => {
-    if (trackLocation) {
-      navigator.geolocation.getCurrentPosition(
-        position => {
-          const { latitude, longitude } = position.coords;
-          setCurrentLocation([latitude, longitude]);
-          setCenter([latitude, longitude]);
-        },
-        error => {
-          console.error("Error getting location:", error);
-        },
-      );
-    }
-  }, [trackLocation]);
 
   const handleZoomIn = () => {
     if (mapRef.current) {
@@ -145,7 +122,7 @@ const Map = ({
 
   const handleRecenter = () => {
     if (userLocation?.position) {
-      setCenter(userLocation?.position || currentLocation);
+      setCenter(userLocation?.position || undefined);
       if (mapRef.current) {
         mapRef.current.setView(userLocation?.position, 15);
       }
