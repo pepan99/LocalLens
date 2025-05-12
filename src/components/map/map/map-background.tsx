@@ -1,9 +1,14 @@
 "use client";
 
+import { EventType } from "@/modules/events/types/events";
 import dynamic from "next/dynamic";
 import { useMemo } from "react";
 
-export const MapBackground = () => {
+type MapBackgroundProps = {
+  events: EventType[];
+};
+
+export const MapBackground = ({ events }: MapBackgroundProps) => {
   const Map = useMemo(
     () =>
       dynamic(() => import("@/components/map/map/map"), {
@@ -20,5 +25,5 @@ export const MapBackground = () => {
     [],
   );
 
-  return <Map />;
+  return <Map events={events} />;
 };

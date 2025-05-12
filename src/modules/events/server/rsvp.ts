@@ -26,13 +26,7 @@ export const getAttendingUsers = async (
         user: users,
       })
       .from(eventAttendance)
-      .innerJoin(
-        users,
-        and(
-          eq(users.id, eventAttendance.userId),
-          eq(eventAttendance.userId, userId),
-        ),
-      )
+      .innerJoin(users, eq(users.id, eventAttendance.userId))
       .where(eq(eventAttendance.eventId, eventId))
       .orderBy(users.name);
 

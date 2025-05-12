@@ -1,7 +1,6 @@
 "use client";
 
-import { EventType } from "@/modules/events/types/events";
-import { RSVPStatusEnum } from "../events/rsvp";
+import { EventType, RSVPStatusEnum } from "@/modules/events/types/events";
 import { ScrollArea } from "../ui/scroll-area";
 import ExploreEventCard from "./explore-event-card";
 

@@ -18,11 +18,11 @@ import { useEffect, useState } from "react";
 import { Marker, Popup } from "react-leaflet";
 
 // Define custom icon for event markers with RSVP status
-const createEventIcon = (category: string, rsvpStatus: RSVPStatusEnum) => {
+const createEventIcon = (event: EventType) => {
   // Base color by category
   let color = "#0ea5e9"; // Default blue
 
-  switch (category) {
+  switch (event.category) {
     case "Technology":
       color = "#0ea5e9"; // Blue
       break;
@@ -44,20 +44,33 @@ const createEventIcon = (category: string, rsvpStatus: RSVPStatusEnum) => {
 
   // RSVP status indicator
   let rsvpIndicator = "";
-  if (rsvpStatus === RSVPStatusEnum.GOING) {
+  if (event.rsvp?.status === RSVPStatusEnum.GOING) {
     rsvpIndicator = `<div style="position: absolute; top: -5px; right: -5px; width: 16px; height: 16px; background-color: #10b981; border-radius: 50%; border: 2px solid white; display: flex; justify-content: center; align-items: center;">
                       <span style="color: white; font-size: 10px;">✓</span>
                      </div>`;
-  } else if (rsvpStatus === RSVPStatusEnum.MAYBE) {
+  } else if (event.rsvp?.status === RSVPStatusEnum.MAYBE) {
     rsvpIndicator = `<div style="position: absolute; top: -5px; right: -5px; width: 16px; height: 16px; background-color: #f59e0b; border-radius: 50%; border: 2px solid white; display: flex; justify-content: center; align-items: center;">
                       <span style="color: white; font-size: 10px;">?</span>
                      </div>`;
-  } else if (rsvpStatus === RSVPStatusEnum.NOT_GOING) {
+  } else if (event.rsvp?.status === RSVPStatusEnum.NOT_GOING) {
     rsvpIndicator = `<div style="position: absolute; top: -5px; right: -5px; width: 16px; height: 16px; background-color: #ef4444; border-radius: 50%; border: 2px solid white; display: flex; justify-content: center; align-items: center;">
                       <span style="color: white; font-size: 10px;">✕</span>
                      </div>`;
   }
 
+  if (event.imageUrl) {
+    // Create a custom icon using Leaflet's divIconif()
+    return L.divIcon({
+      className: "custom-event-marker",
+      html: `<div style="position: relative; width: 30px; height: 30px;">
+             <div style="background-image: url(${event.imageUrl}); width: 30px; height: 30px; border-radius: 50%; display: flex; justify-content: center; align-items: center; border: 2px solid white; box-shadow: 0 2px 6px rgba(0,0,0,0.3);">
+             </div>
+             ${rsvpIndicator}
+           </div>`,
+      iconSize: [30, 30],
+      iconAnchor: [15, 15],
+    });
+  }
   return L.divIcon({
     className: "custom-event-marker",
     html: `<div style="position: relative; width: 30px; height: 30px;">
@@ -77,29 +90,21 @@ type EventMarkerProps = {
 };
 
 const EventMarker = ({ event, onRSVPChange }: EventMarkerProps) => {
-  const [rsvpStatus, setRsvpStatus] = useState<RSVPStatusEnum>(
-    RSVPStatusEnum.NO_RESPONSE,
-  );
   const [marker, setMarker] = useState<L.Marker | null>(null);
 
   // Get the current RSVP status when component mounts and when RSVP changes
   useEffect(() => {
-    const status = event.rsvp?.status ?? RSVPStatusEnum.NO_RESPONSE;
-    setRsvpStatus(status);
-
     // Update marker icon if marker ref exists
     if (marker) {
-      marker.setIcon(createEventIcon(event.category, status));
+      marker.setIcon(createEventIcon(event));
     }
-  }, [event.id, event.category, marker, event.rsvp?.status]);
+  }, [event, marker]);
 
   // Handle RSVP status change
   const handleRSVPChange = (eventId: string, status: RSVPStatusEnum) => {
-    setRsvpStatus(status);
-
     // Update the marker icon with the new status
     if (marker) {
-      marker.setIcon(createEventIcon(event.category, status));
+      marker.setIcon(createEventIcon(event));
     }
 
     if (onRSVPChange) {
@@ -112,14 +117,14 @@ const EventMarker = ({ event, onRSVPChange }: EventMarkerProps) => {
     setMarker(ref);
     // Set initial icon with RSVP status once we have the marker reference
     if (ref) {
-      ref.setIcon(createEventIcon(event.category, rsvpStatus));
+      ref.setIcon(createEventIcon(event));
     }
   };
 
   return (
     <Marker
       position={event.coordinates}
-      icon={createEventIcon(event.category, rsvpStatus)}
+      icon={createEventIcon(event)}
       ref={setMarkerRef}
     >
       <Popup className="event-popup" minWidth={280} maxWidth={320}>

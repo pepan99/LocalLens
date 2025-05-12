@@ -3,9 +3,9 @@ import { getEventById } from "@/modules/events/server/queries";
 import { notFound } from "next/navigation";
 
 type EditEventPageProps = {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 };
 
 const EditEventPage = async ({ params }: EditEventPageProps) => {

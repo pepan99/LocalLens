@@ -1,14 +1,13 @@
-import eslint from '@eslint/js';
-import tseslint from 'typescript-eslint';
-import reactPlugin from 'eslint-plugin-react';
-import reactHooksPlugin from 'eslint-plugin-react-hooks';
-import jsxA11yPlugin from 'eslint-plugin-jsx-a11y';
-import prettierPlugin from 'eslint-plugin-prettier';
-import preferArrowPlugin from 'eslint-plugin-prefer-arrow';
-
 import { dirname } from "path";
 import { fileURLToPath } from "url";
 import { FlatCompat } from "@eslint/eslintrc";
+import eslint from "@eslint/js";
+import jsxA11yPlugin from "eslint-plugin-jsx-a11y";
+import preferArrowPlugin from "eslint-plugin-prefer-arrow";
+import prettierPlugin from "eslint-plugin-prettier";
+import reactPlugin from "eslint-plugin-react";
+import reactHooksPlugin from "eslint-plugin-react-hooks";
+import tseslint from "typescript-eslint";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -16,7 +15,6 @@ const __dirname = dirname(__filename);
 const compat = new FlatCompat({
   baseDirectory: __dirname,
 });
-
 
 export default tseslint.config(
   // Base ESLint configuration
@@ -27,67 +25,70 @@ export default tseslint.config(
 
   // React configuration
   {
-    files: ['**/*.{jsx,tsx}'],
+    files: ["**/*.{jsx,tsx}"],
     plugins: {
-      react: reactPlugin,
-      'react-hooks': reactHooksPlugin
+      "react": reactPlugin,
+      "react-hooks": reactHooksPlugin,
     },
     settings: {
       react: {
-        version: 'detect'
-      }
+        version: "detect",
+      },
     },
     rules: {
       ...reactPlugin.configs.recommended.rules,
       ...reactHooksPlugin.configs.recommended.rules,
-      'react/react-in-jsx-scope': 'off',
-      'react/self-closing-comp': 'error',
-      'react/jsx-boolean-value': ['error', 'never'],
-      'react/jsx-curly-brace-presence': ['error', 'never'],
-      'react/jsx-curly-spacing': ['error', 'never'],
-      'react/jsx-equals-spacing': ['error', 'never'],
-      'react/jsx-fragments': ['error', 'syntax'],
-      'react/jsx-no-useless-fragment': 'error',
-      'react/display-name': 'off',
-      'react/function-component-definition': [
-        'error',
-        { namedComponents: 'arrow-function', unnamedComponents: 'arrow-function' }
+      "react/react-in-jsx-scope": "off",
+      "react/self-closing-comp": "error",
+      "react/jsx-boolean-value": ["error", "never"],
+      "react/jsx-curly-brace-presence": ["error", "never"],
+      "react/jsx-curly-spacing": ["error", "never"],
+      "react/jsx-equals-spacing": ["error", "never"],
+      "react/jsx-fragments": ["error", "syntax"],
+      "react/jsx-no-useless-fragment": "error",
+      "react/display-name": "off",
+      "react/function-component-definition": [
+        "error",
+        {
+          namedComponents: "arrow-function",
+          unnamedComponents: "arrow-function",
+        },
       ],
-      'react/prop-types': 'off' // Disabled for TypeScript files
-    }
+      "react/prop-types": "off", // Disabled for TypeScript files
+    },
   },
 
   // JSX A11y configuration
   {
-    files: ['**/*.{jsx,tsx}'],
+    files: ["**/*.{jsx,tsx}"],
     plugins: {
-      'jsx-a11y': jsxA11yPlugin
+      "jsx-a11y": jsxA11yPlugin,
     },
     rules: {
-      ...jsxA11yPlugin.configs.recommended.rules
-    }
+      ...jsxA11yPlugin.configs.recommended.rules,
+    },
   },
 
   // Prettier configuration
   {
-    files: ['**/*.{js,jsx,ts,tsx}'],
+    files: ["**/*.{js,jsx,ts,tsx}"],
     plugins: {
-      prettier: prettierPlugin
+      prettier: prettierPlugin,
     },
     rules: {
-      ...prettierPlugin.configs.recommended.rules
-    }
+      ...prettierPlugin.configs.recommended.rules,
+    },
   },
 
-  // Prefer Arrow configuration  
+  // Prefer Arrow configuration
   {
-    files: ['**/*.{js,jsx,ts,tsx}'],
+    files: ["**/*.{js,jsx,ts,tsx}"],
     plugins: {
-      'prefer-arrow': preferArrowPlugin
+      "prefer-arrow": preferArrowPlugin,
     },
     rules: {
-      'prefer-arrow/prefer-arrow-functions': 'error'
-    }
+      "prefer-arrow/prefer-arrow-functions": "error",
+    },
   },
 
   // Ignoring specific files and patterns
@@ -100,19 +101,20 @@ export default tseslint.config(
       "eslint.config.js",
       "postcss.config.mjs",
       "**/*.md",
-      "**/*.html"
-    ]
+      "**/*.html",
+      "scripts/**",
+    ],
   },
   {
-    'rules': {
+    rules: {
       "@typescript-eslint/no-unused-vars": [
         "warn", // or "error"
         {
-          "argsIgnorePattern": "^_",
-          "varsIgnorePattern": "^_",
-          "caughtErrorsIgnorePattern": "^_"
-        }
+          argsIgnorePattern: "^_",
+          varsIgnorePattern: "^_",
+          caughtErrorsIgnorePattern: "^_",
+        },
       ],
-    }
+    },
   },
 );

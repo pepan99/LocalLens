@@ -9,11 +9,11 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { EventType } from "@/modules/events/types/events";
+import { EventType, RSVPStatusEnum } from "@/modules/events/types/events";
 import { Clock, Edit, MapPin, Star, Trash, Users } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
-import { RSVPManager, RSVPStatusEnum } from "../rsvp";
+import { RSVPManager } from "../rsvp";
 import { formatEventDate } from "../utils";
 
 interface EventCardProps {

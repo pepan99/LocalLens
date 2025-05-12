@@ -21,9 +21,6 @@ const AuthLayout = async ({
   if (!events) {
     return <div>Loading...</div>;
   }
-
-  console.log("Events in AuthLayout:", events);
-
   return (
     <div className="min-h-screen h-full w-full flex flex-col relative">
       <NavBar />

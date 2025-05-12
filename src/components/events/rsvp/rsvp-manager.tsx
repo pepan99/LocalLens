@@ -56,10 +56,10 @@ const RSVPManager = ({
         note: note,
       });
 
-      if (!res || res.type === "error") {
-        toast.error("Failed to submit your RSVP. Please try again.");
-        return;
-      }
+      // if (res.type === "error") {
+      //   toast.error("Failed to submit your RSVP. Please try again.");
+      //   return;
+      // }
 
       const message =
         status === RSVPStatusEnum.GOING

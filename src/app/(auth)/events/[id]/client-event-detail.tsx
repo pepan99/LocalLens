@@ -35,6 +35,9 @@ const ClientEventDetailPage = ({
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
   // Convert EventType to EventDetail for compatibility with components
+  console.log("Event ID:", eventId);
+  console.log("Initial Event:", initialEvent);
+  console.log("Attendees:", attendees);
 
   const handleDeleteEvent = async () => {
     const result = await deleteEvent(eventId);
@@ -57,20 +60,7 @@ const ClientEventDetailPage = ({
     setIsDeleteDialogOpen(false);
   };
 
-  const handleRSVPChange = (eventId: string, status: RSVPStatusEnum) => {
-    // In a real app, you would update the UI based on the new RSVP status
-    // This should be implemented using server actions
-    console.log(`RSVP status changed for event ${eventId}: ${status}`);
-
-    // Show toast notification
-    const message =
-      status === RSVPStatusEnum.GOING
-        ? "You're going to this event!"
-        : status === RSVPStatusEnum.MAYBE
-          ? "You might attend this event."
-          : "You've declined this event.";
-
-    toast(message);
+  const handleRSVPChange = () => {
     router.refresh();
   };
 
@@ -81,13 +71,6 @@ const ClientEventDetailPage = ({
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">
           <EventInformation event={initialEvent} />
-
-          {/* Attendees list - only show if not owner */}
-          {!isOwner && (
-            <div className="mt-6">
-              <RSVPAttendees attendees={attendees} />
-            </div>
-          )}
         </div>
 
         <div className="space-y-6">
@@ -97,8 +80,7 @@ const ClientEventDetailPage = ({
             onRSVPChange={handleRSVPChange}
           />
 
-          {/* Attendees list - only show if owner */}
-          {isOwner && <RSVPAttendees attendees={attendees} />}
+          <RSVPAttendees attendees={attendees} />
         </div>
       </div>
 

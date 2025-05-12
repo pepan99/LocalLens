@@ -22,10 +22,9 @@ const RSVPAttendees = ({ attendees, className = "" }: RSVPAttendeesProps) => {
   );
 
   // Calculate total number of people attending
-  const totalAttending = attendees.reduce(
-    (total, attendee) => total + 1 + (attendee.rsvp.guests || 0),
-    0,
-  );
+  const totalAttending = attendees
+    .filter(attendee => attendee.rsvp.status !== RSVPStatusEnum.NOT_GOING)
+    .reduce((total, attendee) => total + 1 + (attendee.rsvp.guests || 0), 0);
 
   return (
     <Card className={`bg-white/90 backdrop-blur-sm ${className}`}>

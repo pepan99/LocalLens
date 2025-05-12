@@ -45,3 +45,4 @@ next-env.d.ts
 dev.db
 dev.db-shm
 dev.db-wal
+scripts/seed_db.ts

@@ -56,8 +56,8 @@ const EditEventForm = ({
       customLocation: "",
       date: eventDate,
       time: timeString,
-      capacity: event.capacity,
-      isEventPrivate: event.isPrivate,
+      capacity: event.capacity.toString(),
+      isEventPrivate: event.isEventPrivate,
       imageUrl: "",
     },
   });
