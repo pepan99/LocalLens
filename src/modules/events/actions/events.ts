@@ -1,41 +1,22 @@
 "use server";
 
+import { randomUUID } from "crypto";
 import { auth } from "@/auth";
 import { db } from "@/db";
+import { eventAttendance } from "@/db/schemas/event-attendance";
 import { events } from "@/db/schemas/events";
-import { eventAttendance, eventInvitations } from "@/db/schemas/schema";
+import { eventInvitations } from "@/db/schemas/schema";
 import { ActionResult } from "@/types/result";
 import { and, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
-import { CreateEventFormValues, createEventSchema } from "../schemas/schemas";
+import {
+  CreateEventFormValues,
+  createEventSchema,
+  rsvpFormSchema,
+  RSVPFormValues,
+} from "../schemas/schemas";
 import { getEventById } from "../server/queries";
-
-// Error type
-type ActionError = {
-  error: string;
-};
-
-// Success type with event data
-type EventSuccess = {
-  event: {
-    id: string;
-    title: string;
-    time: string;
-    date: Date;
-    location: string;
-    description: string;
-    category: string;
-    capacity: string;
-    latitude: number;
-    longitude: number;
-    isPrivate: boolean;
-    imageUrl: string | null;
-    creatorId: string;
-  };
-};
-
-// Response type
-type EventResponse = EventSuccess | ActionError;
+import { EventType } from "../types/events";
 
 /**
  * Create a new event
@@ -63,17 +44,10 @@ export const createEvent = async (
 
     // Insert the event into the database
     await db.insert(events).values({
-      title: eventData.title,
-      time: eventData.time,
-      date: eventData.date,
-      location: eventData.location,
-      description: eventData.description,
-      category: eventData.category,
-      capacity: eventData.capacity,
+      ...eventData,
+      id: randomUUID(),
       latitude: coordinates[0],
       longitude: coordinates[1],
-      isPrivate: eventData.isPrivate,
-      imageUrl: eventData.imageUrl,
       creatorId: session.user.id,
     });
 
@@ -91,82 +65,70 @@ export const createEvent = async (
 };
 
 /**
-//  * Update an existing event
-//  */
-// export const updateEvent = async => (
-//   eventId: string,
-//   formData: FormData
-// ): Promise<EventResponse> {
-//   try {
-//     // Get the current user
-//     const session = await auth();
-//     if (!session?.user?.id) {
-//       return { error: "Not authenticated" };
-//     }
+ * Update an existing event
+ */
+export const updateEvent = async (
+  eventId: string,
+  updatedEvent: EventType,
+  coordinates: [number, number],
+): Promise<ActionResult> => {
+  try {
+    // Get the current user
+    const session = await auth();
+    if (!session?.user?.id) {
+      return { type: "error", message: "Not authenticated" };
+    }
 
-//     // Check if the event exists and is owned by the current user
-//     const [existingEvent] = await db.select()
-//       .from(events)
-//       .where(
-//         and(
-//           eq(events.id, eventId),
-//           eq(events.creatorId, session.user.id)
-//         )
-//       );
+    // Parse and validate the form data
+    const parsedData = createEventSchema.safeParse(updatedEvent);
 
-//     if (!existingEvent) {
-//       return { error: "Event not found or you don't have permission to edit it" };
-//     }
+    if (!parsedData.success) {
+      console.error("Validation error:", parsedData.error);
+      return { type: "error", message: "Invalid event data" };
+    }
 
-//     // Parse and validate the form data
-//     const rawData = Object.fromEntries(formData.entries());
-//     const parsedData = EventSchema.safeParse({
-//       ...rawData,
-//       latitude: parseFloat(formData.get('latitude') as string || '0'),
-//       longitude: parseFloat(formData.get('longitude') as string || '0'),
-//       isPrivate: formData.get('isPrivate') === 'true',
-//       date: new Date(formData.get('date') as string),
-//     });
+    const eventData = parsedData.data;
 
-//     if (!parsedData.success) {
-//       console.error("Validation error:", parsedData.error);
-//       return { error: "Invalid event data" };
-//     }
+    // Check if the event exists and is owned by the current user
+    const [existingEvent] = await db
+      .select()
+      .from(events)
+      .where(
+        and(eq(events.id, eventId), eq(events.creatorId, session.user.id)),
+      );
 
-//     const eventData = parsedData.data;
+    if (!existingEvent) {
+      return {
+        type: "error",
+        message: "Event not found or you don't have permission to edit it",
+      };
+    }
 
-//     // Update the event
-//     const [updatedEvent] = await db.update(events)
-//       .set({
-//         title: eventData.title,
-//         time: eventData.time,
-//         date: eventData.date,
-//         location: eventData.location,
-//         description: eventData.description,
-//         category: eventData.category,
-//         capacity: eventData.capacity,
-//         latitude: eventData.latitude,
-//         longitude: eventData.longitude,
-//         isPrivate: eventData.isPrivate,
-//         imageUrl: eventData.imageUrl,
-//         updatedAt: new Date(),
-//       })
-//       .where(eq(events.id, eventId))
-//       .returning();
+    // Update the event
+    await db
+      .update(events)
+      .set({
+        ...eventData,
+        id: randomUUID(),
+        latitude: coordinates[0],
+        longitude: coordinates[1],
+        creatorId: session.user.id,
+      })
+      .where(eq(events.id, eventId));
 
-//     // Revalidate the events page and the specific event page
-//     revalidatePath('/events');
-//     revalidatePath(`/events/${eventId}`);
+    // Revalidate the events page and the specific event page
+    revalidatePath("/events");
+    revalidatePath(`/events/${eventId}`);
 
-//     return {
-//       event: updatedEvent
-//     };
-//   } catch (error) {
-//     console.error("Error updating event:", error);
-//     return { error: "Failed to update event" };
-//   }
-// }
-
+    return {
+      type: "success",
+      message: "Event updated successfully",
+    };
+  } catch (error) {
+    console.error("Error updating event:", error);
+    return { type: "error", message: "Failed to update event" };
+  }
+};
 /**
  * Delete an event
  */
@@ -219,21 +181,32 @@ export const deleteEvent = async (eventId: string): Promise<ActionResult> => {
  */
 export const respondToEvent = async (
   eventId: string,
-  status: "going" | "maybe" | "not_going",
-): Promise<{ success: boolean } | ActionError> => {
+  status: RSVPFormValues,
+): Promise<ActionResult> => {
   try {
     const session = await auth();
     if (!session?.user?.id) {
-      return { error: "Not authenticated" };
+      return { type: "error", message: "Not authenticated" };
+    }
+    const userId = session.user.id;
+
+    // Validate input
+    // Parse and validate the form data
+    const parsedData = rsvpFormSchema.safeParse(status);
+
+    if (!parsedData.success) {
+      console.error("Validation error:", parsedData.error);
+      return { type: "error", message: "Invalid event data" };
     }
 
-    const userId = session.user.id;
+    const rsvp = parsedData.data;
 
     // Check if the event exists and user has permission to view it
     const event = await getEventById(eventId);
     if (!event) {
       return {
-        error: "Event not found or you don't have permission to view it",
+        type: "error",
+        message: "Event not found or you don't have permission to view it",
       };
     }
 
@@ -252,7 +225,7 @@ export const respondToEvent = async (
       // Update existing response
       await db
         .update(eventAttendance)
-        .set({ status })
+        .set({ status: rsvp.status, guests: rsvp.guests, note: rsvp.note })
         .where(
           and(
             eq(eventAttendance.eventId, eventId),
@@ -262,80 +235,83 @@ export const respondToEvent = async (
     } else {
       // Create new response
       await db.insert(eventAttendance).values({
-        eventId,
-        userId,
-        status,
+        userId: session.user.id,
+        eventId: eventId,
+        status: rsvp.status,
+        guests: rsvp.guests,
+        note: rsvp.note,
       });
     }
 
     // Revalidate the event page
     revalidatePath(`/events/${eventId}`);
+    revalidatePath(`/events`);
 
-    return { success: true };
+    return { type: "error", message: "Rsvp updated" };
   } catch (error) {
     console.error("Error responding to event:", error);
-    return { error: "Failed to respond to event" };
+    return { type: "error", message: "Failed to respond to event" };
   }
 };
 
-/**
- * Invite users to an event
- */
-export const inviteToEvent = async (
-  eventId: string,
-  userIds: string[],
-): Promise<{ success: boolean } | ActionError> => {
-  try {
-    const session = await auth();
-    if (!session?.user?.id) {
-      return { error: "Not authenticated" };
-    }
+// /**
+//  * Invite users to an event
+//  */
+// export const inviteToEvent = async (
+//   eventId: string,
+//   userIds: string[],
+// ): Promise<{ success: boolean } | ActionError> => {
+//   try {
+//     const session = await auth();
+//     if (!session?.user?.id) {
+//       return { error: "Not authenticated" };
+//     }
 
-    // Check if the event exists and is owned by the current user
-    const [existingEvent] = await db
-      .select()
-      .from(events)
-      .where(
-        and(eq(events.id, eventId), eq(events.creatorId, session.user.id)),
-      );
+//     // Check if the event exists and is owned by the current user
+//     const [existingEvent] = await db
+//       .select()
+//       .from(events)
+//       .where(
+//         and(eq(events.id, eventId), eq(events.creatorId, session.user.id)),
+//       );
 
-    if (!existingEvent) {
-      return {
-        error: "Event not found or you don't have permission to invite users",
-      };
-    }
+//     if (!existingEvent) {
+//       return {
+//         error: "Event not found or you don't have permission to invite users",
+//       };
+//     }
 
-    // Get existing invitations to avoid duplicates
-    const existingInvitations = await db
-      .select({ userId: eventInvitations.invitedUserId })
-      .from(eventInvitations)
-      .where(eq(eventInvitations.eventId, eventId));
+//     // Get existing invitations to avoid duplicates
+//     const existingInvitations = await db
+//       .select({ userId: eventInvitations.invitedUserId })
+//       .from(eventInvitations)
+//       .where(eq(eventInvitations.eventId, eventId));
 
-    const existingInvitedUserIds = existingInvitations.map(inv => inv.userId);
+//     const existingInvitedUserIds = existingInvitations.map(inv => inv.userId);
 
-    // Filter out users that have already been invited
-    const newUserIdsToInvite = userIds.filter(
-      id => !existingInvitedUserIds.includes(id),
-    );
+//     // Filter out users that have already been invited
+//     const newUserIdsToInvite = userIds.filter(
+//       id => !existingInvitedUserIds.includes(id),
+//     );
 
-    if (newUserIdsToInvite.length === 0) {
-      return { success: true }; // All users already invited
-    }
+//     if (newUserIdsToInvite.length === 0) {
+//       return { success: true }; // All users already invited
+//     }
 
-    // Create invitation records
-    await db.insert(eventInvitations).values(
-      newUserIdsToInvite.map(userId => ({
-        eventId,
-        invitedUserId: userId,
-      })),
-    );
+//     // Create invitation records
+//     await db.insert(eventInvitations).values(
+//       newUserIdsToInvite.map(userId => ({
+//         eventId,
+//         invitedUserId: userId,
+//       })),
+//     );
 
-    // Revalidate the event page
-    revalidatePath(`/events/${eventId}`);
+//     // Revalidate the event page
+//     revalidatePath(`/events/${eventId}`);
 
-    return { success: true };
-  } catch (error) {
-    console.error("Error inviting to event:", error);
-    return { error: "Failed to invite users to event" };
-  }
-};
+//     return { success: true };
+//   } catch (error) {
+//     console.error("Error inviting to event:", error);
+//     return { error: "Failed to invite users to event" };
+//   }
+// };

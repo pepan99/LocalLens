@@ -46,16 +46,6 @@ export const eventInvitations = sqliteTable("event_invitations", {
     .references(() => users.id),
 });
 
-export const eventAttendance = sqliteTable("event_attendance", {
-  eventId: text("event_id")
-    .notNull()
-    .references(() => events.id),
-  userId: text("user_id")
-    .notNull()
-    .references(() => users.id),
-  status: text("status").notNull(),
-});
-
 export const places = sqliteTable("places", {
   id: text("id").primaryKey(),
   name: text("name").notNull(),

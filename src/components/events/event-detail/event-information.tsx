@@ -8,12 +8,12 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { EventType } from "@/modules/events/types/events";
 import { Calendar, Clock, MapPin, Star, Users } from "lucide-react";
 import dynamic from "next/dynamic";
-import { EventDetail, formatEventDate, formatEventTime } from "./utils";
 
 interface EventInformationProps {
-  event: EventDetail;
+  event: EventType;
 }
 
 const EventInformation = ({ event }: EventInformationProps) => {
@@ -38,11 +38,11 @@ const EventInformation = ({ event }: EventInformationProps) => {
           <div className="text-lg mt-2 text-gray-500">
             <span className="flex items-center gap-1">
               <Calendar className="h-4 w-4" />
-              {formatEventDate(event.date)}
+              {event.date.toDateString()}
             </span>
             <span className="flex items-center gap-1 mt-1">
               <Clock className="h-4 w-4" />
-              {formatEventTime(event.date)}
+              {event.time}
             </span>
           </div>
         </div>
@@ -71,10 +71,6 @@ const EventInformation = ({ event }: EventInformationProps) => {
       </CardContent>
       <CardFooter className="border-t pt-6 flex justify-between">
         <div className="flex gap-4 text-gray-700 items-center">
-          <div className="flex items-center gap-1">
-            <Users className="h-5 w-5" />
-            <span>{event.attendees} attending</span>
-          </div>
           <div className="flex items-center gap-1">
             <Star className="h-5 w-5 text-yellow-500 fill-yellow-500" />
             <span>{event.rating}</span>

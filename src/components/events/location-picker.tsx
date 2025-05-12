@@ -126,7 +126,7 @@ const LocationPicker = ({
                 <Button
                   variant="default"
                   size="sm"
-                  className="mt-2 mr-2"
+                  className="rounded-none"
                   onClick={getCurrentLocation}
                 >
                   <Locate className="h-4 w-4 mr-2" />

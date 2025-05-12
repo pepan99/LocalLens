@@ -1,8 +1,9 @@
 "use client";
 
 import { Badge } from "@/components/ui/badge";
+import { RSVPStatusEnum } from "@/modules/events/types/events";
 import { CalendarCheck, CalendarClock, CalendarX } from "lucide-react";
-import { getRSVPStatusText, RSVPStatusEnum } from "./utils";
+import { getRSVPStatusText } from "./utils";
 
 type RSVPStatusProps = {
   status: RSVPStatusEnum;

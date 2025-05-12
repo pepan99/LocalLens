@@ -62,7 +62,7 @@ const FilterMenu = ({ isOpen, onClose, onApplyFilters }: FilterMenuProps) => {
 
   return (
     <Sheet open={isOpen} onOpenChange={onClose}>
-      <SheetContent className="w-[300px] sm:w-[400px]">
+      <SheetContent className="w-[300px] sm:w-[400px] pl-4 rounded-l-xl">
         <SheetHeader>
           <SheetTitle>Filter Events</SheetTitle>
           <SheetDescription>

@@ -3,9 +3,7 @@ import { integer, real, sqliteTable, text } from "drizzle-orm/sqlite-core";
 import { users } from "./users";
 
 export const events = sqliteTable("events", {
-  id: text("id")
-    .primaryKey()
-    .default(sql`(uuid())`),
+  id: text("id").primaryKey(),
   creatorId: text("creator_id")
     .notNull()
     .references(() => users.id),
@@ -15,7 +13,7 @@ export const events = sqliteTable("events", {
   location: text("location"),
   description: text("description").notNull(),
   category: text("category").notNull(),
-  capacity: text("capacity").notNull(),
+  capacity: integer("capacity").notNull(),
   latitude: real("latitude").notNull(),
   longitude: real("longitude").notNull(),
   isPrivate: integer("is_private", { mode: "boolean" })

@@ -1,13 +1,14 @@
 "use client";
 
-import { RSVPManager, RSVPStatusEnum } from "@/components/events/rsvp";
+import { RSVPManager } from "@/components/events/rsvp";
 import { Button } from "@/components/ui/button";
+import { EventType, RSVPStatusEnum } from "@/modules/events/types/events";
 import { Calendar, MapPin, Star, Users } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { ExploreEvent, THEME_COLOR } from "./utils";
+import { THEME_COLOR } from "./utils";
 
 interface ExploreEventCardProps {
-  event: ExploreEvent;
+  event: EventType;
   onRSVPChange?: (eventId: string, status: RSVPStatusEnum) => void;
 }
 
@@ -23,7 +24,7 @@ const ExploreEventCard = ({ event, onRSVPChange }: ExploreEventCardProps) => {
     <div className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow duration-200">
       {/* Event Header */}
       <div className="flex justify-between items-start mb-2">
-        <h3 className="text-lg font-semibold text-gray-900">{event.name}</h3>
+        <h3 className="text-lg font-semibold text-gray-900">{event.title}</h3>
         <span className={categoryClasses}>{event.category}</span>
       </div>
 
@@ -32,7 +33,7 @@ const ExploreEventCard = ({ event, onRSVPChange }: ExploreEventCardProps) => {
         <div className="flex items-center">
           <Calendar size={14} className="mr-2 text-gray-500" />
           <span>
-            {event.date}, {event.time}
+            {event.date.toDateString()}, {event.time}
           </span>
         </div>
         <div className="flex items-center">
@@ -51,7 +52,7 @@ const ExploreEventCard = ({ event, onRSVPChange }: ExploreEventCardProps) => {
           <Star size={16} className="mr-1 text-yellow-500 fill-current" />
           <span className="font-medium">{event.rating.toFixed(1)}</span>
         </div>
-        <span>{event.distance.toFixed(1)} km</span>
+        <span>{Math.floor(Math.random() * 31)} km</span>
       </div>
 
       {/* Action Buttons */}
@@ -64,8 +65,8 @@ const ExploreEventCard = ({ event, onRSVPChange }: ExploreEventCardProps) => {
           Details
         </Button>
         <RSVPManager
-          eventId={event.id.toString()}
-          eventTitle={event.name}
+          event={event}
+          eventTitle={event.title}
           buttonVariant="default"
           buttonSize="sm"
           onRSVPChange={onRSVPChange}

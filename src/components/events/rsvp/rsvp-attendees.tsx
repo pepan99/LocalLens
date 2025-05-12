@@ -3,68 +3,28 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { AttendingUser, RSVPStatusEnum } from "@/modules/events/types/events";
 import { CalendarCheck, CalendarClock, User } from "lucide-react";
-import { RSVPStatusEnum } from "./utils";
-
-// Mock attendees data - in a real app, this would come from your API
-const MOCK_ATTENDEES = [
-  {
-    id: "user1",
-    name: "Alice Johnson",
-    status: RSVPStatusEnum.GOING,
-    avatar: "",
-    guests: 2,
-  },
-  {
-    id: "user2",
-    name: "Bob Smith",
-    status: RSVPStatusEnum.GOING,
-    avatar: "",
-    guests: 0,
-  },
-  {
-    id: "user3",
-    name: "Charlie Brown",
-    status: RSVPStatusEnum.GOING,
-    avatar: "",
-    guests: 1,
-  },
-  {
-    id: "user4",
-    name: "Diana Prince",
-    status: RSVPStatusEnum.MAYBE,
-    avatar: "",
-    guests: 0,
-  },
-  {
-    id: "user5",
-    name: "Ethan Hunt",
-    status: RSVPStatusEnum.MAYBE,
-    avatar: "",
-    guests: 0,
-  },
-];
 
 interface RSVPAttendeesProps {
-  eventId: string;
+  attendees: AttendingUser[];
   className?: string;
 }
 
-const RSVPAttendees = ({ eventId, className = "" }: RSVPAttendeesProps) => {
+const RSVPAttendees = ({ attendees, className = "" }: RSVPAttendeesProps) => {
   // Filter attendees by status
-  const goingAttendees = MOCK_ATTENDEES.filter(
-    attendee => attendee.status === RSVPStatusEnum.GOING,
+  const goingAttendees = attendees.filter(
+    attendee => attendee.rsvp.status === RSVPStatusEnum.GOING,
   );
 
-  const maybeAttendees = MOCK_ATTENDEES.filter(
-    attendee => attendee.status === RSVPStatusEnum.MAYBE,
+  const maybeAttendees = attendees.filter(
+    attendee => attendee.rsvp.status === RSVPStatusEnum.MAYBE,
   );
 
   // Calculate total number of people attending
-  const totalAttending = goingAttendees.reduce(
-    (total, attendee) => total + 1 + (attendee.guests || 0),
-    0,
-  );
+  const totalAttending = attendees
+    .filter(attendee => attendee.rsvp.status !== RSVPStatusEnum.NOT_GOING)
+    .reduce((total, attendee) => total + 1 + (attendee.rsvp.guests || 0), 0);
 
   return (
     <Card className={`bg-white/90 backdrop-blur-sm ${className}`}>
@@ -101,9 +61,9 @@ const RSVPAttendees = ({ eventId, className = "" }: RSVPAttendeesProps) => {
                   >
                     <div className="flex items-center">
                       <Avatar className="h-8 w-8 mr-2">
-                        {attendee.avatar ? (
+                        {attendee.image ? (
                           <AvatarImage
-                            src={attendee.avatar}
+                            src={attendee.image}
                             alt={attendee.name}
                           />
                         ) : (
@@ -114,10 +74,10 @@ const RSVPAttendees = ({ eventId, className = "" }: RSVPAttendeesProps) => {
                       </Avatar>
                       <span>{attendee.name}</span>
                     </div>
-                    {attendee.guests > 0 && (
+                    {attendee.rsvp.guests > 0 && (
                       <span className="text-sm text-gray-500">
-                        +{attendee.guests}{" "}
-                        {attendee.guests === 1 ? "guest" : "guests"}
+                        +{attendee.rsvp.guests}{" "}
+                        {attendee.rsvp.guests === 1 ? "guest" : "guests"}
                       </span>
                     )}
                   </div>
@@ -136,11 +96,8 @@ const RSVPAttendees = ({ eventId, className = "" }: RSVPAttendeesProps) => {
                 {maybeAttendees.map(attendee => (
                   <div key={attendee.id} className="flex items-center">
                     <Avatar className="h-8 w-8 mr-2">
-                      {attendee.avatar ? (
-                        <AvatarImage
-                          src={attendee.avatar}
-                          alt={attendee.name}
-                        />
+                      {attendee.image ? (
+                        <AvatarImage src={attendee.image} alt={attendee.name} />
                       ) : (
                         <AvatarFallback>
                           {attendee.name.substring(0, 2).toUpperCase()}
