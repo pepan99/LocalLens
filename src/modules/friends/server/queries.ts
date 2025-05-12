@@ -1,7 +1,8 @@
 import { auth } from "@/auth";
 import { Friend, FriendRequest } from "@/components/friends/types";
 import { db } from "@/db";
-import { friendRequests, friends } from "@/db/schemas/schema";
+import { friendRequests } from "@/db/schemas/friend-requests";
+import { friends } from "@/db/schemas/friends";
 import { users } from "@/db/schemas/users";
 import { mapToFriend, mapToFriendRequest } from "@/modules/friends";
 import { and, eq, or, sql } from "drizzle-orm";

@@ -2,7 +2,8 @@
 
 import { auth } from "@/auth";
 import { db } from "@/db";
-import { friendRequests, friends } from "@/db/schemas/schema";
+import { friendRequests } from "@/db/schemas/friend-requests";
+import { friends } from "@/db/schemas/friends";
 import { users } from "@/db/schemas/users";
 import { ActionResult } from "@/types/result";
 import { and, eq, or } from "drizzle-orm";

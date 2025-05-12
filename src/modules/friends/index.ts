@@ -1,5 +1,5 @@
 import { Friend, FriendRequest } from "@/components/friends/types";
-import { friendRequests } from "@/db/schemas/schema";
+import { friendRequests } from "@/db/schemas/friend-requests";
 import { users } from "@/db/schemas/users";
 import { InferSelectModel } from "drizzle-orm";
 
