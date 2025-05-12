@@ -5,7 +5,7 @@ import Link from "next/link";
 
 const NotFoundState = () => {
   return (
-    <div className="container mx-auto p-4 flex flex-col justify-center items-center min-h-[60vh]">
+    <div className="container flex flex-col justify-center items-center min-h-[60vh]">
       <h2 className="text-2xl font-bold mb-4">Event Not Found</h2>
       <p className="text-gray-500 mb-6">
         The event you are trying to edit does not exist or has been removed.

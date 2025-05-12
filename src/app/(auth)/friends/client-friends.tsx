@@ -247,7 +247,7 @@ const ClientFriendsPage = ({
   };
 
   return (
-    <div className="container mx-auto p-4">
+    <div className="container">
       <div className="bg-white/90 backdrop-blur-sm rounded-lg shadow-md p-6">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
           <div>

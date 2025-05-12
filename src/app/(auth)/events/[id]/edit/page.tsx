@@ -17,7 +17,7 @@ const EditEventPage = async ({ params }: EditEventPageProps) => {
   }
 
   return (
-    <div className="container mx-auto p-4 max-w-2xl">
+    <div className="container max-w-2xl">
       <CreateEventForm event={event} />
     </div>
   );

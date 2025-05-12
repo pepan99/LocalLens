@@ -11,12 +11,6 @@ const LazyMap = dynamic(() => import("./map"), {
 
 type MapCallerProps = {
   children?: React.ReactNode;
-  initialCenter?: [number, number];
-  initialZoom?: number;
-  showEvents?: boolean;
-  showFriends?: boolean;
-  trackLocation?: boolean;
-  enabledInteraction?: boolean;
   events: EventType[];
 } & Omit<
   React.ComponentProps<typeof MapContainer>,
