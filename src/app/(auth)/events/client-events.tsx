@@ -137,7 +137,6 @@ const ClientSideEventsPage = ({
         <Tabs defaultValue="all">
           <TabsList className="mb-6">
             <TabsTrigger value="all">All Events</TabsTrigger>
-            <TabsTrigger value="attending">Attending</TabsTrigger>
             <TabsTrigger value="my-events">My Events</TabsTrigger>
           </TabsList>
 

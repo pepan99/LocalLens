@@ -10,7 +10,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { EventType, RSVPStatusEnum } from "@/modules/events/types/events";
-import { Clock, Edit, MapPin, Star, Trash, Users } from "lucide-react";
+import { Clock, Edit, MapPin, Star, Trash } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { RSVPManager } from "../rsvp";
@@ -45,10 +45,6 @@ const EventCard = ({ event, onDelete, onRSVPChange }: EventCardProps) => {
       </CardContent>
       <CardFooter className="flex justify-between items-center bg-gray-50 px-4 py-3">
         <div className="flex items-center gap-4">
-          <div className="flex items-center text-sm">
-            <Users className="h-4 w-4 mr-1" />
-            <span>{event.attendees}</span>
-          </div>
           <div className="flex items-center text-sm">
             <Star className="h-4 w-4 mr-1 text-yellow-500 fill-yellow-500" />
             <span>{event.rating}</span>

@@ -245,6 +245,7 @@ export const respondToEvent = async (
 
     // Revalidate the event page
     revalidatePath(`/events/${eventId}`);
+    revalidatePath(`/events`);
 
     return { type: "error", message: "Rsvp updated" };
   } catch (error) {

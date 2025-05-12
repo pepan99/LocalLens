@@ -72,10 +72,6 @@ const EventInformation = ({ event }: EventInformationProps) => {
       <CardFooter className="border-t pt-6 flex justify-between">
         <div className="flex gap-4 text-gray-700 items-center">
           <div className="flex items-center gap-1">
-            <Users className="h-5 w-5" />
-            <span>{event.attendees} attending</span>
-          </div>
-          <div className="flex items-center gap-1">
             <Star className="h-5 w-5 text-yellow-500 fill-yellow-500" />
             <span>{event.rating}</span>
           </div>

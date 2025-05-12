@@ -17,6 +17,7 @@ const AuthLayout = async ({
   }
 
   const events = await getEvents();
+  console.log("Layout:", events);
 
   if (!events) {
     return <div>Loading...</div>;

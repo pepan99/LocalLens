@@ -9,7 +9,7 @@ export const isThisWeek = (eventDate: Date): boolean => {
   // In a real app, you'd compare the date to the current week
 
   return (
-    eventDate.getTime() > new Date().getTime() &&
+    eventDate.getDate() > new Date().getDate() &&
     eventDate.getTime() < new Date().getTime() + 7 * 24 * 60 * 60 * 1000
   );
 };
@@ -20,7 +20,7 @@ export const filterEvents = (
   switch (filterTab) {
     case "Today":
       return events.filter(
-        event => event.date.getDay() === new Date().getDay(),
+        event => event.date.getDate() === new Date().getDate(),
       );
     case "This Week":
       return events.filter(event => isThisWeek(event.date));

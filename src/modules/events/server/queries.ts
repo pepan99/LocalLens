@@ -9,10 +9,7 @@ import { mapEventsToEventTypes, mapEventToEventType } from "..";
 /**
  * Get all events (public or created by the user)
  */
-export const getEvents = async (
-  limit: number = 10,
-  page: number = 1,
-): Promise<EventType[]> => {
+export const getEvents = async (): Promise<EventType[]> => {
   try {
     const session = await auth();
     const userId = session?.user?.id;
@@ -48,10 +45,7 @@ export const getEvents = async (
     }
 
     // Apply ordering and pagination
-    const finalQuery = filteredQuery
-      .orderBy(desc(events.date))
-      .limit(limit)
-      .offset((page - 1) * limit);
+    const finalQuery = filteredQuery.orderBy(desc(events.date));
 
     const results = await finalQuery;
 
