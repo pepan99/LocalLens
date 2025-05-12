@@ -371,7 +371,7 @@ const createEvents = async (tx, mockUsers) => {
       latitude: randomLocation.lat,
       longitude: randomLocation.lng,
       isPrivate: Math.random() > 0.8 ? 1 : 0, // 20% are private events
-      imageUrl: `https://picsum.photos/seed/${i}/800/600`, // Random images
+      imageUrl: `https://picsum.photos/seed/${i}/30/30`, // Random images
       createdAt: new Date(
         Date.now() - 1000 * 60 * 60 * 24 * Math.floor(Math.random() * 10),
       ), // Created 0-10 days ago
@@ -390,7 +390,7 @@ const createEvents = async (tx, mockUsers) => {
 
 const createEventAttendance = async (tx, mockUsers, mockEvents) => {
   // Status options
-  const statusOptions = ["going", "interested", "not_going"];
+  const statusOptions = ["going", "maybe", "not_going"];
 
   // Create attendance records
   const attendanceRecords = [];
