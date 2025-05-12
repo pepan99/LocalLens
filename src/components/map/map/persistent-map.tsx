@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { MapContainer, TileLayer } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import "leaflet/dist/leaflet.js";
-import UserMarker from "../markers/user-marker";
+import CurrentUserMarker from "../markers/current-user-marker";
 
 type PersistentMapProps = {
   children?: React.ReactNode;
@@ -53,16 +53,7 @@ const PersistentMap = ({ children }: PersistentMapProps) => {
       />
 
       {/* Current user marker */}
-      {currentLocation && (
-        <UserMarker
-          user={{
-            id: "current-user",
-            name: "You",
-            coordinates: currentLocation,
-          }}
-          isCurrentUser
-        />
-      )}
+      {currentLocation && <CurrentUserMarker coordinates={currentLocation} />}
 
       {children}
     </MapContainer>
