@@ -26,7 +26,7 @@ const FloatingPagesLayout = ({
       <div className="mx-auto top-10 sm:top-20 min-[margin-top]:10 container relative">
         <MapReturnButton
           title="Return to Map"
-          className="absolute right-0 -top-10"
+          className="absolute right-1/2 -top-10"
         />
         {children}
       </div>

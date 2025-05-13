@@ -16,6 +16,7 @@ import { Friend, FriendGroup, FriendRequest } from "@/components/friends/types";
 import ViewGroupDialog from "@/components/friends/view-group-dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { EventType } from "@/modules/events/types/events";
 import {
@@ -323,37 +324,38 @@ const ClientFriendsPage = ({
             </TabsTrigger>
             <TabsTrigger value="groups">Groups</TabsTrigger>
           </TabsList>
+          <ScrollArea className="h-[570px]">
+            <TabsContent value="friends">
+              <FriendsList
+                filteredFriends={filteredFriends}
+                searchQuery={searchQuery}
+                onRemoveFriend={handleRemoveFriend}
+                onAddFriendClick={() => setIsAddFriendDialogOpen(true)}
+                onInviteToEvent={handleInviteToEvent}
+              />
+            </TabsContent>
 
-          <TabsContent value="friends">
-            <FriendsList
-              filteredFriends={filteredFriends}
-              searchQuery={searchQuery}
-              onRemoveFriend={handleRemoveFriend}
-              onAddFriendClick={() => setIsAddFriendDialogOpen(true)}
-              onInviteToEvent={handleInviteToEvent}
-            />
-          </TabsContent>
+            <TabsContent value="pending">
+              <PendingRequestsList
+                requests={pendingRequests}
+                onAcceptRequest={handleAcceptRequest}
+                onRejectRequest={handleRejectRequest}
+                onCancelRequest={handleCancelRequest}
+              />
+            </TabsContent>
 
-          <TabsContent value="pending">
-            <PendingRequestsList
-              requests={pendingRequests}
-              onAcceptRequest={handleAcceptRequest}
-              onRejectRequest={handleRejectRequest}
-              onCancelRequest={handleCancelRequest}
-            />
-          </TabsContent>
-
-          <TabsContent value="groups">
-            <FriendGroupsList
-              groups={groups}
-              onViewGroup={handleViewGroup}
-              onAddMembersToGroup={handleAddMembersToGroup}
-              onEditGroup={handleEditGroup}
-              onDeleteGroup={handleDeleteGroup}
-              onInviteGroupToEvent={handleInviteGroupToEvent}
-              onCreateGroupClick={() => setIsCreateGroupDialogOpen(true)}
-            />
-          </TabsContent>
+            <TabsContent value="groups">
+              <FriendGroupsList
+                groups={groups}
+                onViewGroup={handleViewGroup}
+                onAddMembersToGroup={handleAddMembersToGroup}
+                onEditGroup={handleEditGroup}
+                onDeleteGroup={handleDeleteGroup}
+                onInviteGroupToEvent={handleInviteGroupToEvent}
+                onCreateGroupClick={() => setIsCreateGroupDialogOpen(true)}
+              />
+            </TabsContent>
+          </ScrollArea>
         </Tabs>
       </div>
 
