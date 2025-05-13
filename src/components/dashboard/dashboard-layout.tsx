@@ -25,7 +25,7 @@ const DashboardLayout = ({
   return (
     <div className="min-h-screen h-full w-full flex flex-col">
       {/* Top navigation bar */}
-      <NavBar />
+      <NavBar hasNewNotification={false} />
 
       {/* Main content area */}
       <div className="flex-1 flex mx-auto w-full max-w-screen-2xl px-4 pb-4">

@@ -10,7 +10,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { hasUnseenEventInvitations } from "@/modules/invitations/server/queries";
 import {
   Bell,
   Building,
@@ -24,11 +23,12 @@ import { signOut } from "next-auth/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-const NavBar = () => {
-  const pathname = usePathname();
+type Props = {
+  hasNewNotification: boolean;
+};
 
-  // TODO - how best way to handle THIS?
-  const hasNewNotification = false; //await hasUnseenEventInvitations("user-id");
+const NavBar = ({ hasNewNotification }: Props) => {
+  const pathname = usePathname();
 
   return (
     <nav className="bg-white/90 backdrop-blur-sm border-b border-gray-200 px-4 py-2 flex items-center justify-between z-20 sticky top-0">
