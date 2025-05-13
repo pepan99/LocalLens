@@ -15,65 +15,6 @@ export type Event = {
   isOwner: boolean;
 };
 
-// Mock data for events
-export const MOCK_EVENTS: Event[] = [
-  {
-    id: "1",
-    title: "Tech Meetup in Brno",
-    category: "Technology",
-    date: "2025-05-10T18:00:00",
-    location: "Impact Hub, Brno",
-    coordinates: [49.19, 16.61],
-    attendees: 24,
-    rating: 4.5,
-    isOwner: true,
-  },
-  {
-    id: "2",
-    title: "Weekend Farmers Market",
-    category: "Food",
-    date: "2025-05-09T09:00:00",
-    location: "Freedom Square, Brno",
-    coordinates: [49.2, 16.6],
-    attendees: 120,
-    rating: 4.8,
-    isOwner: false,
-  },
-  {
-    id: "3",
-    title: "Art Exhibition Opening",
-    category: "Arts",
-    date: "2025-05-15T17:00:00",
-    location: "Moravian Gallery, Brno",
-    coordinates: [49.195, 16.605],
-    attendees: 45,
-    rating: 4.3,
-    isOwner: false,
-  },
-  {
-    id: "4",
-    title: "Weekly Running Club",
-    category: "Sports",
-    date: "2025-05-07T19:00:00",
-    location: "Lužánky Park, Brno",
-    coordinates: [49.205, 16.615],
-    attendees: 18,
-    rating: 4.6,
-    isOwner: true,
-  },
-  {
-    id: "5",
-    title: "Jazz Night",
-    category: "Music",
-    date: "2025-05-12T20:00:00",
-    location: "Music Lab, Brno",
-    coordinates: [49.198, 16.607],
-    attendees: 56,
-    rating: 4.7,
-    isOwner: false,
-  },
-];
-
 // Categories for events
 export const EVENT_CATEGORIES = [
   "Technology",

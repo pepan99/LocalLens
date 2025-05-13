@@ -2,22 +2,28 @@
 
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
 import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetFooter,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
-import { useState } from "react";
+import { ChevronDown, Filter } from "lucide-react";
+import { useEffect, useState } from "react";
+import { EVENT_CATEGORIES } from "../events/utils";
 
 interface FilterMenuProps {
   isOpen: boolean;
   onClose: () => void;
   onApplyFilters: (filters: FilterOptions) => void;
+  locationStatus?: {
+    loading: boolean;
+    error: string | null;
+    available: boolean;
+  };
 }
 
 export interface FilterOptions {
@@ -25,19 +31,27 @@ export interface FilterOptions {
   categories: string[];
 }
 
-const CATEGORIES = [
-  "Food",
-  "Arts",
-  "Music",
-  "Tech",
-  "Literature",
-  "Sports",
-  "Other",
-];
-
-const FilterMenu = ({ isOpen, onClose, onApplyFilters }: FilterMenuProps) => {
-  const [maxDistance, setMaxDistance] = useState(5);
+const FilterMenu = ({
+  isOpen,
+  onClose,
+  onApplyFilters,
+  locationStatus,
+}: FilterMenuProps) => {
+  const [maxDistance, setMaxDistance] = useState(0);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [open, setOpen] = useState(isOpen);
+
+  // Sync with parent state
+  useEffect(() => {
+    setOpen(isOpen);
+  }, [isOpen]);
+
+  const handleOpenChange = (open: boolean) => {
+    setOpen(open);
+    if (!open) {
+      onClose();
+    }
+  };
 
   const handleCategoryToggle = (category: string) => {
     setSelectedCategories(prev =>
@@ -52,40 +66,76 @@ const FilterMenu = ({ isOpen, onClose, onApplyFilters }: FilterMenuProps) => {
       maxDistance,
       categories: selectedCategories,
     });
-    onClose();
+    handleOpenChange(false);
   };
 
   const handleReset = () => {
-    setMaxDistance(5);
+    setMaxDistance(0);
     setSelectedCategories([]);
   };
 
   return (
-    <Sheet open={isOpen} onOpenChange={onClose}>
-      <SheetContent className="w-[300px] sm:w-[400px] pl-4 rounded-l-xl">
-        <SheetHeader>
-          <SheetTitle>Filter Events</SheetTitle>
-          <SheetDescription>
-            Apply filters to find events that match your preferences.
-          </SheetDescription>
-        </SheetHeader>
+    <DropdownMenu open={open} onOpenChange={handleOpenChange}>
+      <DropdownMenuTrigger asChild>
+        <button className="flex items-center text-sm text-gray-600 hover:text-gray-800 bg-gray-100 hover:bg-gray-200 px-3 py-1.5 rounded-md transition-colors">
+          <Filter size={16} className="mr-1" />
+          Filter
+          <ChevronDown size={16} className="ml-1" />
+        </button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent className="w-[280px] p-4" align="end">
+        <DropdownMenuLabel className="font-bold text-base">
+          Filter Events
+        </DropdownMenuLabel>
+        <DropdownMenuSeparator />
 
-        <div className="py-6 space-y-6">
+        <div className="py-4 space-y-6">
           {/* Distance Filter */}
           <div className="space-y-3">
             <Label className="font-medium">Maximum Distance</Label>
+            {locationStatus && (
+              <div className="mb-2">
+                {locationStatus.available ? (
+                  <div className="text-xs text-green-600 flex items-center">
+                    <span className="mr-1">✓</span>
+                    Location available
+                  </div>
+                ) : locationStatus.loading ? (
+                  <div className="text-xs text-yellow-600 flex items-center">
+                    <span className="mr-1 animate-spin">◌</span>
+                    Getting your location...
+                  </div>
+                ) : locationStatus.error ? (
+                  <div className="text-xs text-red-600 flex items-center">
+                    <span className="mr-1">⚠️</span>
+                    Location access required for distance filtering
+                  </div>
+                ) : (
+                  <div className="text-xs text-yellow-600 flex items-center">
+                    <span className="mr-1">⚠️</span>
+                    Waiting for location data
+                  </div>
+                )}
+              </div>
+            )}
             <div className="space-y-1">
               <Slider
                 value={[maxDistance]}
                 onValueChange={values => setMaxDistance(values[0])}
-                max={10}
+                max={200}
                 step={0.5}
+                disabled={locationStatus && !locationStatus.available}
               />
               <div className="flex justify-between text-sm text-gray-500">
                 <span>0 km</span>
                 <span>{maxDistance} km</span>
-                <span>10 km</span>
+                <span>200 km</span>
               </div>
+              {locationStatus && !locationStatus.available && (
+                <div className="text-xs text-gray-500 mt-1 italic">
+                  All events will be shown until location is available
+                </div>
+              )}
             </div>
           </div>
 
@@ -93,7 +143,7 @@ const FilterMenu = ({ isOpen, onClose, onApplyFilters }: FilterMenuProps) => {
           <div className="space-y-3">
             <Label className="font-medium">Categories</Label>
             <div className="grid grid-cols-2 gap-2">
-              {CATEGORIES.map(category => (
+              {EVENT_CATEGORIES.map(category => (
                 <div key={category} className="flex items-center space-x-2">
                   <Checkbox
                     id={`category-${category}`}
@@ -112,14 +162,16 @@ const FilterMenu = ({ isOpen, onClose, onApplyFilters }: FilterMenuProps) => {
           </div>
         </div>
 
-        <SheetFooter className="flex-col sm:flex-row gap-2">
-          <Button variant="outline" onClick={handleReset}>
+        <div className="flex justify-between mt-2 gap-2">
+          <Button variant="outline" onClick={handleReset} size="sm">
             Reset
           </Button>
-          <Button onClick={handleApply}>Apply Filters</Button>
-        </SheetFooter>
-      </SheetContent>
-    </Sheet>
+          <Button onClick={handleApply} size="sm">
+            Apply Filters
+          </Button>
+        </div>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 };
 
