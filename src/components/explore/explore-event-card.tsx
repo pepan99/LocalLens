@@ -1,10 +1,15 @@
 "use client";
 
 import { RSVPManager } from "@/components/events/rsvp";
+import {
+  calculateDistance,
+  useLocation,
+} from "@/components/map/location_provider";
 import { Button } from "@/components/ui/button";
 import { EventType, RSVPStatusEnum } from "@/modules/events/types/events";
-import { Calendar, MapPin, Star, Users } from "lucide-react";
+import { Calendar, MapPin, Users } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useMemo } from "react";
 import { THEME_COLOR } from "./utils";
 
 interface ExploreEventCardProps {
@@ -15,6 +20,22 @@ interface ExploreEventCardProps {
 const ExploreEventCard = ({ event, onRSVPChange }: ExploreEventCardProps) => {
   const router = useRouter();
   const categoryClasses = `text-xs font-medium text-${THEME_COLOR}-700 bg-${THEME_COLOR}-100 px-2 py-0.5 rounded`;
+
+  // Get user location
+  const { position, loading, error } = useLocation();
+
+  // Calculate distance between user and event
+  const distance = useMemo(() => {
+    if (position !== null) {
+      return calculateDistance(
+        position[0],
+        position[1],
+        event.latitude,
+        event.longitude,
+      );
+    }
+    return null;
+  }, [position, event.latitude, event.longitude]);
 
   const handleViewDetails = () => {
     router.push(`/events/${event.id}`);
@@ -46,13 +67,22 @@ const ExploreEventCard = ({ event, onRSVPChange }: ExploreEventCardProps) => {
         </div>
       </div>
 
-      {/* Rating and Distance */}
-      <div className="flex justify-between items-center text-sm text-gray-600 mb-4">
-        <div className="flex items-center">
-          <Star size={16} className="mr-1 text-yellow-500 fill-current" />
-          <span className="font-medium">{event.rating.toFixed(1)}</span>
-        </div>
-        <span>{Math.floor(Math.random() * 31)} km</span>
+      {/* Distance information */}
+      <div className="flex justify-end items-center text-sm text-gray-600 mb-4">
+        <MapPin size={14} className="mr-1 text-gray-500" />
+        {distance !== null ? (
+          <span className="font-medium">
+            {distance < 1
+              ? `${Math.round(distance * 1000)} m`
+              : `${distance.toFixed(1)} km`}
+          </span>
+        ) : loading ? (
+          <span className="text-gray-400 italic">Loading distance...</span>
+        ) : error ? (
+          <span className="text-gray-400 italic">Distance unavailable</span>
+        ) : (
+          <span className="text-gray-400 italic">Distance unavailable</span>
+        )}
       </div>
 
       {/* Action Buttons */}

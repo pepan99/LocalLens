@@ -24,7 +24,7 @@ const ExploreEvents = ({ sourceEvents }: ExploreEventsProps) => {
   const [activeTab, setActiveTab] = useState<FilterTab>("All");
   const [filterMenuOpen, setFilterMenuOpen] = useState(false);
   const [filters, setFilters] = useState<FilterOptions>({
-    maxDistance: 25,
+    maxDistance: 0,
     categories: [],
   });
 
@@ -36,19 +36,16 @@ const ExploreEvents = ({ sourceEvents }: ExploreEventsProps) => {
     // First filter by tab (All, Today, This Week)
     let events = filterEvents(sourceEvents, activeTab);
 
-    if (
-      filters.maxDistance > 0 &&
-      !userLocation.loading &&
-      !userLocation.error
-    ) {
+    // Then apply distance filter if we have user location
+    console.log("User Location:", userLocation);
+    console.log("Max Distance:", filters.maxDistance);
+
+    if (filters.maxDistance > 0 && userLocation.position !== null) {
       events = events.filter(event => {
-        if (userLocation.position === null) {
-          return false; // No position available
-        }
         // Calculate distance between user and event
         const distance = calculateDistance(
-          userLocation.position[0],
-          userLocation.position[1],
+          userLocation.position![0],
+          userLocation.position![1],
           event.latitude,
           event.longitude,
         );
@@ -86,9 +83,17 @@ const ExploreEvents = ({ sourceEvents }: ExploreEventsProps) => {
     // Check if we have location and display appropriate toast message
     if (newFilters.maxDistance > 0) {
       if (userLocation.loading) {
-        toast.warning("Getting your location to filter events by distance...");
+        toast.warning(
+          "Getting your location... All events will be shown until location is available.",
+        );
       } else if (userLocation.error) {
-        toast.error("Unable to access your location for distance filtering.");
+        toast.error(
+          "Location not available. Distance filter will be applied when location access is granted.",
+        );
+      } else if (userLocation.position === null) {
+        toast.warning(
+          "Waiting for location. All events will be shown until location is available.",
+        );
       } else {
         toast.success(
           `Showing events within ${newFilters.maxDistance}km${newFilters.categories.length > 0 ? ` in categories: ${newFilters.categories.join(", ")}` : ""}`,
@@ -131,7 +136,7 @@ const ExploreEvents = ({ sourceEvents }: ExploreEventsProps) => {
           locationStatus={{
             loading: userLocation.loading,
             error: userLocation.error,
-            available: !userLocation.loading && !userLocation.error,
+            available: userLocation.position !== null,
           }}
         />
       </div>

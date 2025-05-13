@@ -95,7 +95,12 @@ const FilterMenu = ({
             <Label className="font-medium">Maximum Distance</Label>
             {locationStatus && (
               <div className="mb-2">
-                {locationStatus.loading ? (
+                {locationStatus.available ? (
+                  <div className="text-xs text-green-600 flex items-center">
+                    <span className="mr-1">✓</span>
+                    Location available
+                  </div>
+                ) : locationStatus.loading ? (
                   <div className="text-xs text-yellow-600 flex items-center">
                     <span className="mr-1 animate-spin">◌</span>
                     Getting your location...
@@ -106,9 +111,9 @@ const FilterMenu = ({
                     Location access required for distance filtering
                   </div>
                 ) : (
-                  <div className="text-xs text-green-600 flex items-center">
-                    <span className="mr-1">✓</span>
-                    Location available
+                  <div className="text-xs text-yellow-600 flex items-center">
+                    <span className="mr-1">⚠️</span>
+                    Waiting for location data
                   </div>
                 )}
               </div>
@@ -117,15 +122,20 @@ const FilterMenu = ({
               <Slider
                 value={[maxDistance]}
                 onValueChange={values => setMaxDistance(values[0])}
-                max={100}
-                step={5}
+                max={200}
+                step={0.5}
                 disabled={locationStatus && !locationStatus.available}
               />
               <div className="flex justify-between text-sm text-gray-500">
                 <span>0 km</span>
                 <span>{maxDistance} km</span>
-                <span>100 km</span>
+                <span>200 km</span>
               </div>
+              {locationStatus && !locationStatus.available && (
+                <div className="text-xs text-gray-500 mt-1 italic">
+                  All events will be shown until location is available
+                </div>
+              )}
             </div>
           </div>
 
