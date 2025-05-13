@@ -10,34 +10,25 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Input } from "@/components/ui/input";
+import { hasUnseenEventInvitations } from "@/modules/invitations/server/queries";
 import {
   Bell,
   Building,
   Calendar,
   MapPin,
   Plus,
-  Search,
   User,
   Users,
 } from "lucide-react";
 import { signOut } from "next-auth/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
 
 const NavBar = () => {
   const pathname = usePathname();
-  const [searchQuery, setSearchQuery] = useState("");
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Handle search functionality
-    console.log("Searching for:", searchQuery);
-  };
-
-  // Todo - Display notification if there is some 'LIVE' events today
-  const hasTodayEvents = true;
+  // TODO - how best way to handle THIS?
+  const hasNewNotification = false; //await hasUnseenEventInvitations("user-id");
 
   return (
     <nav className="bg-white/90 backdrop-blur-sm border-b border-gray-200 px-4 py-2 flex items-center justify-between z-20 sticky top-0">
@@ -99,7 +90,7 @@ const NavBar = () => {
         <Button variant="outline" size="icon" asChild className="relative">
           <Link href="/notifications">
             <Bell className="h-5 w-5" />
-            {hasTodayEvents && (
+            {hasNewNotification && (
               <span
                 className="absolute top-0 right-0 h-2 w-2 rounded-full bg-red-500 
                        translate-x-1/2 -translate-y-1/2"
