@@ -73,7 +73,7 @@ export const LocationProvider = ({ children }: LocationProviderProps) => {
         setPosition([crd.latitude, crd.longitude] as [number, number]);
         setLoading(false);
 
-        if (userId !== null) {
+        if (userId) {
           await updateUserLocation([crd.latitude, crd.longitude]);
         }
       },
