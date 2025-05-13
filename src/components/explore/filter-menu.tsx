@@ -27,7 +27,7 @@ export interface FilterOptions {
 }
 
 const FilterMenu = ({ isOpen, onClose, onApplyFilters }: FilterMenuProps) => {
-  const [maxDistance, setMaxDistance] = useState(5);
+  const [maxDistance, setMaxDistance] = useState(0);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [open, setOpen] = useState(isOpen);
 
@@ -60,7 +60,7 @@ const FilterMenu = ({ isOpen, onClose, onApplyFilters }: FilterMenuProps) => {
   };
 
   const handleReset = () => {
-    setMaxDistance(5);
+    setMaxDistance(0);
     setSelectedCategories([]);
   };
 
@@ -87,13 +87,13 @@ const FilterMenu = ({ isOpen, onClose, onApplyFilters }: FilterMenuProps) => {
               <Slider
                 value={[maxDistance]}
                 onValueChange={values => setMaxDistance(values[0])}
-                max={10}
-                step={0.5}
+                max={100}
+                step={5}
               />
               <div className="flex justify-between text-sm text-gray-500">
                 <span>0 km</span>
                 <span>{maxDistance} km</span>
-                <span>10 km</span>
+                <span>100 km</span>
               </div>
             </div>
           </div>

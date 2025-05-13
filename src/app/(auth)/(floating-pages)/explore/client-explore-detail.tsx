@@ -20,7 +20,7 @@ const ExploreEvents = ({ sourceEvents }: ExploreEventsProps) => {
   const [activeTab, setActiveTab] = useState<FilterTab>("All");
   const [filterMenuOpen, setFilterMenuOpen] = useState(false);
   const [filters, setFilters] = useState<FilterOptions>({
-    maxDistance: 5,
+    maxDistance: 0,
     categories: [],
   });
 
