@@ -7,7 +7,7 @@ const Page = async () => {
   if (session?.user) {
     return redirect("/map");
   } else {
-    return redirect("/login");
+    return redirect("/discover");
   }
 };
 
