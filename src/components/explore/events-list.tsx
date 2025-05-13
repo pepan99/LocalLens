@@ -20,7 +20,7 @@ const EventsList = ({ events, onRSVPChange, activeTab }: EventsListProps) => {
   }
 
   return (
-    <ScrollArea className="h-[800] pr-6">
+    <ScrollArea className="h-[800] pr-3">
       <div className="flex-grow flex-col flex gap-4">
         {events.map(event => (
           <ExploreEventCard
