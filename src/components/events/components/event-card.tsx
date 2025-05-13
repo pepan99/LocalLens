@@ -1,5 +1,9 @@
 "use client";
 
+import {
+  calculateDistance,
+  useLocation,
+} from "@/components/map/location_provider";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -10,9 +14,10 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { EventType, RSVPStatusEnum } from "@/modules/events/types/events";
-import { Clock, Edit, MapPin, Star, Trash } from "lucide-react";
+import { Clock, Edit, MapPin, Trash } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
+import { useMemo } from "react";
 import { RSVPManager } from "../rsvp";
 import { formatEventDate } from "../utils";
 
@@ -25,6 +30,22 @@ interface EventCardProps {
 
 const EventCard = ({ event, onDelete, onRSVPChange }: EventCardProps) => {
   const session = useSession();
+
+  // Get user location
+  const { position } = useLocation();
+
+  // Calculate distance between user and event
+  const distance = useMemo(() => {
+    if (position) {
+      return calculateDistance(
+        position[0],
+        position[1],
+        event.latitude,
+        event.longitude,
+      );
+    }
+    return null;
+  }, [position, event.latitude, event.longitude]);
   return (
     <Card key={event.id} className="min-w-[300]">
       <CardHeader className="pb-2">
@@ -47,10 +68,16 @@ const EventCard = ({ event, onDelete, onRSVPChange }: EventCardProps) => {
       </CardContent>
       <CardFooter className="flex justify-between items-center bg-gray-50 px-4 py-3">
         <div className="flex items-center gap-4">
-          <div className="flex items-center text-sm">
-            <Star className="h-4 w-4 mr-1 text-yellow-500 fill-yellow-500" />
-            <span>{event.rating}</span>
-          </div>
+          {distance !== null && (
+            <div className="flex items-center text-sm">
+              <MapPin className="h-4 w-4 mr-1 text-gray-500" />
+              <span>
+                {distance < 1
+                  ? `${Math.round(distance * 1000)} m`
+                  : `${distance.toFixed(1)} km`}
+              </span>
+            </div>
+          )}
         </div>
         <div className="flex gap-2">
           {event.creatorId === session.data?.user.id ? (

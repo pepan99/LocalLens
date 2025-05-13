@@ -16,6 +16,7 @@ import { Friend, FriendGroup, FriendRequest } from "@/components/friends/types";
 import ViewGroupDialog from "@/components/friends/view-group-dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { EventType } from "@/modules/events/types/events";
 import {
@@ -41,34 +42,24 @@ import { useState } from "react";
 import { toast } from "sonner";
 
 type Props = {
-  initialFriends: Friend[];
-  initialGroups: FriendGroup[];
-  initialPendingRequests: FriendRequest[];
-  initialEvents: EventType[];
+  friends: Friend[];
+  groups: FriendGroup[];
+  pendingRequests: FriendRequest[];
+  events: EventType[];
 };
 
 const ClientFriendsPage = ({
-  initialFriends,
-  initialGroups,
-  initialPendingRequests,
-  initialEvents,
+  friends,
+  groups,
+  pendingRequests,
+  events,
 }: Props) => {
-  const [friends, setFriends] = useState<Friend[]>(initialFriends);
-  const [groups, setGroups] = useState<FriendGroup[]>(initialGroups);
-  const [pendingRequests, setPendingRequests] = useState<FriendRequest[]>(
-    initialPendingRequests,
-  );
-
-  const [events] = useState<EventType[]>(initialEvents);
-
   const [isEventSelectOpen, setIsEventSelectOpen] = useState(false);
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
 
   // General state
   const [searchQuery, setSearchQuery] = useState("");
-  const [_selectedFriendId, setSelectedFriendId] = useState<string | null>(
-    null,
-  );
+
   const [activeTab, setActiveTab] = useState("friends");
 
   // Dialog states
@@ -82,6 +73,7 @@ const ClientFriendsPage = ({
   const [isDeleteGroupDialogOpen, setIsDeleteGroupDialogOpen] = useState(false);
   const [selectedGroup, setSelectedGroup] = useState<FriendGroup | null>(null);
 
+  const [selectedFriendId, setSelectedFriendId] = useState<string | null>(null);
   // Filter friends based on search query
   const filteredFriends = friends.filter(friend => {
     if (!searchQuery.trim()) return true;
@@ -94,7 +86,6 @@ const ClientFriendsPage = ({
 
   const handleRemoveFriend = async (friendId: string) => {
     await removeFriend(friendId);
-    setFriends(prev => prev.filter(f => f.id !== friendId));
     toast("The friend has been removed from your list.");
   };
 
@@ -237,10 +228,10 @@ const ClientFriendsPage = ({
     }
 
     // If a friend is selected, invite friend
-    if (_selectedFriendId) {
+    if (selectedFriendId) {
       const res = await inviteUserToEvent({
         eventId,
-        invitedUserId: _selectedFriendId,
+        invitedUserId: selectedFriendId,
       });
 
       if (res.success) {
@@ -333,37 +324,38 @@ const ClientFriendsPage = ({
             </TabsTrigger>
             <TabsTrigger value="groups">Groups</TabsTrigger>
           </TabsList>
+          <ScrollArea className="h-[570px]">
+            <TabsContent value="friends">
+              <FriendsList
+                filteredFriends={filteredFriends}
+                searchQuery={searchQuery}
+                onRemoveFriend={handleRemoveFriend}
+                onAddFriendClick={() => setIsAddFriendDialogOpen(true)}
+                onInviteToEvent={handleInviteToEvent}
+              />
+            </TabsContent>
 
-          <TabsContent value="friends">
-            <FriendsList
-              filteredFriends={filteredFriends}
-              searchQuery={searchQuery}
-              onRemoveFriend={handleRemoveFriend}
-              onAddFriendClick={() => setIsAddFriendDialogOpen(true)}
-              onInviteToEvent={handleInviteToEvent}
-            />
-          </TabsContent>
+            <TabsContent value="pending">
+              <PendingRequestsList
+                requests={pendingRequests}
+                onAcceptRequest={handleAcceptRequest}
+                onRejectRequest={handleRejectRequest}
+                onCancelRequest={handleCancelRequest}
+              />
+            </TabsContent>
 
-          <TabsContent value="pending">
-            <PendingRequestsList
-              requests={pendingRequests}
-              onAcceptRequest={handleAcceptRequest}
-              onRejectRequest={handleRejectRequest}
-              onCancelRequest={handleCancelRequest}
-            />
-          </TabsContent>
-
-          <TabsContent value="groups">
-            <FriendGroupsList
-              groups={groups}
-              onViewGroup={handleViewGroup}
-              onAddMembersToGroup={handleAddMembersToGroup}
-              onEditGroup={handleEditGroup}
-              onDeleteGroup={handleDeleteGroup}
-              onInviteGroupToEvent={handleInviteGroupToEvent}
-              onCreateGroupClick={() => setIsCreateGroupDialogOpen(true)}
-            />
-          </TabsContent>
+            <TabsContent value="groups">
+              <FriendGroupsList
+                groups={groups}
+                onViewGroup={handleViewGroup}
+                onAddMembersToGroup={handleAddMembersToGroup}
+                onEditGroup={handleEditGroup}
+                onDeleteGroup={handleDeleteGroup}
+                onInviteGroupToEvent={handleInviteGroupToEvent}
+                onCreateGroupClick={() => setIsCreateGroupDialogOpen(true)}
+              />
+            </TabsContent>
+          </ScrollArea>
         </Tabs>
       </div>
 

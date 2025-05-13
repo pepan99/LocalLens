@@ -12,10 +12,11 @@ import {
 } from "@/components/ui/card";
 import { EventType, RSVPStatusEnum } from "@/modules/events/types/events";
 import L from "leaflet";
-import { Calendar, MapPin, Star, Users } from "lucide-react";
+import { Calendar, MapPin, Users } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Marker, Popup } from "react-leaflet";
+import { calculateDistance, useLocation } from "../location_provider";
 
 // Define custom icon for event markers with RSVP status
 const createEventIcon = (event: EventType) => {
@@ -63,7 +64,7 @@ const createEventIcon = (event: EventType) => {
     return L.divIcon({
       className: "custom-event-marker",
       html: `<div style="position: relative; width: 30px; height: 30px;">
-             <div style="background-image: url(${event.imageUrl}); width: 30px; height: 30px; border-radius: 5%; display: flex; justify-content: center; align-items: center; border: 2px solid white; box-shadow: 0 2px 6px rgba(0,0,0,0.3);">
+             <div style="background-image: url(${event.imageUrl}); background-size: contain; width: 30px; height: 30px; border-radius: 5%; display: flex; justify-content: center; align-items: center; border: 2px solid white; box-shadow: 0 2px 6px rgba(0,0,0,0.3);">
              </div>
              ${rsvpIndicator}
            </div>`,
@@ -91,7 +92,21 @@ type EventMarkerProps = {
 
 const EventMarker = ({ event, onRSVPChange }: EventMarkerProps) => {
   const [marker, setMarker] = useState<L.Marker | null>(null);
+  // Get user location
+  const { position } = useLocation();
 
+  // Calculate distance between user and event
+  const distance = useMemo(() => {
+    if (position) {
+      return calculateDistance(
+        position[0],
+        position[1],
+        event.latitude,
+        event.longitude,
+      );
+    }
+    return null;
+  }, [position, event.latitude, event.longitude]);
   // Get the current RSVP status when component mounts and when RSVP changes
   useEffect(() => {
     // Update marker icon if marker ref exists
@@ -150,8 +165,18 @@ const EventMarker = ({ event, onRSVPChange }: EventMarkerProps) => {
                 <span>{event.attendees} attending</span>
               </div>
               <div className="flex items-center">
-                <Star className="h-4 w-4 mr-1 text-yellow-500 fill-yellow-500" />
-                <span>{event.rating}</span>
+                <div className="flex items-center gap-4">
+                  {distance !== null && (
+                    <div className="flex items-center text-sm">
+                      <MapPin className="h-4 w-4 mr-1 text-gray-500" />
+                      <span>
+                        {distance < 1
+                          ? `${Math.round(distance * 1000)} m`
+                          : `${distance.toFixed(1)} km`}
+                      </span>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </CardContent>

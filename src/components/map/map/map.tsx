@@ -6,10 +6,11 @@ import "leaflet/dist/leaflet.css"; // Must imported to make the leaflet work cor
 import "leaflet/dist/leaflet.js"; // Must imported to make the leaflet work correctly
 
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
 import { EventType, RSVPStatusEnum } from "@/modules/events/types/events";
-import { getFriendsWithLocation } from "@/modules/locations/server/queries";
+import { friendsWithLocationAction } from "@/modules/locations/actions/locations";
 import { UserWithLocation } from "@/modules/locations/types/locations";
-import { Compass, Locate, Minus, Plus } from "lucide-react";
+import { Compass, Locate, MapPin, Minus, Plus, Users } from "lucide-react";
 import { toast } from "sonner";
 import { useLocation } from "../location_provider";
 import CurrentUserMarker from "../markers/current-user-marker";
@@ -72,13 +73,13 @@ type MapProps = {
 const Map = ({ children, events = [], ...otherProps }: MapProps) => {
   const initialCenter: [number, number] = [49.21, 16.599]; // Default center (Brno)
   const initialZoom = 13;
-  const showEvents = true;
   const trackLocation = false;
 
   const [center, setCenter] = useState<[number, number] | undefined>(
     initialCenter,
   );
 
+  const [showEvents, setShowEvents] = useState(true);
   const [showFriends, setShowFriends] = useState(true);
   const [friends, setFriends] = useState<UserWithLocation[]>([]);
 
@@ -88,7 +89,7 @@ const Map = ({ children, events = [], ...otherProps }: MapProps) => {
 
   useEffect(() => {
     const intervalId = setInterval(async () => {
-      const res = await getFriendsWithLocation();
+      const res = await friendsWithLocationAction();
       if (res) {
         setFriends(res);
       }
@@ -165,8 +166,9 @@ const Map = ({ children, events = [], ...otherProps }: MapProps) => {
 
       {/* Custom map controls */}
       <div className="leaflet-control-container">
-        <div className="leaflet-top leaflet-right">
-          <div className="leaflet-control leaflet-bar top-24 bg-white shadow-lg rounded-lg overflow-hidden flex flex-col m-4">
+        <div className="leaflet-bottom leaflet-right">
+          {/* Zoom and location controls */}
+          <div className="leaflet-control leaflet-bar bg-white shadow-lg rounded-lg overflow-hidden flex flex-col m-4 mb-0 pb-0 z-10">
             <Button
               variant="ghost"
               size="icon"
@@ -203,6 +205,32 @@ const Map = ({ children, events = [], ...otherProps }: MapProps) => {
             >
               <Compass className="h-5 w-5" />
             </Button>
+          </div>
+
+          {/* Layer controls */}
+          <div className="leaflet-control leaflet-bar bg-white shadow-lg rounded-lg overflow-hidden flex flex-col m-4 mt-1 mb-16 p-3 gap-3 min-w-[130px] z-10">
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2 text-sm font-medium">
+                <MapPin className="h-4 w-4 text-primary" />
+                <span>Events</span>
+              </div>
+              <Switch
+                checked={showEvents}
+                onCheckedChange={setShowEvents}
+                className="bg-gray-200 data-[state=checked]:bg-primary"
+              />
+            </div>
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2 text-sm font-medium">
+                <Users className="h-4 w-4 text-primary" />
+                <span>Friends</span>
+              </div>
+              <Switch
+                checked={showFriends}
+                onCheckedChange={setShowFriends}
+                className="bg-gray-200 data-[state=checked]:bg-primary"
+              />
+            </div>
           </div>
         </div>
       </div>

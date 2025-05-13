@@ -68,7 +68,7 @@ const RSVPManager = ({
             ? "Your tentative response has been saved."
             : "You've declined this event.";
 
-      toast.success(message);
+      // toast.success(message);
 
       if (onRSVPChange) {
         onRSVPChange(eventId, status);

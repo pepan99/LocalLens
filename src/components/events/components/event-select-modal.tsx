@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { EventType } from "@/modules/events/types/events";
 import { useMemo, useState } from "react";
 
@@ -39,21 +40,23 @@ const EventSelectModal = ({
           className="mb-4"
         />
 
-        <div className="space-y-4">
-          {filteredEvents.map(event => (
-            <Button
-              key={event.id}
-              variant="outline"
-              className="w-full justify-start text-left"
-              onClick={() => {
-                onSelect(event.id);
-                onClose();
-              }}
-            >
-              {event.title}
-            </Button>
-          ))}
-        </div>
+        <ScrollArea className="h-80">
+          <div className="space-y-4">
+            {filteredEvents.map(event => (
+              <Button
+                key={event.id}
+                variant="outline"
+                className="w-full justify-start text-left"
+                onClick={() => {
+                  onSelect(event.id);
+                  onClose();
+                }}
+              >
+                {event.title}
+              </Button>
+            ))}
+          </div>
+        </ScrollArea>
       </DialogContent>
     </Dialog>
   );
