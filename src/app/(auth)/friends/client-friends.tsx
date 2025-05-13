@@ -25,8 +25,11 @@ import {
   sendFriendRequest,
 } from "@/modules/friends/actions/friends";
 import {
+  addMembersToGroup,
   createFriendGroup,
   deleteFriendGroup,
+  removeMemberFromGroup,
+  renameGroup,
 } from "@/modules/groups/actions/groups";
 import { LocationSharingConfig } from "@/modules/locations/types/locations";
 import { Group, Search, Users } from "lucide-react";
@@ -109,11 +112,11 @@ const ClientFriendsPage = ({
 
   const handleCreateGroup = async (name: string, friendIds: string[]) => {
     try {
-      const group = null; //await createFriendGroup(name, friendIds);
+      await createFriendGroup(name, friendIds);
       toast(`Group "${name}" created.`);
       setIsCreateGroupDialogOpen(false);
       setActiveTab("groups");
-    } catch (err) {
+    } catch {
       toast.error("Failed to create group.");
     }
   };
@@ -144,7 +147,7 @@ const ClientFriendsPage = ({
 
   const handleEditGroupSubmit = async (groupId: string, name: string) => {
     try {
-      //await renameGroup(groupId, name);
+      await renameGroup(groupId, name);
       toast(`Group name updated to "${name}".`);
     } catch {
       toast.error("Failed to rename group.");
@@ -156,7 +159,7 @@ const ClientFriendsPage = ({
     memberId: string,
   ) => {
     try {
-      // await removeMemberFromGroup(groupId, memberId);
+      await removeMemberFromGroup(groupId, memberId);
       toast("Member removed from the group.");
     } catch {
       toast.error("Failed to remove member.");
@@ -168,7 +171,7 @@ const ClientFriendsPage = ({
     memberIds: string[],
   ) => {
     try {
-      // await addMembersToGroup(groupId, memberIds);
+      await addMembersToGroup(groupId, memberIds);
       toast(`${memberIds.length} member(s) added to the group.`);
       setIsAddMembersDialogOpen(false);
     } catch {

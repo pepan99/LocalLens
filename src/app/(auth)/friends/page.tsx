@@ -2,8 +2,8 @@ import {
   getFriends,
   getPendingFriendRequests,
 } from "@/modules/friends/server/queries";
-import { getLocationSharingConfig } from "@/modules/locations/server/queries";
 import { getGroups } from "@/modules/groups/server/queries";
+import { getLocationSharingConfig } from "@/modules/locations/server/queries";
 import ClientFriendsPage from "./client-friends";
 
 const FriendsPage = async () => {
