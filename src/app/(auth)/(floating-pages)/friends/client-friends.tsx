@@ -66,9 +66,7 @@ const ClientFriendsPage = ({
 
   // General state
   const [searchQuery, setSearchQuery] = useState("");
-  const [_selectedFriendId, setSelectedFriendId] = useState<string | null>(
-    null,
-  );
+
   const [activeTab, setActiveTab] = useState("friends");
 
   // Dialog states
@@ -94,7 +92,6 @@ const ClientFriendsPage = ({
 
   const handleRemoveFriend = async (friendId: string) => {
     await removeFriend(friendId);
-    setFriends(prev => prev.filter(f => f.id !== friendId));
     toast("The friend has been removed from your list.");
   };
 
