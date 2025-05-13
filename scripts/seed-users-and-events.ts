@@ -1,8 +1,8 @@
 import { randomUUID } from "crypto";
 import { db } from "@/db";
+import { events } from "@/db/schemas/events";
 import { users } from "@/db/schemas/users";
 import { faker } from "@faker-js/faker";
-import { events } from "../migrations/schema";
 
 // Generate 20 users
 async function seedUsers() {
@@ -43,7 +43,7 @@ async function seedEvents(userIds: string[]) {
       creatorId: faker.helpers.arrayElement(userIds),
       title: faker.lorem.words(3),
       time: faker.date.future().toISOString(),
-      date: Math.floor(Date.now() / 1000),
+      date: new Date(),
       location: faker.location.streetAddress(),
       description: faker.lorem.sentences(2),
       category: faker.helpers.arrayElement(["Music", "Tech", "Food", "Art"]),
