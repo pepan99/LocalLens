@@ -1,5 +1,3 @@
-"use server";
-
 import { auth } from "@/auth";
 import { db } from "@/db";
 import { friends } from "@/db/schemas/friends";

@@ -2,11 +2,13 @@
 
 import { auth } from "@/auth";
 import { db } from "@/db";
+import { friends } from "@/db/schemas/friends";
 import { userLocation } from "@/db/schemas/user-locations";
 import { users } from "@/db/schemas/users";
 import { ActionResult } from "@/types/result";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { getUserLocation } from "../server/queries";
+import { UserWithLocation } from "../types/locations";
 
 /**
  * Create a new event
@@ -98,5 +100,50 @@ export const disableLocationSharing = async (): Promise<ActionResult> => {
   } catch (error) {
     console.error("Error creating event:", error);
     return { type: "error", message: "Failed to update location sharing" };
+  }
+};
+
+/**
+ * Get all friends and their location
+ */
+export const friendsWithLocationAction = async (): Promise<
+  UserWithLocation[]
+> => {
+  try {
+    const session = await auth();
+    const userId = session?.user?.id;
+    if (!userId) {
+      return [];
+    }
+
+    const results = await db
+      .select({
+        id: users.id,
+        name: users.name,
+        imageUrl: users.imageUrl,
+        latitude: userLocation.latitude,
+        longitude: userLocation.longitude,
+        updatedAt: userLocation.updatedAt,
+      })
+      .from(friends)
+      .innerJoin(users, eq(friends.friendId, users.id))
+      .leftJoin(userLocation, eq(users.id, userLocation.userId))
+      .where(
+        and(eq(friends.userId, userId), eq(users.isSharingLocation, true)),
+      );
+
+    return results.map(friend => ({
+      id: friend.id,
+      name: friend.name ?? "Unknown",
+      imageUrl: friend.imageUrl,
+      coordinates:
+        friend.latitude === null || friend.longitude === null
+          ? null
+          : [friend.latitude, friend.longitude],
+      lastUpdated: friend.updatedAt ? new Date(friend.updatedAt) : null,
+    }));
+  } catch (error) {
+    console.error("Error fetching friends with location:", error);
+    return [];
   }
 };

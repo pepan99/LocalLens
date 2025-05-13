@@ -7,7 +7,7 @@ import "leaflet/dist/leaflet.js"; // Must imported to make the leaflet work corr
 
 import { Button } from "@/components/ui/button";
 import { EventType, RSVPStatusEnum } from "@/modules/events/types/events";
-import { getFriendsWithLocation } from "@/modules/locations/server/queries";
+import { friendsWithLocationAction } from "@/modules/locations/actions/locations";
 import { UserWithLocation } from "@/modules/locations/types/locations";
 import { Compass, Locate, Minus, Plus } from "lucide-react";
 import { toast } from "sonner";
@@ -88,7 +88,7 @@ const Map = ({ children, events = [], ...otherProps }: MapProps) => {
 
   useEffect(() => {
     const intervalId = setInterval(async () => {
-      const res = await getFriendsWithLocation();
+      const res = await friendsWithLocationAction();
       if (res) {
         setFriends(res);
       }
