@@ -1,5 +1,9 @@
 "use client";
 
+import {
+  calculateDistance,
+  useLocation,
+} from "@/components/map/location_provider";
 import { Badge } from "@/components/ui/badge";
 import {
   Card,
@@ -9,8 +13,9 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { EventType } from "@/modules/events/types/events";
-import { Calendar, Clock, MapPin, Star } from "lucide-react";
+import { Calendar, Clock, MapPin } from "lucide-react";
 import dynamic from "next/dynamic";
+import { useMemo } from "react";
 
 interface EventInformationProps {
   event: EventType;
@@ -18,12 +23,29 @@ interface EventInformationProps {
 
 const EventInformation = ({ event }: EventInformationProps) => {
   // Load Map component dynamically to avoid SSR issues
-  const EventMap = dynamic(
-    () => import("@/components/events/location-picker"),
-    {
-      ssr: false,
-    },
+  const EventMap = useMemo(
+    () =>
+      dynamic(() => import("@/components/events/location-picker"), {
+        ssr: false,
+      }),
+    [],
   );
+
+  // Get user location
+  const { position } = useLocation();
+
+  // Calculate distance between user and event
+  const distance = useMemo(() => {
+    if (position) {
+      return calculateDistance(
+        position[0],
+        position[1],
+        event.latitude,
+        event.longitude,
+      );
+    }
+    return null;
+  }, [position, event.latitude, event.longitude]);
 
   return (
     <Card className="bg-white/90 backdrop-blur-sm">
@@ -71,9 +93,17 @@ const EventInformation = ({ event }: EventInformationProps) => {
       </CardContent>
       <CardFooter className="border-t pt-6 flex justify-between">
         <div className="flex gap-4 text-gray-700 items-center">
-          <div className="flex items-center gap-1">
-            <Star className="h-5 w-5 text-yellow-500 fill-yellow-500" />
-            <span>{event.rating}</span>
+          <div className="flex items-center gap-4">
+            {distance !== null && (
+              <div className="flex items-center text-sm">
+                <MapPin className="h-4 w-4 mr-1 text-gray-500" />
+                <span>
+                  {distance < 1
+                    ? `${Math.round(distance * 1000)} m`
+                    : `${distance.toFixed(1)} km`}
+                </span>
+              </div>
+            )}
           </div>
         </div>
       </CardFooter>

@@ -1,14 +1,11 @@
-import { getEvents, getUserEvents } from "@/modules/events/server/queries";
+import { getEvents } from "@/modules/events/server/queries";
 import ClientSideEventsPage from "./client-events";
 
 const EventsPage = async () => {
   // Fetch events from the server
-  const events = await getEvents(); // Get up to 50 events
-  const userEvents = await getUserEvents(); // Get events created by the user
+  const events = await getEvents();
 
-  return (
-    <ClientSideEventsPage initialEvents={events} userEvents={userEvents} />
-  );
+  return <ClientSideEventsPage events={events} />;
 };
 
 export default EventsPage;

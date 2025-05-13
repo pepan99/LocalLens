@@ -241,11 +241,7 @@ export const respondToEvent = async (
     }
 
     // Revalidate all relevant paths to ensure data is refreshed everywhere
-    revalidatePath("/", "layout"); // Revalidate the entire app
-    revalidatePath(`/events/${eventId}`, "page");
-    revalidatePath(`/events`, "page");
-    revalidatePath(`/explore`, "page");
-    revalidatePath(`/map`, "page");
+    revalidatePath(`/events`);
 
     return {
       type: "success",

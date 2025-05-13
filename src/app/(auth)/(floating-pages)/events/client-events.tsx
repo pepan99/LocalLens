@@ -12,54 +12,62 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { deleteEvent } from "@/modules/events/actions/events";
 import { EventType } from "@/modules/events/types/events";
 import { Calendar } from "lucide-react";
+import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { use, useMemo, useState } from "react";
 import { toast } from "sonner";
 
 interface ClientSideEventsPageProps {
-  initialEvents: EventType[];
-  userEvents: EventType[];
+  events: EventType[];
 }
 
-const ClientSideEventsPage = ({
-  initialEvents,
-  userEvents,
-}: ClientSideEventsPageProps) => {
+const ClientSideEventsPage = ({ events }: ClientSideEventsPageProps) => {
   const router = useRouter();
 
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState("date-asc");
-  const [events, setEvents] = useState<EventType[]>(initialEvents);
-  const [myEvents, setMyEvents] = useState<EventType[]>(userEvents);
   const [deleteEventId, setDeleteEventId] = useState<string | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const session = useSession();
 
   // Filter events based on search query and category
-  const filteredEvents = events.filter(event => {
-    const matchesSearch =
-      event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      event.location.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCategory =
-      !selectedCategory || event.category === selectedCategory;
-    return matchesSearch && matchesCategory;
-  });
+  const filteredEvents = useMemo(() => {
+    return events.filter(event => {
+      const matchesSearch =
+        event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        event.location.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesCategory =
+        !selectedCategory || event.category === selectedCategory;
+      return matchesSearch && matchesCategory;
+    });
+  }, [events, searchQuery, selectedCategory]);
 
   // Sort filtered events
-  const sortedEvents = sortEvents(filteredEvents, sortBy);
+  const sortedEvents = useMemo(() => {
+    return sortEvents(filteredEvents, sortBy);
+  }, [filteredEvents, sortBy]);
+
+  const myEvents = useMemo(() => {
+    return events.filter(event => event.creatorId === session.data?.user.id);
+  }, [events, session.data?.user.id]);
 
   // Get user's own events
-  const filteredUserEvents = myEvents.filter(event => {
-    const matchesSearch =
-      event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      event.location.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCategory =
-      !selectedCategory || event.category === selectedCategory;
-    return matchesSearch && matchesCategory;
-  });
+  const filteredUserEvents = useMemo(() => {
+    return myEvents.filter(event => {
+      const matchesSearch =
+        event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        event.location.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesCategory =
+        !selectedCategory || event.category === selectedCategory;
+      return matchesSearch && matchesCategory;
+    });
+  }, [myEvents, searchQuery, selectedCategory]);
 
-  const sortedUserEvents = sortEvents(filteredUserEvents, sortBy);
+  const sortedUserEvents = useMemo(() => {
+    return sortEvents(filteredUserEvents, sortBy);
+  }, [filteredUserEvents, sortBy]);
 
   // Delete event handler
   const handleDeleteEvent = async () => {
@@ -70,8 +78,6 @@ const ClientSideEventsPage = ({
 
         if (result.type === "success") {
           // Update local state
-          setEvents(events.filter(event => event.id !== deleteEventId));
-          setMyEvents(myEvents.filter(event => event.id !== deleteEventId));
           toast.success("Event deleted successfully");
         } else {
           toast.error(result.message || "Failed to delete the event");
