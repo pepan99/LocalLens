@@ -230,7 +230,7 @@ const PlaceDetailPage = () => {
   };
 
   return (
-    <div className="container mx-auto p-4">
+    <div className="container">
       <div className="bg-white/90 backdrop-blur-sm rounded-lg shadow-md overflow-hidden">
         {/* Header Section */}
         <div className="relative">

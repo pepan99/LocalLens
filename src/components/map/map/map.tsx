@@ -63,32 +63,23 @@ const MapController = ({
 
 type MapProps = {
   children?: React.ReactNode;
-  initialCenter?: [number, number];
-  initialZoom?: number;
-  showEvents?: boolean;
-  showFriends?: boolean;
-  trackLocation?: boolean;
-  events: EventType[];
+  events?: EventType[];
 } & Omit<
   React.ComponentProps<typeof MapContainer>,
   "center" | "zoom" | "children"
 >;
 
-const Map = ({
-  children,
-  initialCenter = [49.21, 16.599], // Default center (Brno)
-  initialZoom = 13,
-  showEvents = true,
-  trackLocation = false,
-  events = [],
-  ...otherProps
-}: MapProps) => {
+const Map = ({ children, events = [], ...otherProps }: MapProps) => {
+  const initialCenter: [number, number] = [49.21, 16.599]; // Default center (Brno)
+  const initialZoom = 13;
+  const showEvents = true;
+  const trackLocation = false;
+
   const [center, setCenter] = useState<[number, number] | undefined>(
     initialCenter,
   );
 
   const [showFriends, setShowFriends] = useState(true);
-
   const [friends, setFriends] = useState<UserWithLocation[]>([]);
 
   const mapRef = useRef<L.Map | null>(null);

@@ -65,7 +65,7 @@ const ClientEventDetailPage = ({
   };
 
   return (
-    <div className="container mx-auto p-4">
+    <div className="container mx-auto">
       <EventHeader />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
