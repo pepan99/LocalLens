@@ -15,8 +15,6 @@ export const updateUserLocation = async (
   newLocation: [number, number],
 ): Promise<ActionResult> => {
   try {
-    console.log("updateUserLocation", newLocation);
-
     // Get the current user
     const session = await auth();
     if (!session?.user?.id) {
@@ -30,8 +28,6 @@ export const updateUserLocation = async (
     }
 
     if (location.data === null) {
-      console.log("User does not exist in the database");
-
       // Insert the event into the database
       await db.insert(userLocation).values({
         userId: session.user.id,
@@ -39,7 +35,6 @@ export const updateUserLocation = async (
         longitude: newLocation[1],
       });
     } else {
-      console.log("User already exists in the database");
       // Update the user's location in the database
       await db
         .update(userLocation)

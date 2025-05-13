@@ -61,8 +61,6 @@ export const LocationProvider = ({ children }: LocationProviderProps) => {
       return;
     }
 
-    console.log("Getting user location");
-
     setLoading(true);
     setError(null);
 
