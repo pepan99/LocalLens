@@ -1,3 +1,4 @@
+import { getEvents } from "@/modules/events/server/queries";
 import {
   getFriends,
   getPendingFriendRequests,
@@ -9,11 +10,14 @@ const FriendsPage = async () => {
   const friends = await getFriends();
   const groups = await getGroups();
   const pendingRequests = await getPendingFriendRequests();
+  const events = await getEvents();
+
   return (
     <ClientFriendsPage
       initialFriends={friends}
       initialGroups={groups}
       initialPendingRequests={pendingRequests}
+      initialEvents={events}
     />
   );
 };

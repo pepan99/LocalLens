@@ -1,5 +1,6 @@
 "use client";
 
+import EventSelectModal from "@/components/events/components/event-select-modal";
 // Import dialog components
 import AddFriendDialog from "@/components/friends/add-friend-dialog";
 import AddMembersDialog from "@/components/friends/add-members-dialog";
@@ -16,6 +17,7 @@ import ViewGroupDialog from "@/components/friends/view-group-dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { EventType } from "@/modules/events/types/events";
 import {
   acceptFriendRequest,
   cancelFriendRequest,
@@ -42,18 +44,25 @@ type Props = {
   initialFriends: Friend[];
   initialGroups: FriendGroup[];
   initialPendingRequests: FriendRequest[];
+  initialEvents: EventType[];
 };
 
 const ClientFriendsPage = ({
   initialFriends,
   initialGroups,
   initialPendingRequests,
+  initialEvents,
 }: Props) => {
   const [friends, setFriends] = useState<Friend[]>(initialFriends);
   const [groups, setGroups] = useState<FriendGroup[]>(initialGroups);
   const [pendingRequests, setPendingRequests] = useState<FriendRequest[]>(
     initialPendingRequests,
   );
+
+  const [events] = useState<EventType[]>(initialEvents);
+
+  const [isEventSelectOpen, setIsEventSelectOpen] = useState(false);
+  const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
 
   // General state
   const [searchQuery, setSearchQuery] = useState("");
@@ -197,28 +206,50 @@ const ClientFriendsPage = ({
     }
   };
 
-  const handleInviteGroupToEvent = async (groupId: string) => {
+  const handleInviteGroupToEvent = (groupId: string) => {
     const group = groups.find(g => g.id === groupId);
     if (!group) return;
 
-    const eventId = "<your_event_id>";
-
-    const res = await inviteGroupToEvent({
-      eventId,
-      groupMemberIds: group.members.map(x => x.id),
-    });
-
-    toast.success(`Invited ${res.invitedCount} members of "${group.name}"`);
+    setSelectedGroup(group);
+    setIsEventSelectOpen(true);
   };
 
-  const handleInviteToEvent = async (friendId: string) => {
-    const eventId = "<your_event_id>";
+  const handleInviteToEvent = (friendId: string) => {
+    setSelectedFriendId(friendId);
+    setIsEventSelectOpen(true);
+  };
 
-    const res = await inviteUserToEvent({ eventId, invitedUserId: friendId });
-    if (res.success) {
-      toast.success("Invitation sent!");
-    } else {
-      toast.warning(res.message ?? "Could not invite");
+  const handleEventSelect = async (eventId: string) => {
+    setIsEventSelectOpen(false);
+    setSelectedEventId(eventId);
+
+    // If a group is selected, invite group
+    if (selectedGroup) {
+      const res = await inviteGroupToEvent({
+        eventId,
+        groupMemberIds: selectedGroup.members.map(x => x.id),
+      });
+
+      toast.success(
+        `Invited ${res.invitedCount} members of "${selectedGroup.name}"`,
+      );
+      setSelectedGroup(null);
+    }
+
+    // If a friend is selected, invite friend
+    if (_selectedFriendId) {
+      const res = await inviteUserToEvent({
+        eventId,
+        invitedUserId: _selectedFriendId,
+      });
+
+      if (res.success) {
+        toast.success("Invitation sent!");
+      } else {
+        toast.warning(res.message ?? "Could not invite");
+      }
+
+      setSelectedFriendId(null);
     }
   };
 
@@ -388,6 +419,13 @@ const ClientFriendsPage = ({
         onOpenChange={setIsDeleteGroupDialogOpen}
         group={selectedGroup}
         onConfirmDelete={handleConfirmDeleteGroup}
+      />
+
+      <EventSelectModal
+        isOpen={isEventSelectOpen}
+        onClose={() => setIsEventSelectOpen(false)}
+        events={events}
+        onSelect={handleEventSelect}
       />
     </div>
   );
