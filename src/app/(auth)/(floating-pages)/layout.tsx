@@ -23,7 +23,7 @@ const FloatingPagesLayout = ({
     );
   } else {
     return (
-      <div className="m-auto min-[margin-top]:10 relative w-fit">
+      <div className="mx-auto top-10 sm:top-20 min-[margin-top]:10 container relative">
         <MapReturnButton
           title="Return to Map"
           className="absolute right-0 -top-10"
