@@ -24,11 +24,11 @@ import {
   removeFriend,
   sendFriendRequest,
 } from "@/modules/friends/actions/friends";
-import { LocationSharingConfig } from "@/modules/locations/types/locations";
 import {
   createFriendGroup,
   deleteFriendGroup,
 } from "@/modules/groups/actions/groups";
+import { LocationSharingConfig } from "@/modules/locations/types/locations";
 import { Group, Search, Users } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -58,12 +58,6 @@ const ClientFriendsPage = ({
     null,
   );
   const [activeTab, setActiveTab] = useState("friends");
-
-  // Local state for all groups
-  const [groups, setGroups] = useState<FriendGroup[]>(MOCK_FRIEND_GROUPS);
-  const [locationSettings, setLocationSettings] = useState<LocationSettings>(
-    MOCK_LOCATION_SETTINGS,
-  );
 
   // Dialog states
   const [isAddFriendDialogOpen, setIsAddFriendDialogOpen] = useState(false);
