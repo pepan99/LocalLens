@@ -2,7 +2,6 @@
 
 import {
   EventsList,
-  ExploreHeader,
   filterEvents,
   FilterMenu,
   FilterOptions,
@@ -48,9 +47,7 @@ const ExploreEvents = ({ sourceEvents }: ExploreEventsProps) => {
     setActiveTab(tab);
   };
 
-  const handleFilterClick = () => {
-    setFilterMenuOpen(true);
-  };
+  // Filter menu is now controlled via the dropdown component
 
   const handleApplyFilters = (newFilters: FilterOptions) => {
     setFilters(newFilters);
@@ -77,8 +74,17 @@ const ExploreEvents = ({ sourceEvents }: ExploreEventsProps) => {
 
   return (
     <>
-      {/* Header Section */}
-      <ExploreHeader onFilterClick={handleFilterClick} />
+      {/* Header Section with integrated filter dropdown */}
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-xl md:text-2xl font-bold text-gray-800">
+          Events Near You
+        </h2>
+        <FilterMenu
+          isOpen={filterMenuOpen}
+          onClose={() => setFilterMenuOpen(false)}
+          onApplyFilters={handleApplyFilters}
+        />
+      </div>
 
       {/* Filter Tabs Section */}
       <FilterTabs activeTab={activeTab} onTabChange={handleTabChange} />
@@ -88,13 +94,6 @@ const ExploreEvents = ({ sourceEvents }: ExploreEventsProps) => {
         events={filteredEvents}
         onRSVPChange={handleRSVPChange}
         activeTab={activeTab}
-      />
-
-      {/* Filter Menu Sheet */}
-      <FilterMenu
-        isOpen={filterMenuOpen}
-        onClose={() => setFilterMenuOpen(false)}
-        onApplyFilters={handleApplyFilters}
       />
     </>
   );

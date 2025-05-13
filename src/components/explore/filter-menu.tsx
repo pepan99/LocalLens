@@ -2,17 +2,18 @@
 
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
 import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetFooter,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
-import { useState } from "react";
+import { ChevronDown, Filter } from "lucide-react";
+import { useEffect, useState } from "react";
+import { EVENT_CATEGORIES } from "../events/utils";
 
 interface FilterMenuProps {
   isOpen: boolean;
@@ -25,19 +26,22 @@ export interface FilterOptions {
   categories: string[];
 }
 
-const CATEGORIES = [
-  "Food",
-  "Arts",
-  "Music",
-  "Tech",
-  "Literature",
-  "Sports",
-  "Other",
-];
-
 const FilterMenu = ({ isOpen, onClose, onApplyFilters }: FilterMenuProps) => {
   const [maxDistance, setMaxDistance] = useState(5);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [open, setOpen] = useState(isOpen);
+
+  // Sync with parent state
+  useEffect(() => {
+    setOpen(isOpen);
+  }, [isOpen]);
+
+  const handleOpenChange = (open: boolean) => {
+    setOpen(open);
+    if (!open) {
+      onClose();
+    }
+  };
 
   const handleCategoryToggle = (category: string) => {
     setSelectedCategories(prev =>
@@ -52,7 +56,7 @@ const FilterMenu = ({ isOpen, onClose, onApplyFilters }: FilterMenuProps) => {
       maxDistance,
       categories: selectedCategories,
     });
-    onClose();
+    handleOpenChange(false);
   };
 
   const handleReset = () => {
@@ -61,16 +65,21 @@ const FilterMenu = ({ isOpen, onClose, onApplyFilters }: FilterMenuProps) => {
   };
 
   return (
-    <Sheet open={isOpen} onOpenChange={onClose}>
-      <SheetContent className="w-[300px] sm:w-[400px] pl-4 rounded-l-xl">
-        <SheetHeader>
-          <SheetTitle>Filter Events</SheetTitle>
-          <SheetDescription>
-            Apply filters to find events that match your preferences.
-          </SheetDescription>
-        </SheetHeader>
+    <DropdownMenu open={open} onOpenChange={handleOpenChange}>
+      <DropdownMenuTrigger asChild>
+        <button className="flex items-center text-sm text-gray-600 hover:text-gray-800 bg-gray-100 hover:bg-gray-200 px-3 py-1.5 rounded-md transition-colors">
+          <Filter size={16} className="mr-1" />
+          Filter
+          <ChevronDown size={16} className="ml-1" />
+        </button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent className="w-[280px] p-4" align="end">
+        <DropdownMenuLabel className="font-bold text-base">
+          Filter Events
+        </DropdownMenuLabel>
+        <DropdownMenuSeparator />
 
-        <div className="py-6 space-y-6">
+        <div className="py-4 space-y-6">
           {/* Distance Filter */}
           <div className="space-y-3">
             <Label className="font-medium">Maximum Distance</Label>
@@ -93,7 +102,7 @@ const FilterMenu = ({ isOpen, onClose, onApplyFilters }: FilterMenuProps) => {
           <div className="space-y-3">
             <Label className="font-medium">Categories</Label>
             <div className="grid grid-cols-2 gap-2">
-              {CATEGORIES.map(category => (
+              {EVENT_CATEGORIES.map(category => (
                 <div key={category} className="flex items-center space-x-2">
                   <Checkbox
                     id={`category-${category}`}
@@ -112,14 +121,16 @@ const FilterMenu = ({ isOpen, onClose, onApplyFilters }: FilterMenuProps) => {
           </div>
         </div>
 
-        <SheetFooter className="flex-col sm:flex-row gap-2">
-          <Button variant="outline" onClick={handleReset}>
+        <div className="flex justify-between mt-2 gap-2">
+          <Button variant="outline" onClick={handleReset} size="sm">
             Reset
           </Button>
-          <Button onClick={handleApply}>Apply Filters</Button>
-        </SheetFooter>
-      </SheetContent>
-    </Sheet>
+          <Button onClick={handleApply} size="sm">
+            Apply Filters
+          </Button>
+        </div>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 };
 
