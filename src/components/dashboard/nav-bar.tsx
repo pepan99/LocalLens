@@ -96,17 +96,6 @@ const NavBar = () => {
       </div>
 
       <div className="flex items-center gap-3">
-        <form onSubmit={handleSearch} className="relative hidden md:flex">
-          <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-          <Input
-            type="text"
-            placeholder="Search events, places..."
-            className="pl-8 w-64"
-            value={searchQuery}
-            onChange={e => setSearchQuery(e.target.value)}
-          />
-        </form>
-
         <Button variant="outline" size="icon" asChild className="relative">
           <Link href="/notifications">
             <Bell className="h-5 w-5" />
