@@ -12,12 +12,7 @@ import FriendsList from "@/components/friends/sections/friends-list";
 import LocationSharingSettings from "@/components/friends/sections/location-sharing-settings";
 import PendingRequestsList from "@/components/friends/sections/pending-requests-list";
 // Import types and mock data
-import {
-  Friend,
-  FriendGroup,
-  FriendRequest,
-  LocationSharingSettingsType as LocationSettings,
-} from "@/components/friends/types";
+import { Friend, FriendGroup, FriendRequest } from "@/components/friends/types";
 import ViewGroupDialog from "@/components/friends/view-group-dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -29,25 +24,27 @@ import {
   removeFriend,
   sendFriendRequest,
 } from "@/modules/friends/actions/friends";
+import { LocationSharingConfig } from "@/modules/locations/types/locations";
 import {
   createFriendGroup,
   deleteFriendGroup,
 } from "@/modules/groups/actions/groups";
 import { Group, Search, Users } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
-import { MOCK_LOCATION_SETTINGS } from "./mock_friends";
 
 type Props = {
   initialFriends: Friend[];
   initialGroups: FriendGroup[];
   initialPendingRequests: FriendRequest[];
+  locationSettings: LocationSharingConfig;
 };
 
 const ClientFriendsPage = ({
   initialFriends,
   initialGroups,
   initialPendingRequests,
+  locationSettings,
 }: Props) => {
   const [friends, setFriends] = useState<Friend[]>(initialFriends);
   const [groups, setGroups] = useState<FriendGroup[]>(initialGroups);
@@ -61,6 +58,9 @@ const ClientFriendsPage = ({
     null,
   );
   const [activeTab, setActiveTab] = useState("friends");
+
+  // Local state for all groups
+  const [groups, setGroups] = useState<FriendGroup[]>(MOCK_FRIEND_GROUPS);
   const [locationSettings, setLocationSettings] = useState<LocationSettings>(
     MOCK_LOCATION_SETTINGS,
   );
@@ -221,21 +221,8 @@ const ClientFriendsPage = ({
     toast("A link to join this group has been copied to your clipboard.");
   };
 
-  // Location sharing handlers
-  const handleLocationSettingsChange = (newSettings: LocationSettings) => {
-    setLocationSettings(newSettings);
-    console.log("Location settings updated:", newSettings);
-  };
-
-  const handleSaveLocationSettings = (settings: LocationSettings) => {
-    // In a real app, this would call an API to save the settings
-    console.log("Saving location settings:", settings);
-
-    toast("Your location sharing settings have been updated.");
-  };
-
   return (
-    <div className="container mx-auto p-4">
+    <div className="container">
       <div className="bg-white/90 backdrop-blur-sm rounded-lg shadow-md p-6">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
           <div>
@@ -337,12 +324,7 @@ const ClientFriendsPage = ({
           </TabsContent>
 
           <TabsContent value="location">
-            <LocationSharingSettings
-              settings={locationSettings}
-              groups={groups}
-              onSettingsChanged={handleLocationSettingsChange}
-              onSaveSettings={handleSaveLocationSettings}
-            />
+            <LocationSharingSettings settings={locationSettings} />
           </TabsContent>
         </Tabs>
       </div>

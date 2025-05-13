@@ -9,3 +9,10 @@ export type Error = {
   type: "error";
   message: string;
 };
+
+export type ActionResultWithData<T> =
+  | {
+      type: "success";
+      data: T;
+    }
+  | Error;

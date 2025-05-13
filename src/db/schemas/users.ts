@@ -17,7 +17,9 @@ export const users = sqliteTable("user", {
   location: text("location"),
   isOnline: integer("isOnline", { mode: "boolean" }),
   lastActive: integer("lastActive", { mode: "timestamp_ms" }),
-  isSharingLocation: integer("isSharingLocation", { mode: "boolean" }),
+  isSharingLocation: integer("isSharingLocation", { mode: "boolean" })
+    .default(false)
+    .notNull(),
   coordinates: text("coordinates"),
 });
 

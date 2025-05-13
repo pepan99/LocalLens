@@ -17,7 +17,7 @@ const SettingsPage = () => {
   };
 
   return (
-    <div className="container mx-auto p-4">
+    <div className="container">
       <div className="bg-white/90 backdrop-blur-sm rounded-lg shadow-md p-6">
         <h1 className="text-2xl font-bold">Settings</h1>
         <p className="mt-2 text-sm text-muted-foreground">

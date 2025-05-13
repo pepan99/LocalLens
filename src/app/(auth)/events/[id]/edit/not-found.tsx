@@ -4,7 +4,7 @@ import Link from "next/link";
 
 export const EditEventNotFound = () => {
   return (
-    <div className="container mx-auto p-4 flex flex-col items-center justify-center min-h-[70vh]">
+    <div className="container flex flex-col items-center justify-center min-h-[70vh]">
       <div className="text-center">
         <div className="flex justify-center">
           <Edit className="h-24 w-24 text-gray-300" />

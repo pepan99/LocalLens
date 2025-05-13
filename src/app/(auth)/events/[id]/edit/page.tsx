@@ -1,5 +1,6 @@
 import { CreateEventForm } from "@/components/events/event-create";
 import { getEventById } from "@/modules/events/server/queries";
+import { getPlaces } from "@/modules/places";
 import { notFound } from "next/navigation";
 
 type EditEventPageProps = {
@@ -11,6 +12,7 @@ type EditEventPageProps = {
 const EditEventPage = async ({ params }: EditEventPageProps) => {
   const eventId = (await params).id;
   const event = await getEventById(eventId);
+  const places = await getPlaces();
 
   if (!event) {
     notFound();
@@ -18,7 +20,7 @@ const EditEventPage = async ({ params }: EditEventPageProps) => {
 
   return (
     <div className="container mx-auto p-4 max-w-2xl">
-      <CreateEventForm event={event} />
+      <CreateEventForm event={event} places={places} />
     </div>
   );
 };

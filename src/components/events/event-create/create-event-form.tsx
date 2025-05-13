@@ -12,12 +12,13 @@ import {
 import { Form } from "@/components/ui/form";
 import { ProgressSteps } from "@/components/ui/progress-steps";
 import { useMultiStepForm } from "@/hooks/use-multi-step-form";
-import { createEvent } from "@/modules/events/actions/events";
+import { createEvent, updateEvent } from "@/modules/events/actions/events";
 import {
   CreateEventFormValues,
   createEventSchema,
 } from "@/modules/events/schemas/schemas";
 import { EventType } from "@/modules/events/types/events";
+import { PlaceType } from "@/modules/places";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowLeftIcon } from "lucide-react";
 import { useState } from "react";
@@ -30,29 +31,28 @@ import LocationStep from "./location-step";
 
 export type CreateEventFormProps = {
   event?: EventType;
+  places: PlaceType[];
 };
 
-const CreateEventForm = ({ event }: CreateEventFormProps) => {
-  const [coordinates, setCoordinates] = useState<[number, number]>([
-    49.19503, 16.60826,
-  ]);
+const CreateEventForm = ({ event, places }: CreateEventFormProps) => {
+  const [isValidating, setIsValidating] = useState(false);
   const totalSteps = 3;
   const stepLabels = ["Basic Info", "Location", "Date & Details"];
-  const [isValidating, setIsValidating] = useState(false);
 
-  const form = useForm<CreateEventFormValues>({
+  const form = useForm({
     resolver: zodResolver(createEventSchema),
     defaultValues: {
       title: event?.title || "",
       description: event?.description || "",
       category: event?.category || "",
       location: event?.location || "",
-      customLocation: event?.location || "",
       date: event?.date ? new Date(event.date) : undefined,
       time: event?.time || "",
       capacity: event?.capacity || 0,
-      isPrivate: event?.isEventPrivate || false,
+      isPrivate: event?.isPrivate || false,
       imageUrl: event?.imageUrl || "",
+      latitude: event?.latitude || 49.19503,
+      longitude: event?.longitude || 16.60826,
     },
     mode: "onBlur",
   });
@@ -65,7 +65,7 @@ const CreateEventForm = ({ event }: CreateEventFormProps) => {
     },
     customValidators: {
       2: (_data: CreateEventFormValues) => {
-        if (!coordinates) {
+        if (!form.getValues("latitude") || !form.getValues("longitude")) {
           return false;
         }
         return true;
@@ -114,7 +114,16 @@ const CreateEventForm = ({ event }: CreateEventFormProps) => {
         return;
       }
 
-      if (!coordinates) {
+      const latitude = form.getValues("latitude");
+      const longitude = form.getValues("longitude");
+
+      console.log("Form submission values:", {
+        ...values,
+        latitude,
+        longitude,
+      });
+
+      if (!latitude || !longitude) {
         toast.error("Please select a location on the map");
         goToStep(2);
         return;
@@ -122,8 +131,7 @@ const CreateEventForm = ({ event }: CreateEventFormProps) => {
 
       // Update exisitng event
       if (event) {
-        // Call the updateEvent server action and handle the response
-        const result = await createEvent(values, coordinates);
+        const result = await updateEvent(event.id, values);
 
         if (result.type === "success") {
           toast.success(result.message || "Event updated successfully!");
@@ -133,7 +141,7 @@ const CreateEventForm = ({ event }: CreateEventFormProps) => {
         }
       } else {
         // Call the createEvent server action and handle the response
-        const result = await createEvent(values, coordinates);
+        const result = await createEvent(values);
 
         if (result.type === "success") {
           toast.success(result.message || "Event created successfully!");
@@ -152,7 +160,7 @@ const CreateEventForm = ({ event }: CreateEventFormProps) => {
 
   const handleCancel = () => {
     const formData = form.getValues();
-    if (Object.values(formData).some(val => !!val) || coordinates) {
+    if (Object.values(formData).some(val => !!val)) {
       if (
         confirm(
           "Are you sure you want to cancel? All your progress will be lost.",
@@ -182,7 +190,7 @@ const CreateEventForm = ({ event }: CreateEventFormProps) => {
         .filter(field => ["location"].includes(field))
         .map(field => errors[field as keyof typeof errors]?.message);
 
-      if (!coordinates && form.getValues("location")) {
+      if (!form.getValues("latitude") || !form.getValues("longitude")) {
         locationErrors.push("Please select a location on the map");
       }
 
@@ -233,13 +241,7 @@ const CreateEventForm = ({ event }: CreateEventFormProps) => {
             className="space-y-6"
           >
             {currentStep === 1 && <BasicInfoStep form={form} />}
-            {currentStep === 2 && (
-              <LocationStep
-                form={form}
-                coordinates={coordinates}
-                setCoordinates={setCoordinates}
-              />
-            )}
+            {currentStep === 2 && <LocationStep form={form} places={places} />}
             {currentStep === 3 && <DateDetailsStep form={form} />}
           </form>
         </Form>

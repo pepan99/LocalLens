@@ -7,28 +7,14 @@ import "leaflet/dist/leaflet.js"; // Must imported to make the leaflet work corr
 
 import { Button } from "@/components/ui/button";
 import { EventType, RSVPStatusEnum } from "@/modules/events/types/events";
-import { FriendType } from "@/types/friends";
+import { getFriendsWithLocation } from "@/modules/locations/server/queries";
+import { UserWithLocation } from "@/modules/locations/types/locations";
 import { Compass, Locate, Minus, Plus } from "lucide-react";
 import { toast } from "sonner";
+import { useLocation } from "../location_provider";
+import CurrentUserMarker from "../markers/current-user-marker";
 import EventMarker from "../markers/event-marker";
 import UserMarker from "../markers/user-marker";
-
-const MOCK_FRIENDS: FriendType[] = [
-  {
-    id: "1",
-    name: "Marie Novotná",
-    imageUrl: "/placeholder-user-1.jpg",
-    coordinates: [49.197, 16.608],
-    lastUpdated: new Date(Date.now() - 5 * 60 * 1000), // 5 minutes ago
-  },
-  {
-    id: "2",
-    name: "Jan Svoboda",
-    imageUrl: "/placeholder-user-2.jpg",
-    coordinates: [49.199, 16.599],
-    lastUpdated: new Date(Date.now() - 15 * 60 * 1000), // 15 minutes ago
-  },
-];
 
 // Component to handle map functionality like centering and zooming
 const MapController = ({
@@ -77,51 +63,39 @@ const MapController = ({
 
 type MapProps = {
   children?: React.ReactNode;
-  initialCenter?: [number, number];
-  initialZoom?: number;
-  showEvents?: boolean;
-  showFriends?: boolean;
-  trackLocation?: boolean;
-  events: EventType[];
+  events?: EventType[];
 } & Omit<
   React.ComponentProps<typeof MapContainer>,
   "center" | "zoom" | "children"
 >;
 
-const Map = ({
-  children,
-  initialCenter = [49.21, 16.599], // Default center (Brno)
-  initialZoom = 13,
-  showEvents = true,
-  showFriends = true,
-  trackLocation = false,
-  events = [],
-  ...otherProps
-}: MapProps) => {
+const Map = ({ children, events = [], ...otherProps }: MapProps) => {
+  const initialCenter: [number, number] = [49.21, 16.599]; // Default center (Brno)
+  const initialZoom = 13;
+  const showEvents = true;
+  const trackLocation = false;
+
   const [center, setCenter] = useState<[number, number] | undefined>(
     initialCenter,
   );
-  const [currentLocation, setCurrentLocation] = useState<
-    [number, number] | null
-  >(null);
-  const mapRef = useRef<L.Map | null>(null);
-  // const [events, setEventsState] = useState<EventType[]>([]);
 
-  // Handle getting user's current location
+  const [showFriends, setShowFriends] = useState(true);
+  const [friends, setFriends] = useState<UserWithLocation[]>([]);
+
+  const mapRef = useRef<L.Map | null>(null);
+
+  const userLocation = useLocation();
+
   useEffect(() => {
-    if (trackLocation) {
-      navigator.geolocation.getCurrentPosition(
-        position => {
-          const { latitude, longitude } = position.coords;
-          setCurrentLocation([latitude, longitude]);
-          setCenter([latitude, longitude]);
-        },
-        error => {
-          console.error("Error getting location:", error);
-        },
-      );
-    }
-  }, [trackLocation]);
+    const intervalId = setInterval(async () => {
+      const res = await getFriendsWithLocation();
+      if (res) {
+        setFriends(res);
+      }
+    }, 10000);
+
+    return () => clearInterval(intervalId);
+  }, []);
 
   const handleZoomIn = () => {
     if (mapRef.current) {
@@ -138,10 +112,10 @@ const Map = ({
   };
 
   const handleRecenter = () => {
-    if (currentLocation) {
-      setCenter(currentLocation);
+    if (userLocation?.position) {
+      setCenter(userLocation?.position || undefined);
       if (mapRef.current) {
-        mapRef.current.setView(currentLocation, 15);
+        mapRef.current.setView(userLocation?.position, 15);
       }
     }
   };
@@ -166,7 +140,6 @@ const Map = ({
       // For now, we'll leave the visual update to the marker component itself
     }
   };
-  console.log("Map component rendered with events:", events);
 
   return (
     <MapContainer
@@ -217,7 +190,7 @@ const Map = ({
               size="icon"
               className="h-10 w-10 rounded-none hover:bg-gray-100"
               onClick={handleRecenter}
-              disabled={!currentLocation}
+              disabled={!userLocation?.position}
             >
               <Locate className="h-5 w-5" />
             </Button>
@@ -246,20 +219,20 @@ const Map = ({
 
       {/* Friend markers */}
       {showFriends &&
-        MOCK_FRIENDS.map(friend => (
-          <UserMarker key={friend.id} user={friend} />
-        ))}
+        friends.map(
+          friend =>
+            friend.coordinates && (
+              <UserMarker
+                key={friend.id}
+                user={friend}
+                coordinates={friend.coordinates}
+              />
+            ),
+        )}
 
       {/* Current user marker */}
-      {currentLocation && (
-        <UserMarker
-          user={{
-            id: "current-user",
-            name: "You",
-            coordinates: currentLocation,
-          }}
-          isCurrentUser
-        />
+      {userLocation?.position && (
+        <CurrentUserMarker coordinates={userLocation.position} />
       )}
 
       {children}

@@ -13,6 +13,7 @@ import {
 import { Input } from "@/components/ui/input";
 import {
   Bell,
+  Building,
   Calendar,
   MapPin,
   Plus,
@@ -79,6 +80,17 @@ const NavBar = () => {
           >
             <Users className="h-4 w-4" />
             <span>Friends</span>
+          </Link>
+          <Link
+            href="/places"
+            className={`flex items-center gap-1 px-3 py-2 rounded-md transition ${
+              pathname.includes("/places")
+                ? "bg-primary/10 text-primary"
+                : "hover:bg-gray-100"
+            }`}
+          >
+            <Building className="h-4 w-4" />
+            <span>Places</span>
           </Link>
         </div>
       </div>

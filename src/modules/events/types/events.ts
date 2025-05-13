@@ -8,8 +8,9 @@ export type EventType = {
   location: string;
   description: string;
   capacity: number;
-  isEventPrivate: boolean;
-  coordinates: [number, number];
+  isPrivate: boolean;
+  latitude: number;
+  longitude: number;
   attendees: number;
   rating: number;
   imageUrl: string | null;
