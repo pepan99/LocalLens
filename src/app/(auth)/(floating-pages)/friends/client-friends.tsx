@@ -41,26 +41,18 @@ import { useState } from "react";
 import { toast } from "sonner";
 
 type Props = {
-  initialFriends: Friend[];
-  initialGroups: FriendGroup[];
-  initialPendingRequests: FriendRequest[];
-  initialEvents: EventType[];
+  friends: Friend[];
+  groups: FriendGroup[];
+  pendingRequests: FriendRequest[];
+  events: EventType[];
 };
 
 const ClientFriendsPage = ({
-  initialFriends,
-  initialGroups,
-  initialPendingRequests,
-  initialEvents,
+  friends,
+  groups,
+  pendingRequests,
+  events,
 }: Props) => {
-  const [friends, setFriends] = useState<Friend[]>(initialFriends);
-  const [groups, setGroups] = useState<FriendGroup[]>(initialGroups);
-  const [pendingRequests, setPendingRequests] = useState<FriendRequest[]>(
-    initialPendingRequests,
-  );
-
-  const [events] = useState<EventType[]>(initialEvents);
-
   const [isEventSelectOpen, setIsEventSelectOpen] = useState(false);
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
 
@@ -80,6 +72,7 @@ const ClientFriendsPage = ({
   const [isDeleteGroupDialogOpen, setIsDeleteGroupDialogOpen] = useState(false);
   const [selectedGroup, setSelectedGroup] = useState<FriendGroup | null>(null);
 
+  const [selectedFriendId, setSelectedFriendId] = useState<string | null>(null);
   // Filter friends based on search query
   const filteredFriends = friends.filter(friend => {
     if (!searchQuery.trim()) return true;
@@ -234,10 +227,10 @@ const ClientFriendsPage = ({
     }
 
     // If a friend is selected, invite friend
-    if (_selectedFriendId) {
+    if (selectedFriendId) {
       const res = await inviteUserToEvent({
         eventId,
-        invitedUserId: _selectedFriendId,
+        invitedUserId: selectedFriendId,
       });
 
       if (res.success) {

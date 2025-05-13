@@ -14,10 +14,10 @@ const FriendsPage = async () => {
 
   return (
     <ClientFriendsPage
-      initialFriends={friends}
-      initialGroups={groups}
-      initialPendingRequests={pendingRequests}
-      initialEvents={events}
+      friends={friends}
+      groups={groups}
+      pendingRequests={pendingRequests}
+      events={events}
     />
   );
 };

@@ -64,7 +64,7 @@ const createEventIcon = (event: EventType) => {
     return L.divIcon({
       className: "custom-event-marker",
       html: `<div style="position: relative; width: 30px; height: 30px;">
-             <div style="background-image: url(${event.imageUrl}); width: 30px; height: 30px; border-radius: 5%; display: flex; justify-content: center; align-items: center; border: 2px solid white; box-shadow: 0 2px 6px rgba(0,0,0,0.3);">
+             <div style="background-image: url(${event.imageUrl}); background-size: contain; width: 30px; height: 30px; border-radius: 5%; display: flex; justify-content: center; align-items: center; border: 2px solid white; box-shadow: 0 2px 6px rgba(0,0,0,0.3);">
              </div>
              ${rsvpIndicator}
            </div>`,
