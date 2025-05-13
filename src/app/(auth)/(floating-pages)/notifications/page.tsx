@@ -1,47 +1,15 @@
 import { auth } from "@/auth";
 import MapReturnButton from "@/components/buttons/map-return-button";
-import { EventDetail } from "@/components/events/event-detail/utils";
 import NotificationEventList from "@/components/notifications/notification-event-list";
-import { User } from "next-auth";
+import { EventInvitationNotification } from "@/components/notifications/utils";
+import { markInvitationsAsSeen } from "@/modules/invitations/actions/invitations";
+import { getUserEventInvitations } from "@/modules/invitations/server/queries";
 
-const fetchUserNotifications = async (user: User): Promise<EventDetail[]> => {
-  // mock data - would be nice to have till end of week + 1 day
-  return [
-    {
-      id: "1",
-      title: "Weekend Farmers Market",
-      category: "Food",
-      date: new Date().toISOString(),
-      location: "Freedom Square, Brno",
-      coordinates: [69.6969, -69.6969],
-      attendees: 24,
-      rating: 4.5,
-      isOwner: false,
-      description:
-        "Discover the freshest local produce, artisanal foods, and handcrafted goods at our weekend farmers market. Support local farmers and businesses while enjoying delicious treats.",
-      capacity: 50,
-      isPrivate: true,
-      imageUrl: "/images/placeholder.jpg",
-    },
-    {
-      id: "2",
-      title: "Weekly Running Club",
-      category: "Sports",
-      date: new Date(
-        new Date().setMonth(new Date().getMonth() + 1),
-      ).toISOString(),
-      location: "Lužánky Park, Brno",
-      coordinates: [69.6969, -69.6969],
-      attendees: 55,
-      rating: 4.9,
-      isOwner: true,
-      description:
-        "Join our friendly running group for a 5K run through the beautiful Lužánky Park. All fitness levels are welcome. We meet by the main entrance and finish with stretches and socializing.",
-      capacity: 60,
-      isPrivate: false,
-      imageUrl: "/images/placeholder.jpg",
-    },
-  ];
+const fetchUserNotifications = async (
+  userid: string,
+): Promise<EventInvitationNotification[]> => {
+  const notifications = await getUserEventInvitations(userid);
+  return notifications;
 };
 
 const NotificationsPage = async () => {
@@ -62,7 +30,9 @@ const NotificationsPage = async () => {
     );
   }
 
-  const eventNotifications: EventDetail[] = await fetchUserNotifications(user);
+  const eventNotifications = await fetchUserNotifications(user.id);
+
+  await markInvitationsAsSeen(user.id);
 
   return (
     <div className="container">

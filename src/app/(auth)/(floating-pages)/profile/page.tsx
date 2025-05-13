@@ -54,8 +54,6 @@ const ProfilePage = async () => {
             </div>
           </CardContent>
         </Card>
-
-        <MapReturnButton title="Return" />
       </div>
     </div>
   );

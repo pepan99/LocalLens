@@ -10,6 +10,7 @@ interface FriendsListProps {
   searchQuery: string;
   onRemoveFriend: (friendId: string) => void;
   onAddFriendClick: () => void;
+  onInviteToEvent: (friendId: string) => void;
 }
 
 const FriendsList = ({
@@ -17,6 +18,7 @@ const FriendsList = ({
   searchQuery,
   onRemoveFriend,
   onAddFriendClick,
+  onInviteToEvent,
 }: FriendsListProps) => {
   if (filteredFriends.length === 0) {
     return (
@@ -45,6 +47,7 @@ const FriendsList = ({
           key={friend.id}
           friend={friend}
           onRemoveFriend={onRemoveFriend}
+          onInviteToEvent={onInviteToEvent}
         />
       ))}
     </div>

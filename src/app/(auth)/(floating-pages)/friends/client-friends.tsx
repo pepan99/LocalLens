@@ -1,5 +1,6 @@
 "use client";
 
+import EventSelectModal from "@/components/events/components/event-select-modal";
 // Import dialog components
 import AddFriendDialog from "@/components/friends/add-friend-dialog";
 import AddMembersDialog from "@/components/friends/add-members-dialog";
@@ -9,7 +10,6 @@ import EditGroupDialog from "@/components/friends/edit-group-dialog";
 import FriendGroupsList from "@/components/friends/sections/friend-groups-list";
 // Import section components
 import FriendsList from "@/components/friends/sections/friends-list";
-import LocationSharingSettings from "@/components/friends/sections/location-sharing-settings";
 import PendingRequestsList from "@/components/friends/sections/pending-requests-list";
 // Import types and mock data
 import { Friend, FriendGroup, FriendRequest } from "@/components/friends/types";
@@ -17,6 +17,7 @@ import ViewGroupDialog from "@/components/friends/view-group-dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { EventType } from "@/modules/events/types/events";
 import {
   acceptFriendRequest,
   cancelFriendRequest,
@@ -31,7 +32,10 @@ import {
   removeMemberFromGroup,
   renameGroup,
 } from "@/modules/groups/actions/groups";
-import { LocationSharingConfig } from "@/modules/locations/types/locations";
+import {
+  inviteGroupToEvent,
+  inviteUserToEvent,
+} from "@/modules/invitations/actions/invitations";
 import { Group, Search, Users } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -40,20 +44,25 @@ type Props = {
   initialFriends: Friend[];
   initialGroups: FriendGroup[];
   initialPendingRequests: FriendRequest[];
-  locationSettings: LocationSharingConfig;
+  initialEvents: EventType[];
 };
 
 const ClientFriendsPage = ({
   initialFriends,
   initialGroups,
   initialPendingRequests,
-  locationSettings,
+  initialEvents,
 }: Props) => {
   const [friends, setFriends] = useState<Friend[]>(initialFriends);
   const [groups, setGroups] = useState<FriendGroup[]>(initialGroups);
   const [pendingRequests, setPendingRequests] = useState<FriendRequest[]>(
     initialPendingRequests,
   );
+
+  const [events] = useState<EventType[]>(initialEvents);
+
+  const [isEventSelectOpen, setIsEventSelectOpen] = useState(false);
+  const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
 
   // General state
   const [searchQuery, setSearchQuery] = useState("");
@@ -201,11 +210,47 @@ const ClientFriendsPage = ({
     const group = groups.find(g => g.id === groupId);
     if (!group) return;
 
-    console.log(`Inviting group "${group.name}" to event`);
+    setSelectedGroup(group);
+    setIsEventSelectOpen(true);
+  };
 
-    toast(`Redirecting to event creation with ${group.name} selected...`);
+  const handleInviteToEvent = (friendId: string) => {
+    setSelectedFriendId(friendId);
+    setIsEventSelectOpen(true);
+  };
 
-    // In a real app, this would navigate to the event creation page with the group pre-selected
+  const handleEventSelect = async (eventId: string) => {
+    setIsEventSelectOpen(false);
+    setSelectedEventId(eventId);
+
+    // If a group is selected, invite group
+    if (selectedGroup) {
+      const res = await inviteGroupToEvent({
+        eventId,
+        groupMemberIds: selectedGroup.members.map(x => x.id),
+      });
+
+      toast.success(
+        `Invited ${res.invitedCount} members of "${selectedGroup.name}"`,
+      );
+      setSelectedGroup(null);
+    }
+
+    // If a friend is selected, invite friend
+    if (_selectedFriendId) {
+      const res = await inviteUserToEvent({
+        eventId,
+        invitedUserId: _selectedFriendId,
+      });
+
+      if (res.success) {
+        toast.success("Invitation sent!");
+      } else {
+        toast.warning(res.message ?? "Could not invite");
+      }
+
+      setSelectedFriendId(null);
+    }
   };
 
   const handleShareGroup = (groupId: string) => {
@@ -287,7 +332,6 @@ const ClientFriendsPage = ({
               )}
             </TabsTrigger>
             <TabsTrigger value="groups">Groups</TabsTrigger>
-            <TabsTrigger value="location">Location Sharing</TabsTrigger>
           </TabsList>
 
           <TabsContent value="friends">
@@ -296,6 +340,7 @@ const ClientFriendsPage = ({
               searchQuery={searchQuery}
               onRemoveFriend={handleRemoveFriend}
               onAddFriendClick={() => setIsAddFriendDialogOpen(true)}
+              onInviteToEvent={handleInviteToEvent}
             />
           </TabsContent>
 
@@ -318,10 +363,6 @@ const ClientFriendsPage = ({
               onInviteGroupToEvent={handleInviteGroupToEvent}
               onCreateGroupClick={() => setIsCreateGroupDialogOpen(true)}
             />
-          </TabsContent>
-
-          <TabsContent value="location">
-            <LocationSharingSettings settings={locationSettings} />
           </TabsContent>
         </Tabs>
       </div>
@@ -378,6 +419,13 @@ const ClientFriendsPage = ({
         onOpenChange={setIsDeleteGroupDialogOpen}
         group={selectedGroup}
         onConfirmDelete={handleConfirmDeleteGroup}
+      />
+
+      <EventSelectModal
+        isOpen={isEventSelectOpen}
+        onClose={() => setIsEventSelectOpen(false)}
+        events={events}
+        onSelect={handleEventSelect}
       />
     </div>
   );
