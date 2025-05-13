@@ -166,35 +166,9 @@ const Map = ({ children, events = [], ...otherProps }: MapProps) => {
 
       {/* Custom map controls */}
       <div className="leaflet-control-container">
-        <div className="leaflet-top leaflet-right">
-          {/* Layer controls */}
-          <div className="leaflet-control leaflet-bar bg-white shadow-lg rounded-lg overflow-hidden flex flex-col m-4 mb-2 p-3 gap-3 min-w-[130px]">
-            <div className="flex items-center justify-between gap-3">
-              <div className="flex items-center gap-2 text-sm font-medium">
-                <MapPin className="h-4 w-4 text-primary" />
-                <span>Events</span>
-              </div>
-              <Switch
-                checked={showEvents}
-                onCheckedChange={setShowEvents}
-                className="bg-gray-200 data-[state=checked]:bg-primary"
-              />
-            </div>
-            <div className="flex items-center justify-between gap-3">
-              <div className="flex items-center gap-2 text-sm font-medium">
-                <Users className="h-4 w-4 text-primary" />
-                <span>Friends</span>
-              </div>
-              <Switch
-                checked={showFriends}
-                onCheckedChange={setShowFriends}
-                className="bg-gray-200 data-[state=checked]:bg-primary"
-              />
-            </div>
-          </div>
-
+        <div className="leaflet-bottom leaflet-right">
           {/* Zoom and location controls */}
-          <div className="leaflet-control leaflet-bar bg-white shadow-lg rounded-lg overflow-hidden flex flex-col m-4">
+          <div className="leaflet-control leaflet-bar bg-white shadow-lg rounded-lg overflow-hidden flex flex-col m-4 mb-0 pb-0 z-10">
             <Button
               variant="ghost"
               size="icon"
@@ -231,6 +205,32 @@ const Map = ({ children, events = [], ...otherProps }: MapProps) => {
             >
               <Compass className="h-5 w-5" />
             </Button>
+          </div>
+
+          {/* Layer controls */}
+          <div className="leaflet-control leaflet-bar bg-white shadow-lg rounded-lg overflow-hidden flex flex-col m-4 mt-1 mb-16 p-3 gap-3 min-w-[130px] z-10">
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2 text-sm font-medium">
+                <MapPin className="h-4 w-4 text-primary" />
+                <span>Events</span>
+              </div>
+              <Switch
+                checked={showEvents}
+                onCheckedChange={setShowEvents}
+                className="bg-gray-200 data-[state=checked]:bg-primary"
+              />
+            </div>
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2 text-sm font-medium">
+                <Users className="h-4 w-4 text-primary" />
+                <span>Friends</span>
+              </div>
+              <Switch
+                checked={showFriends}
+                onCheckedChange={setShowFriends}
+                className="bg-gray-200 data-[state=checked]:bg-primary"
+              />
+            </div>
           </div>
         </div>
       </div>
