@@ -26,10 +26,12 @@ interface EventCardProps {
 const EventCard = ({ event, onDelete, onRSVPChange }: EventCardProps) => {
   const session = useSession();
   return (
-    <Card key={event.id} className="overflow-hidden">
+    <Card key={event.id} className="min-w-[300]">
       <CardHeader className="pb-2">
         <div className="flex justify-between items-start">
-          <CardTitle className="text-lg">{event.title}</CardTitle>
+          <CardTitle className="text-lg truncate max-w-[200]">
+            {event.title}
+          </CardTitle>
           <Badge variant="outline">{event.category}</Badge>
         </div>
       </CardHeader>

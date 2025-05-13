@@ -9,7 +9,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { EventType } from "@/modules/events/types/events";
-import { Calendar, Clock, MapPin, Star, Users } from "lucide-react";
+import { Calendar, Clock, MapPin, Star } from "lucide-react";
 import dynamic from "next/dynamic";
 
 interface EventInformationProps {
@@ -62,7 +62,7 @@ const EventInformation = ({ event }: EventInformationProps) => {
           <div className="h-[300px] border rounded-md overflow-hidden">
             {/* Render the event location on a map */}
             <EventMap
-              initialLocation={event.coordinates}
+              initialLocation={[event.latitude, event.longitude]}
               onLocationSelected={() => {}}
               viewOnly
             />

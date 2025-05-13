@@ -123,7 +123,7 @@ const EventMarker = ({ event, onRSVPChange }: EventMarkerProps) => {
 
   return (
     <Marker
-      position={event.coordinates}
+      position={[event.latitude, event.longitude]}
       icon={createEventIcon(event)}
       ref={setMarkerRef}
     >

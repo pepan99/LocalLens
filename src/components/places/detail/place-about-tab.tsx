@@ -40,15 +40,15 @@ export const PlaceAboutTab = ({ place }: { place: PlaceType }) => {
           </div>
         )}
 
-        {place.coordinates && (
+        {place.latitude && place.longitude && (
           <div>
             <h2 className="text-lg font-medium mb-2">Location</h2>
             <div className="h-48 rounded-md bg-gray-200 overflow-hidden">
               {/* In a real app, this would be a map component showing the place location */}
               <div className="h-full flex items-center justify-center">
                 <p className="text-gray-500">
-                  Location: {place.coordinates[0].toFixed(5)},{" "}
-                  {place.coordinates[1].toFixed(5)}
+                  Location: {Number(place.latitude).toFixed(5)},{" "}
+                  {Number(place.longitude).toFixed(5)}
                 </p>
               </div>
             </div>

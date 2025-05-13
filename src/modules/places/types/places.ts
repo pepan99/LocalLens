@@ -8,7 +8,8 @@ export type PlaceType = {
   phone: string | null;
   category?: string; // Primary category (first in list)
   categories?: string[]; // All categories
-  coordinates?: [number, number] | null;
+  latitude: string | null;
+  longitude: string | null;
   rating?: number | null;
   reviewCount?: number;
   distance?: number;

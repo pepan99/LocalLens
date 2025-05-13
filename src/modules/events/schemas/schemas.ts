@@ -18,16 +18,19 @@ export const createEventSchema = z.object({
     required_error: "Please select a category.",
   }),
   location: z.string().optional(),
-  customLocation: z.string().optional(),
   date: z.date({
     required_error: "Please select a date.",
   }),
   time: z.string({
     required_error: "Please select a time.",
   }),
-  imageUrl: z.string().optional(),
-  capacity: z.coerce.number().int(),
+  capacity: z.coerce.number().int().positive({
+    message: "Capacity must be a positive number.",
+  }),
+  latitude: z.number().optional(),
+  longitude: z.number().optional(),
   isPrivate: z.boolean(),
+  imageUrl: z.string().optional(),
 });
 
 // Type for the form values
