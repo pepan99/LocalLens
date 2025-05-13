@@ -24,24 +24,33 @@ import {
   removeFriend,
   sendFriendRequest,
 } from "@/modules/friends/actions/friends";
+import {
+  addMembersToGroup,
+  createFriendGroup,
+  deleteFriendGroup,
+  removeMemberFromGroup,
+  renameGroup,
+} from "@/modules/groups/actions/groups";
 import { LocationSharingConfig } from "@/modules/locations/types/locations";
 import { Group, Search, Users } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
-import { MOCK_FRIEND_GROUPS } from "./mock_friends";
 
 type Props = {
   initialFriends: Friend[];
+  initialGroups: FriendGroup[];
   initialPendingRequests: FriendRequest[];
   locationSettings: LocationSharingConfig;
 };
 
 const ClientFriendsPage = ({
   initialFriends,
+  initialGroups,
   initialPendingRequests,
   locationSettings,
 }: Props) => {
   const [friends, setFriends] = useState<Friend[]>(initialFriends);
+  const [groups, setGroups] = useState<FriendGroup[]>(initialGroups);
   const [pendingRequests, setPendingRequests] = useState<FriendRequest[]>(
     initialPendingRequests,
   );
@@ -52,9 +61,6 @@ const ClientFriendsPage = ({
     null,
   );
   const [activeTab, setActiveTab] = useState("friends");
-
-  // Local state for all groups
-  const [groups, setGroups] = useState<FriendGroup[]>(MOCK_FRIEND_GROUPS);
 
   // Dialog states
   const [isAddFriendDialogOpen, setIsAddFriendDialogOpen] = useState(false);
@@ -104,28 +110,15 @@ const ClientFriendsPage = ({
     setIsAddFriendDialogOpen(false);
   };
 
-  // Group management handlers
-  const handleCreateGroup = (name: string, friendIds: string[]) => {
-    // In a real app, this would call an API to create the group
-    console.log(
-      `Creating group "${name}" with friends: ${friendIds.join(", ")}`,
-    );
-
-    // Create a new group with the selected friends
-    const newGroup: FriendGroup = {
-      id: `group-${Date.now()}`,
-      name,
-      memberCount: friendIds.length,
-      members: friends.filter(friend => friendIds.includes(friend.id)),
-    };
-
-    setGroups([...groups, newGroup]);
-    setIsCreateGroupDialogOpen(false);
-
-    toast(`Your group "${name}" has been created successfully.`);
-
-    // Switch to the Groups tab
-    setActiveTab("groups");
+  const handleCreateGroup = async (name: string, friendIds: string[]) => {
+    try {
+      await createFriendGroup(name, friendIds);
+      toast(`Group "${name}" created.`);
+      setIsCreateGroupDialogOpen(false);
+      setActiveTab("groups");
+    } catch {
+      toast.error("Failed to create group.");
+    }
   };
 
   const handleViewGroup = (groupId: string) => {
@@ -152,61 +145,38 @@ const ClientFriendsPage = ({
     }
   };
 
-  const handleEditGroupSubmit = (groupId: string, name: string) => {
-    // Update the group name
-    setGroups(
-      groups.map(group => (group.id === groupId ? { ...group, name } : group)),
-    );
-
-    toast(`Group name has been updated to "${name}".`);
+  const handleEditGroupSubmit = async (groupId: string, name: string) => {
+    try {
+      await renameGroup(groupId, name);
+      toast(`Group name updated to "${name}".`);
+    } catch {
+      toast.error("Failed to rename group.");
+    }
   };
 
-  const handleRemoveMemberFromGroup = (groupId: string, memberId: string) => {
-    // Find the group
-    const group = groups.find(g => g.id === groupId);
-    if (!group) return;
-
-    // Remove the member
-    const updatedGroup = {
-      ...group,
-      memberCount: group.memberCount - 1,
-      members: group.members.filter(member => member.id !== memberId),
-    };
-
-    // Update state
-    setGroups(groups.map(g => (g.id === groupId ? updatedGroup : g)));
-    setSelectedGroup(updatedGroup);
-
-    toast("The member has been removed from this group.");
+  const handleRemoveMemberFromGroup = async (
+    groupId: string,
+    memberId: string,
+  ) => {
+    try {
+      await removeMemberFromGroup(groupId, memberId);
+      toast("Member removed from the group.");
+    } catch {
+      toast.error("Failed to remove member.");
+    }
   };
 
-  const handleAddMembersSubmit = (groupId: string, memberIds: string[]) => {
-    // Find the group
-    const group = groups.find(g => g.id === groupId);
-    if (!group || memberIds.length === 0) return;
-
-    // Get the new members
-    const newMembers = friends.filter(
-      friend =>
-        memberIds.includes(friend.id) &&
-        !group.members.some(m => m.id === friend.id),
-    );
-
-    // Add the new members to the group
-    const updatedGroup = {
-      ...group,
-      memberCount: group.memberCount + newMembers.length,
-      members: [...group.members, ...newMembers],
-    };
-
-    // Update state
-    setGroups(groups.map(g => (g.id === groupId ? updatedGroup : g)));
-    setSelectedGroup(updatedGroup);
-    setIsAddMembersDialogOpen(false);
-
-    toast(
-      `${newMembers.length} ${newMembers.length === 1 ? "member has" : "members have"} been added to the group.`,
-    );
+  const handleAddMembersSubmit = async (
+    groupId: string,
+    memberIds: string[],
+  ) => {
+    try {
+      await addMembersToGroup(groupId, memberIds);
+      toast(`${memberIds.length} member(s) added to the group.`);
+      setIsAddMembersDialogOpen(false);
+    } catch {
+      toast.error("Failed to add members.");
+    }
   };
 
   const handleDeleteGroup = (groupId: string) => {
@@ -217,12 +187,14 @@ const ClientFriendsPage = ({
     }
   };
 
-  const handleConfirmDeleteGroup = (groupId: string) => {
-    // Remove the group
-    setGroups(groups.filter(group => group.id !== groupId));
-    setIsDeleteGroupDialogOpen(false);
-
-    toast("The group has been permanently deleted.");
+  const handleConfirmDeleteGroup = async (groupId: string) => {
+    try {
+      await deleteFriendGroup(groupId);
+      toast("Group deleted.");
+      setIsDeleteGroupDialogOpen(false);
+    } catch {
+      toast.error("Failed to delete group.");
+    }
   };
 
   const handleInviteGroupToEvent = (groupId: string) => {
