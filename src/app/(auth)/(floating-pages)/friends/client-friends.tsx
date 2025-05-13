@@ -9,7 +9,6 @@ import EditGroupDialog from "@/components/friends/edit-group-dialog";
 import FriendGroupsList from "@/components/friends/sections/friend-groups-list";
 // Import section components
 import FriendsList from "@/components/friends/sections/friends-list";
-import LocationSharingSettings from "@/components/friends/sections/location-sharing-settings";
 import PendingRequestsList from "@/components/friends/sections/pending-requests-list";
 // Import types and mock data
 import { Friend, FriendGroup, FriendRequest } from "@/components/friends/types";
@@ -31,7 +30,6 @@ import {
   removeMemberFromGroup,
   renameGroup,
 } from "@/modules/groups/actions/groups";
-import { LocationSharingConfig } from "@/modules/locations/types/locations";
 import { Group, Search, Users } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -40,14 +38,12 @@ type Props = {
   initialFriends: Friend[];
   initialGroups: FriendGroup[];
   initialPendingRequests: FriendRequest[];
-  locationSettings: LocationSharingConfig;
 };
 
 const ClientFriendsPage = ({
   initialFriends,
   initialGroups,
   initialPendingRequests,
-  locationSettings,
 }: Props) => {
   const [friends, setFriends] = useState<Friend[]>(initialFriends);
   const [groups, setGroups] = useState<FriendGroup[]>(initialGroups);
@@ -287,7 +283,6 @@ const ClientFriendsPage = ({
               )}
             </TabsTrigger>
             <TabsTrigger value="groups">Groups</TabsTrigger>
-            <TabsTrigger value="location">Location Sharing</TabsTrigger>
           </TabsList>
 
           <TabsContent value="friends">
@@ -318,10 +313,6 @@ const ClientFriendsPage = ({
               onInviteGroupToEvent={handleInviteGroupToEvent}
               onCreateGroupClick={() => setIsCreateGroupDialogOpen(true)}
             />
-          </TabsContent>
-
-          <TabsContent value="location">
-            <LocationSharingSettings settings={locationSettings} />
           </TabsContent>
         </Tabs>
       </div>
