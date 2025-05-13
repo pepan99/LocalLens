@@ -42,3 +42,56 @@ export const markEventInvitationAsDeleted = async (
     return { type: "error", message: "Failed to create friend group" };
   }
 };
+
+export const inviteUserToEvent = async ({
+  eventId,
+  invitedUserId,
+}: {
+  eventId: string;
+  invitedUserId: string;
+}) => {
+  const existing = await db
+    .select()
+    .from(eventInvitations)
+    .where(
+      and(
+        eq(eventInvitations.eventId, eventId),
+        eq(eventInvitations.invitedUserId, invitedUserId),
+      ),
+    )
+    .limit(1);
+
+  if (existing.length > 0)
+    return { success: false, message: "User already invited." };
+
+  await db.insert(eventInvitations).values({
+    eventId,
+    invitedUserId,
+  });
+
+  return { success: true };
+};
+
+export const inviteGroupToEvent = async ({
+  eventId,
+  groupMemberIds,
+}: {
+  eventId: string;
+  groupMemberIds: string[];
+}) => {
+  const session = await auth();
+
+  if (!session?.user?.id) {
+    return { type: "error", message: "Not authenticated" };
+  }
+
+  const invitedIds = groupMemberIds.filter(id => id !== session.user.id);
+
+  const values = invitedIds.map(userId => ({
+    eventId,
+    invitedUserId: userId,
+  }));
+
+  await db.insert(eventInvitations).values(values);
+  return { success: true, invitedCount: values.length };
+};

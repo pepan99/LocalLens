@@ -22,17 +22,21 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Clock, MapPin, MessageSquare, MoreVertical, User } from "lucide-react";
-import Link from "next/link";
+import { Clock, MapPin, MoreVertical } from "lucide-react";
 import { Friend } from "./types";
 import { formatTimeAgo } from "./utils";
 
 interface FriendCardProps {
   friend: Friend;
   onRemoveFriend: (friendId: string) => void;
+  onInviteToEvent: (friendId: string) => void;
 }
 
-const FriendCard = ({ friend, onRemoveFriend }: FriendCardProps) => {
+const FriendCard = ({
+  friend,
+  onRemoveFriend,
+  onInviteToEvent,
+}: FriendCardProps) => {
   return (
     <Card className="overflow-hidden group border hover:border-gray-300 transition-colors duration-300 hover:shadow-sm">
       <CardHeader className="pb-2 px-4 pt-4 flex-row items-start gap-3">
@@ -65,7 +69,7 @@ const FriendCard = ({ friend, onRemoveFriend }: FriendCardProps) => {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuItem>
+                <DropdownMenuItem onClick={() => onInviteToEvent(friend.id)}>
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     viewBox="0 0 24 24"

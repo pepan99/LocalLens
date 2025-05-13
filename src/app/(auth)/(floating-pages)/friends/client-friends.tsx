@@ -30,6 +30,10 @@ import {
   removeMemberFromGroup,
   renameGroup,
 } from "@/modules/groups/actions/groups";
+import {
+  inviteGroupToEvent,
+  inviteUserToEvent,
+} from "@/modules/invitations/actions/invitations";
 import { Group, Search, Users } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -193,15 +197,29 @@ const ClientFriendsPage = ({
     }
   };
 
-  const handleInviteGroupToEvent = (groupId: string) => {
+  const handleInviteGroupToEvent = async (groupId: string) => {
     const group = groups.find(g => g.id === groupId);
     if (!group) return;
 
-    console.log(`Inviting group "${group.name}" to event`);
+    const eventId = "<your_event_id>";
 
-    toast(`Redirecting to event creation with ${group.name} selected...`);
+    const res = await inviteGroupToEvent({
+      eventId,
+      groupMemberIds: group.members.map(x => x.id),
+    });
 
-    // In a real app, this would navigate to the event creation page with the group pre-selected
+    toast.success(`Invited ${res.invitedCount} members of "${group.name}"`);
+  };
+
+  const handleInviteToEvent = async (friendId: string) => {
+    const eventId = "<your_event_id>";
+
+    const res = await inviteUserToEvent({ eventId, invitedUserId: friendId });
+    if (res.success) {
+      toast.success("Invitation sent!");
+    } else {
+      toast.warning(res.message ?? "Could not invite");
+    }
   };
 
   const handleShareGroup = (groupId: string) => {
@@ -291,6 +309,7 @@ const ClientFriendsPage = ({
               searchQuery={searchQuery}
               onRemoveFriend={handleRemoveFriend}
               onAddFriendClick={() => setIsAddFriendDialogOpen(true)}
+              onInviteToEvent={handleInviteToEvent}
             />
           </TabsContent>
 
