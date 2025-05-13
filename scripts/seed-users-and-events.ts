@@ -50,7 +50,7 @@ async function seedEvents(userIds: string[]) {
       capacity: faker.number.int({ min: 10, max: 100 }),
       latitude: lat,
       longitude: lon,
-      isPrivate: faker.datatype.boolean() ? 1 : 0,
+      isPrivate: false,
       imageUrl: faker.image.url(),
     };
   });
