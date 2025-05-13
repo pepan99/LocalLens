@@ -20,8 +20,9 @@ export const mapEventToEventType = ({
     location: event.location || "",
     description: event.description,
     capacity: event.capacity,
-    isEventPrivate: Boolean(event.isPrivate),
-    coordinates: [event.latitude, event.longitude],
+    isPrivate: Boolean(event.isPrivate),
+    latitude: event.latitude,
+    longitude: event.longitude,
     // These fields don't exist in the original schema, so default values are assigned
     attendees: 0, // You may want to calculate this from a related table
     rating: 0, // You may want to calculate this from a related table

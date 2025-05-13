@@ -22,8 +22,7 @@ import { EventType } from "../types/events";
  * Create a new event
  */
 export const createEvent = async (
-  newFrom: CreateEventFormValues,
-  coordinates: [number, number],
+  formData: CreateEventFormValues,
 ): Promise<ActionResult> => {
   try {
     // Get the current user
@@ -33,7 +32,7 @@ export const createEvent = async (
     }
 
     // Parse and validate the form data
-    const parsedData = createEventSchema.safeParse(newFrom);
+    const parsedData = createEventSchema.safeParse(formData);
 
     if (!parsedData.success) {
       console.error("Validation error:", parsedData.error);
@@ -41,13 +40,14 @@ export const createEvent = async (
     }
 
     const eventData = parsedData.data;
+    const { latitude = 0, longitude = 0, ...restEventData } = eventData;
 
     // Insert the event into the database
     await db.insert(events).values({
-      ...eventData,
+      ...restEventData,
       id: randomUUID(),
-      latitude: coordinates[0],
-      longitude: coordinates[1],
+      latitude,
+      longitude,
       creatorId: session.user.id,
     });
 
@@ -69,8 +69,7 @@ export const createEvent = async (
  */
 export const updateEvent = async (
   eventId: string,
-  updatedEvent: EventType,
-  coordinates: [number, number],
+  formData: CreateEventFormValues,
 ): Promise<ActionResult> => {
   try {
     // Get the current user
@@ -80,7 +79,7 @@ export const updateEvent = async (
     }
 
     // Parse and validate the form data
-    const parsedData = createEventSchema.safeParse(updatedEvent);
+    const parsedData = createEventSchema.safeParse(formData);
 
     if (!parsedData.success) {
       console.error("Validation error:", parsedData.error);
@@ -88,6 +87,7 @@ export const updateEvent = async (
     }
 
     const eventData = parsedData.data;
+    const { latitude = 0, longitude = 0, ...restEventData } = eventData;
 
     // Check if the event exists and is owned by the current user
     const [existingEvent] = await db
@@ -108,9 +108,9 @@ export const updateEvent = async (
     await db
       .update(events)
       .set({
-        ...eventData,
-        latitude: coordinates[0],
-        longitude: coordinates[1],
+        ...restEventData,
+        latitude,
+        longitude,
       })
       .where(eq(events.id, eventId));
 

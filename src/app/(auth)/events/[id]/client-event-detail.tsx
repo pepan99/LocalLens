@@ -8,11 +8,7 @@ import {
 } from "@/components/events/event-detail";
 import { RSVPAttendees } from "@/components/events/rsvp";
 import { deleteEvent } from "@/modules/events/actions/events";
-import {
-  AttendingUser,
-  EventType,
-  RSVPStatusEnum,
-} from "@/modules/events/types/events";
+import { AttendingUser, EventType } from "@/modules/events/types/events";
 import { useSession } from "next-auth/react";
 import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
@@ -33,11 +29,6 @@ const ClientEventDetailPage = ({
   const session = useSession();
   const isOwner = initialEvent.creatorId === session.data?.user.id;
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-
-  // Convert EventType to EventDetail for compatibility with components
-  console.log("Event ID:", eventId);
-  console.log("Initial Event:", initialEvent);
-  console.log("Attendees:", attendees);
 
   const handleDeleteEvent = async () => {
     const result = await deleteEvent(eventId);

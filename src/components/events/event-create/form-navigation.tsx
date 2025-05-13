@@ -8,7 +8,6 @@ import {
   Loader2,
   Save,
 } from "lucide-react";
-import { useState } from "react";
 
 interface FormNavigationProps {
   currentStep: number;
@@ -35,17 +34,9 @@ const FormNavigation = ({
 }: FormNavigationProps) => {
   const isFirstStep = currentStep === 1;
   const isLastStep = currentStep === totalSteps;
-  const [isLoading, setIsLoading] = useState(false);
 
-  // Simulate API call loading state when submitting the form
   const handleSubmit = () => {
-    setIsLoading(true);
     onSubmit();
-
-    // Reset loading state after a short delay (would be handled by the API response in a real app)
-    setTimeout(() => {
-      setIsLoading(false);
-    }, 2000);
   };
 
   return (
@@ -89,20 +80,13 @@ const FormNavigation = ({
       {isLastStep ? (
         <Button
           onClick={handleSubmit}
-          disabled={isLoading || isValidating}
+          disabled={isValidating}
           className="gap-1"
         >
-          {isLoading ? (
-            <>
-              <Loader2 className="h-4 w-4 animate-spin" />
-              {isEdit ? "Updating..." : "Creating..."}
-            </>
-          ) : (
-            <>
-              <Save className="h-4 w-4" />
-              {isEdit ? "Update Event" : "Create Event"}
-            </>
-          )}
+          <>
+            <Save className="h-4 w-4" />
+            {isEdit ? "Update Event" : "Create Event"}
+          </>
         </Button>
       ) : (
         <Button

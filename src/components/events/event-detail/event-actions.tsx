@@ -90,7 +90,7 @@ const EventActions = ({ event, onDelete, onRSVPChange }: EventActionsProps) => {
           </p>
           <p>
             <span className="font-medium">Visibility:</span>{" "}
-            {event.isEventPrivate ? "Private Event" : "Public Event"}
+            {event.isPrivate ? "Private Event" : "Public Event"}
           </p>
           <p>
             <span className="font-medium">Created by:</span>{" "}

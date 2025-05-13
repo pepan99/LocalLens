@@ -68,6 +68,8 @@ export const mapPlaceToPlaceType = async (
     phone: placeData.phone,
     rating: ratingResult.average,
     reviewCount: ratingResult.count || 0,
+    latitude: placeData.latitude,
+    longitude: placeData.longitude,
     openingHours: includeDetails ? openingHoursData : undefined,
     amenities: includeDetails ? amenitiesData : undefined,
     image: "/placeholder-place-1.jpg", // Default image
