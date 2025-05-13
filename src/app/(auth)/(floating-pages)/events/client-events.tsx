@@ -11,7 +11,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { deleteEvent } from "@/modules/events/actions/events";
 import { EventType } from "@/modules/events/types/events";
-import { Calendar, Users } from "lucide-react";
+import { Calendar } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -48,9 +48,6 @@ const ClientSideEventsPage = ({
 
   // Sort filtered events
   const sortedEvents = sortEvents(filteredEvents, sortBy);
-
-  // Get attending events
-  const attendingEvents = sortedEvents.filter(event => event.attendees > 0); // This is a placeholder logic
 
   // Get user's own events
   const filteredUserEvents = myEvents.filter(event => {
@@ -163,30 +160,6 @@ const ClientSideEventsPage = ({
               )}
             </TabsContent>
 
-            <TabsContent value="attending">
-              {attendingEvents.length === 0 ? (
-                <div className="text-center py-12 bg-gray-50 rounded-lg">
-                  <Users className="mx-auto h-12 w-12 text-gray-400" />
-                  <h3 className="mt-2 text-lg font-medium">
-                    Events You&apos;re Attending
-                  </h3>
-                  <p className="mt-1 text-gray-500">
-                    RSVP to events to see them here
-                  </p>
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {attendingEvents.map(event => (
-                    <EventCard
-                      key={event.id}
-                      event={event}
-                      onDelete={handleDeleteClick}
-                    />
-                  ))}
-                </div>
-              )}
-            </TabsContent>
-
             <TabsContent value="my-events">
               {sortedUserEvents.length === 0 ? (
                 <div className="text-center py-12 bg-gray-50 rounded-lg">
@@ -205,6 +178,9 @@ const ClientSideEventsPage = ({
                       key={event.id}
                       event={event}
                       onDelete={handleDeleteClick}
+                      onRSVPChange={(id, status) => {
+                        event.rsvp = { status: status, guests: 0, note: "" };
+                      }}
                     />
                   ))}
                 </div>

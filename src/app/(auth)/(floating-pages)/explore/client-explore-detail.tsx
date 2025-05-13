@@ -37,9 +37,6 @@ const ExploreEvents = ({ sourceEvents }: ExploreEventsProps) => {
     let events = filterEvents(sourceEvents, activeTab);
 
     // Then apply distance filter if we have user location
-    console.log("User Location:", userLocation);
-    console.log("Max Distance:", filters.maxDistance);
-
     if (filters.maxDistance > 0 && userLocation.position !== null) {
       events = events.filter(event => {
         // Calculate distance between user and event

@@ -16,7 +16,6 @@ import {
   RSVPFormValues,
 } from "../schemas/schemas";
 import { getEventById } from "../server/queries";
-import { EventType } from "../types/events";
 
 /**
  * Create a new event
@@ -241,11 +240,17 @@ export const respondToEvent = async (
       });
     }
 
-    // Revalidate the event page
-    revalidatePath(`/events/${eventId}`);
-    revalidatePath(`/events`);
+    // Revalidate all relevant paths to ensure data is refreshed everywhere
+    revalidatePath("/", "layout"); // Revalidate the entire app
+    revalidatePath(`/events/${eventId}`, "page");
+    revalidatePath(`/events`, "page");
+    revalidatePath(`/explore`, "page");
+    revalidatePath(`/map`, "page");
 
-    return { type: "error", message: "Rsvp updated" };
+    return {
+      type: "success",
+      message: "RSVP updated successfully",
+    };
   } catch (error) {
     console.error("Error responding to event:", error);
     return { type: "error", message: "Failed to respond to event" };
