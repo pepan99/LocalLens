@@ -19,6 +19,11 @@ interface FilterMenuProps {
   isOpen: boolean;
   onClose: () => void;
   onApplyFilters: (filters: FilterOptions) => void;
+  locationStatus?: {
+    loading: boolean;
+    error: string | null;
+    available: boolean;
+  };
 }
 
 export interface FilterOptions {
@@ -26,7 +31,12 @@ export interface FilterOptions {
   categories: string[];
 }
 
-const FilterMenu = ({ isOpen, onClose, onApplyFilters }: FilterMenuProps) => {
+const FilterMenu = ({
+  isOpen,
+  onClose,
+  onApplyFilters,
+  locationStatus,
+}: FilterMenuProps) => {
   const [maxDistance, setMaxDistance] = useState(0);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [open, setOpen] = useState(isOpen);
@@ -83,12 +93,33 @@ const FilterMenu = ({ isOpen, onClose, onApplyFilters }: FilterMenuProps) => {
           {/* Distance Filter */}
           <div className="space-y-3">
             <Label className="font-medium">Maximum Distance</Label>
+            {locationStatus && (
+              <div className="mb-2">
+                {locationStatus.loading ? (
+                  <div className="text-xs text-yellow-600 flex items-center">
+                    <span className="mr-1 animate-spin">◌</span>
+                    Getting your location...
+                  </div>
+                ) : locationStatus.error ? (
+                  <div className="text-xs text-red-600 flex items-center">
+                    <span className="mr-1">⚠️</span>
+                    Location access required for distance filtering
+                  </div>
+                ) : (
+                  <div className="text-xs text-green-600 flex items-center">
+                    <span className="mr-1">✓</span>
+                    Location available
+                  </div>
+                )}
+              </div>
+            )}
             <div className="space-y-1">
               <Slider
                 value={[maxDistance]}
                 onValueChange={values => setMaxDistance(values[0])}
                 max={100}
                 step={5}
+                disabled={locationStatus && !locationStatus.available}
               />
               <div className="flex justify-between text-sm text-gray-500">
                 <span>0 km</span>
