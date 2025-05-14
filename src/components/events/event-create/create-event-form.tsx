@@ -172,13 +172,7 @@ const CreateEventForm = ({ event, places }: CreateEventFormProps) => {
   const handleCancel = () => {
     const formData = form.getValues();
     if (Object.values(formData).some(val => !!val)) {
-      if (
-        confirm(
-          "Are you sure you want to cancel? All your progress will be lost.",
-        )
-      ) {
-        window.location.href = "/map";
-      }
+      window.location.href = "/map";
     } else {
       window.location.href = "/map";
     }
