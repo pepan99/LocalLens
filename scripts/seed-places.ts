@@ -15,10 +15,7 @@ const uuid = () => randomUUID();
 
 async function seedPlaces() {
   try {
-    console.log("🌱 Starting place data seeding...");
-
-    // 1. Define categories
-    console.log("Creating categories...");
+    // SEED CATEGORIES
     const CATEGORIES = [
       {
         id: uuid(),
@@ -107,13 +104,9 @@ async function seedPlaces() {
 
         if (existingCategory.length === 0) {
           await db.insert(placeCategories).values(category);
-          console.log(`Added category: ${category.name}`);
         } else {
           // Update our map with the existing ID
           categoryMap.set(category.name, existingCategory[0].id as UUID);
-          console.log(
-            `Category "${category.name}" already exists, using existing ID`,
-          );
         }
       } catch (error) {
         if (error instanceof Error)
@@ -123,8 +116,7 @@ async function seedPlaces() {
       }
     }
 
-    // 2. Define amenities
-    console.log("Creating amenities...");
+    // SEED AMENITIES
     const AMENITIES = [
       { id: uuid(), name: "WiFi" },
       { id: uuid(), name: "Parking" },
@@ -160,13 +152,9 @@ async function seedPlaces() {
 
         if (existingAmenity.length === 0) {
           await db.insert(amenities).values(amenity);
-          console.log(`Added amenity: ${amenity.name}`);
         } else {
           // Update our map with the existing ID
           amenityMap.set(amenity.name, existingAmenity[0].id as UUID);
-          console.log(
-            `Amenity "${amenity.name}" already exists, using existing ID`,
-          );
         }
       } catch (error) {
         if (error instanceof Error)
@@ -176,7 +164,7 @@ async function seedPlaces() {
       }
     }
 
-    // 3. Define opening hours templates
+    // Define opening hours templates
     const weekdayHours = [
       { day: "Monday", hours: "09:00 - 18:00" },
       { day: "Tuesday", hours: "09:00 - 18:00" },
@@ -217,8 +205,7 @@ async function seedPlaces() {
       { day: "Sunday", hours: "00:00 - 24:00" },
     ];
 
-    // 4. Define place data
-    console.log("Creating places...");
+    // Define place data
     const PLACES = [
       {
         id: uuid(),
@@ -419,162 +406,97 @@ async function seedPlaces() {
     // import { v4 as uuid } from 'uuid';
     // And defining the hour variables appropriately.
     // Insert places into the database
-    for (const place of PLACES) {
-      try {
-        console.log(`Processing place: ${place.name}`);
 
-        // Check if the place already exists
-        const existingPlace = await db
-          .select({ id: places.id })
-          .from(places)
-          .where(eq(places.name, place.name))
+    // SEED PLACES
+    for (const place of PLACES) {
+      let placeId = place.id.toString();
+
+      // Insert or get existing place
+      const existingPlace = await db
+        .select({ id: places.id })
+        .from(places)
+        .where(eq(places.name, place.name))
+        .limit(1);
+
+      if (existingPlace.length > 0) {
+        placeId = existingPlace[0].id;
+      } else {
+        await db.insert(places).values(place);
+      }
+
+      // Insert place-category relationships
+      for (const categoryName of place.categories) {
+        const categoryId = categoryMap.get(categoryName);
+        if (!categoryId) continue;
+
+        const exists = await db
+          .select()
+          .from(placeCategoryRelations)
+          .where(
+            and(
+              eq(placeCategoryRelations.placeId, placeId),
+              eq(placeCategoryRelations.categoryId, categoryId),
+            ),
+          )
           .limit(1);
 
-        let placeId;
-
-        if (existingPlace.length > 0) {
-          console.log(
-            `Place "${place.name}" already exists, using existing ID`,
-          );
-          placeId = existingPlace[0].id;
-        } else {
-          await db.insert(places).values(place);
-          console.log(`Added place: ${place.name}`);
-          placeId = place.id;
+        if (exists.length === 0) {
+          await db.insert(placeCategoryRelations).values({
+            placeId,
+            categoryId,
+          });
         }
+      }
 
-        // Insert categories for this place
-        for (const categoryName of place.categories) {
-          try {
-            const categoryId = categoryMap.get(categoryName);
-            if (!categoryId) {
-              console.log(
-                `Category "${categoryName}" not found in map, skipping`,
-              );
-              continue;
-            }
+      // Insert place-amenity relationships
+      for (const amenityName of place.amenities) {
+        const amenityId = amenityMap.get(amenityName);
+        if (!amenityId) continue;
 
-            // Check if relationship already exists
-            const existingRelation = await db
-              .select()
-              .from(placeCategoryRelations)
-              .where(
-                and(
-                  eq(placeCategoryRelations.placeId, placeId),
-                  eq(placeCategoryRelations.categoryId, categoryId),
-                ),
-              )
-              .limit(1);
+        const exists = await db
+          .select()
+          .from(placeAmenities)
+          .where(
+            and(
+              eq(placeAmenities.placeId, placeId),
+              eq(placeAmenities.amenityId, amenityId),
+            ),
+          )
+          .limit(1);
 
-            if (existingRelation.length === 0) {
-              await db.insert(placeCategoryRelations).values({
-                placeId: placeId,
-                categoryId: categoryId,
-              });
-              console.log(
-                `Added category relation: ${place.name} - ${categoryName}`,
-              );
-            } else {
-              console.log(
-                `Category relation already exists: ${place.name} - ${categoryName}`,
-              );
-            }
-          } catch (error) {
-            if (error instanceof Error)
-              console.log(
-                `Error adding category ${categoryName} to ${place.name}: ${error.message}`,
-              );
-          }
+        if (exists.length === 0) {
+          await db.insert(placeAmenities).values({
+            placeId,
+            amenityId,
+          });
         }
+      }
 
-        // Insert amenities for this place
-        for (const amenityName of place.amenities) {
-          try {
-            const amenityId = amenityMap.get(amenityName);
-            if (!amenityId) {
-              console.log(
-                `Amenity "${amenityName}" not found in map, skipping`,
-              );
-              continue;
-            }
+      // Insert opening hours
+      for (const hour of place.hours) {
+        const exists = await db
+          .select()
+          .from(openingHours)
+          .where(
+            and(
+              eq(openingHours.placeId, placeId),
+              eq(openingHours.day, hour.day),
+            ),
+          )
+          .limit(1);
 
-            // Check if relationship already exists
-            const existingRelation = await db
-              .select()
-              .from(placeAmenities)
-              .where(
-                and(
-                  eq(placeAmenities.placeId, placeId),
-                  eq(placeAmenities.amenityId, amenityId),
-                ),
-              )
-              .limit(1);
-
-            if (existingRelation.length === 0) {
-              await db.insert(placeAmenities).values({
-                placeId: placeId,
-                amenityId: amenityId,
-              });
-              console.log(
-                `Added amenity relation: ${place.name} - ${amenityName}`,
-              );
-            } else {
-              console.log(
-                `Amenity relation already exists: ${place.name} - ${amenityName}`,
-              );
-            }
-          } catch (error) {
-            if (error instanceof Error)
-              console.log(
-                `Error adding amenity ${amenityName} to ${place.name}: ${error.message}`,
-              );
-          }
+        if (exists.length === 0) {
+          await db.insert(openingHours).values({
+            id: uuid(),
+            placeId,
+            day: hour.day,
+            hours: hour.hours,
+          });
         }
-
-        // Insert opening hours for this place
-        for (const hour of place.hours) {
-          try {
-            // Check if hours already exist for this day
-            const existingHours = await db
-              .select()
-              .from(openingHours)
-              .where(
-                and(
-                  eq(openingHours.placeId, placeId),
-                  eq(openingHours.day, hour.day),
-                ),
-              )
-              .limit(1);
-
-            if (existingHours.length === 0) {
-              await db.insert(openingHours).values({
-                id: uuid(),
-                placeId: placeId,
-                day: hour.day,
-                hours: hour.hours,
-              });
-              console.log(`Added opening hours: ${place.name} - ${hour.day}`);
-            } else {
-              console.log(
-                `Opening hours already exist: ${place.name} - ${hour.day}`,
-              );
-            }
-          } catch (error) {
-            if (error instanceof Error)
-              console.log(
-                `Error adding hours for ${hour.day} to ${place.name}: ${error.message}`,
-              );
-          }
-        }
-      } catch (error) {
-        console.error(`Error creating place ${place.name}:`, error);
       }
     }
-
-    console.log("✅ Place data seeding completed successfully!");
   } catch (error) {
-    console.error("❌ Error seeding place data:", error);
-    throw error;
+    console.error("❌ Seeding failed:", error);
   }
 }
 
