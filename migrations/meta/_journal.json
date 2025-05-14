@@ -22,6 +22,13 @@
       "when": 1746976472826,
       "tag": "0002_nifty_siren",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1747160907128,
+      "tag": "0003_lonely_bill_hollister",
+      "breakpoints": true
     }
   ]
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import L from "leaflet";
-import { useCallback, useEffect, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useState } from "react";
 import { MapContainer, Marker, TileLayer, useMapEvents } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import { Button } from "@/components/ui/button";
@@ -21,43 +21,57 @@ const createMarkerIcon = () => {
   });
 };
 
-// Component that handles map clicks and marker placement
-const InteractiveMarker = ({
-  onLocationSelected,
-  initialLocation,
-}: {
-  onLocationSelected: (lat: number, lng: number) => void;
-  initialLocation?: [number, number];
-}) => {
-  const [position, setPosition] = useState<[number, number] | null>(
-    initialLocation || null,
-  );
-
-  // Initialize with the initial location if provided
-  useEffect(() => {
-    if (initialLocation) {
-      setPosition(initialLocation);
-    }
-  }, [initialLocation]);
-
-  // Create event listeners for map
-  useMapEvents({
-    click: e => {
-      const { lat, lng } = e.latlng;
-      setPosition([lat, lng]);
-      onLocationSelected(lat, lng);
-    },
-  });
-
-  return position === null ? null : (
-    <Marker position={position} icon={createMarkerIcon()} />
-  );
+// Create a memoized marker icon to prevent recreation
+const useMarkerIcon = () => {
+  return useMemo(() => createMarkerIcon(), []);
 };
+
+// Component that handles map clicks and marker placement
+const InteractiveMarker = memo(
+  ({
+    onLocationSelected,
+    initialLocation,
+  }: {
+    onLocationSelected: (lat: number, lng: number) => void;
+    initialLocation?: [number, number];
+  }) => {
+    const [position, setPosition] = useState<[number, number] | null>(
+      initialLocation || null,
+    );
+
+    const markerIcon = useMarkerIcon();
+
+    // Initialize with the initial location if provided
+    useEffect(() => {
+      if (initialLocation) {
+        setPosition(initialLocation);
+      }
+    }, [initialLocation]);
+
+    // Create event listeners for map
+    useMapEvents({
+      click: e => {
+        const { lat, lng } = e.latlng;
+        setPosition([lat, lng]);
+        onLocationSelected(lat, lng);
+      },
+    });
+
+    return position === null ? null : (
+      <Marker position={position} icon={markerIcon} />
+    );
+  },
+);
+
+InteractiveMarker.displayName = "InteractiveMarker";
 
 // A simple component for displaying a static marker on the map
-const StaticMarker = ({ position }: { position: [number, number] }) => {
-  return <Marker position={position} icon={createMarkerIcon()} />;
-};
+const StaticMarker = memo(({ position }: { position: [number, number] }) => {
+  const markerIcon = useMarkerIcon();
+  return <Marker position={position} icon={markerIcon} />;
+});
+
+StaticMarker.displayName = "StaticMarker";
 
 type LocationPickerProps = {
   onLocationSelected: (lat: number, lng: number) => void;
@@ -65,87 +79,114 @@ type LocationPickerProps = {
   viewOnly?: boolean; // New prop to determine if the map is view-only
 };
 
-const LocationPicker = ({
-  onLocationSelected,
-  initialLocation = [49.21, 16.599], // Brno as default
-  viewOnly = false, // Default to interactive mode
-}: LocationPickerProps) => {
-  const [_myLocation, setMyLocation] = useState<[number, number] | null>(null);
+// Main LocationPicker component, memoized to prevent unnecessary rerenders
+const LocationPicker = memo(
+  ({
+    onLocationSelected,
+    initialLocation = [49.21, 16.599], // Brno as default
+    viewOnly = false, // Default to interactive mode
+  }: LocationPickerProps) => {
+    const [myLocation, setMyLocation] = useState<[number, number] | null>(null);
 
-  // Get user's current location
-  const getCurrentLocation = useCallback(() => {
-    navigator.geolocation.getCurrentPosition(
-      position => {
-        const { latitude, longitude } = position.coords;
-        setMyLocation([latitude, longitude]);
+    // Get user's current location
+    const getCurrentLocation = useCallback(() => {
+      navigator.geolocation.getCurrentPosition(
+        position => {
+          const { latitude, longitude } = position.coords;
+          setMyLocation([latitude, longitude]);
 
-        // If not in view-only mode, update the selected location
-        if (!viewOnly) {
-          onLocationSelected(latitude, longitude);
-        }
-      },
-      error => {
-        console.error("Error getting location:", error);
-      },
-      { enableHighAccuracy: true },
+          // If not in view-only mode, update the selected location
+          if (!viewOnly) {
+            onLocationSelected(latitude, longitude);
+          }
+        },
+        error => {
+          console.error("Error getting location:", error);
+        },
+        { enableHighAccuracy: true },
+      );
+    }, [viewOnly, onLocationSelected]);
+
+    // Memoize the tile layer URL to prevent rerenders
+    const tileLayerUrl = useMemo(
+      () => "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+      [],
     );
-  }, [viewOnly, onLocationSelected]);
 
-  return (
-    <div className="h-full relative">
-      <MapContainer
-        center={initialLocation}
-        zoom={13}
-        style={{ height: "100%", width: "100%" }}
-        zoomControl={false}
-        // Disable drag and zoom in view-only mode if desired
-        // dragging={!viewOnly}
-        // zoomControl={!viewOnly}
-        // scrollWheelZoom={!viewOnly}
-      >
-        <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+    // We memoize callbacks and elements to minimize rerenders
+    const locationMarker = useMemo(() => {
+      if (viewOnly) {
+        return <StaticMarker position={initialLocation} />;
+      }
+      return (
+        <InteractiveMarker
+          onLocationSelected={onLocationSelected}
+          initialLocation={initialLocation}
         />
+      );
+    }, [viewOnly, initialLocation, onLocationSelected]);
 
-        {/* Render the appropriate marker based on mode */}
-        {viewOnly ? (
-          <StaticMarker position={initialLocation} />
-        ) : (
-          <InteractiveMarker
-            onLocationSelected={onLocationSelected}
-            initialLocation={initialLocation}
-          />
-        )}
+    // Memoize button component
+    const locationButton = useMemo(() => {
+      if (viewOnly) return null;
 
-        {/* Only show controls in interactive mode */}
-        {!viewOnly && (
-          <div className="leaflet-control-container">
-            <div className="leaflet-top leaflet-right">
-              <div className="leaflet-control leaflet-bar">
-                <Button
-                  variant="default"
-                  size="sm"
-                  className="rounded-none"
-                  onClick={getCurrentLocation}
-                >
-                  <Locate className="h-4 w-4 mr-2" />
-                  <span>Use my location</span>
-                </Button>
-              </div>
+      return (
+        <div className="leaflet-control-container">
+          <div className="leaflet-top leaflet-right">
+            <div className="leaflet-control leaflet-bar">
+              <Button
+                variant="default"
+                size="sm"
+                className="rounded-none"
+                onClick={getCurrentLocation}
+              >
+                <Locate className="h-4 w-4 mr-2" />
+                <span>Use my location</span>
+              </Button>
             </div>
           </div>
-        )}
-      </MapContainer>
+        </div>
+      );
+    }, [viewOnly, getCurrentLocation]);
 
-      {/* Only show help text in interactive mode */}
-      {!viewOnly && (
+    // Memoize help text
+    const helpText = useMemo(() => {
+      if (viewOnly) return null;
+
+      return (
         <div className="absolute bottom-2 left-0 right-0 text-center text-sm text-gray-600 bg-white/70 py-1">
           Click on the map to set the event location
         </div>
-      )}
-    </div>
-  );
-};
+      );
+    }, [viewOnly]);
+
+    return (
+      <div className="h-full relative">
+        <MapContainer
+          center={initialLocation}
+          zoom={13}
+          style={{ height: "100%", width: "100%" }}
+          zoomControl={false}
+        >
+          <TileLayer
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            url={tileLayerUrl}
+          />
+
+          {/* Render the memoized marker */}
+          {locationMarker}
+
+          {/* Show the location button if not in view-only mode */}
+          {locationButton}
+        </MapContainer>
+
+        {/* Show the help text if not in view-only mode */}
+        {helpText}
+      </div>
+    );
+  },
+);
+
+LocationPicker.displayName = "LocationPicker";
 
 export default LocationPicker;

@@ -5,7 +5,7 @@ import { auth } from "@/auth";
 import { db } from "@/db";
 import { eventAttendance } from "@/db/schemas/event-attendance";
 import { eventInvitations } from "@/db/schemas/event-invitations";
-import { events } from "@/db/schemas/events";
+import { events, LocationSourceTypes } from "@/db/schemas/events";
 import { ActionResult } from "@/types/result";
 import { and, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
@@ -39,11 +39,24 @@ export const createEvent = async (
     }
 
     const eventData = parsedData.data;
-    const { latitude = 0, longitude = 0, ...restEventData } = eventData;
+    // Filter out our helper fields and extract coordinates
+    const {
+      latitude = 0,
+      longitude = 0,
+      customLocation, // Remove this field
+      selectedPlace, // Remove this field
+      ...restEventData
+    } = eventData;
+
+    // Determine if we should use a place reference or a custom location
+    const locationSource = restEventData.placeId
+      ? LocationSourceTypes.PLACE
+      : LocationSourceTypes.CUSTOM;
 
     // Insert the event into the database
     await db.insert(events).values({
       ...restEventData,
+      locationSource,
       id: randomUUID(),
       latitude,
       longitude,
@@ -86,7 +99,19 @@ export const updateEvent = async (
     }
 
     const eventData = parsedData.data;
-    const { latitude = 0, longitude = 0, ...restEventData } = eventData;
+    // Filter out our helper fields and extract coordinates
+    const {
+      latitude = 0,
+      longitude = 0,
+      customLocation, // Remove this field
+      selectedPlace, // Remove this field
+      ...restEventData
+    } = eventData;
+
+    // Determine if we should use a place reference or a custom location
+    const locationSource = restEventData.placeId
+      ? LocationSourceTypes.PLACE
+      : LocationSourceTypes.CUSTOM;
 
     // Check if the event exists and is owned by the current user
     const [existingEvent] = await db
@@ -108,6 +133,7 @@ export const updateEvent = async (
       .update(events)
       .set({
         ...restEventData,
+        locationSource,
         latitude,
         longitude,
       })

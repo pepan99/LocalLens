@@ -1,16 +1,52 @@
+"use client";
+
+import EventCard from "@/components/events/components/event-card";
 import { Button } from "@/components/ui/button";
+import { EventType, RSVPStatusEnum } from "@/modules/events/types/events";
 import { Calendar } from "lucide-react";
 import Link from "next/link";
+import { useState } from "react";
+import { toast } from "sonner";
 
 type PlaceEventsTabProps = {
   placeId: string;
-  upcomingEvents?: number;
+  upcomingEvents: EventType[];
 };
 
 export const PlaceEventsTab = ({
   placeId,
-  upcomingEvents,
+  upcomingEvents = [],
 }: PlaceEventsTabProps) => {
+  const [events, setEvents] = useState<EventType[]>(upcomingEvents);
+
+  // Mock delete handler
+  const handleDelete = (eventId: string) => {
+    toast.info("Event deletion is not implemented yet");
+    // For a real implementation, we would call a server action to delete the event
+    // and then update the state
+    // setEvents(events.filter(event => event.id !== eventId));
+  };
+
+  // Mock RSVP handler
+  const handleRSVPChange = (eventId: string, status: RSVPStatusEnum) => {
+    // For a real implementation, this would be handled by the RSVPManager component
+    // and would update the events state after the server action completes
+    setEvents(
+      events.map(event =>
+        event.id === eventId
+          ? {
+              ...event,
+              rsvp: {
+                status,
+                guests: 0,
+                note: "",
+              },
+            }
+          : event,
+      ),
+    );
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center mb-4">
@@ -20,9 +56,16 @@ export const PlaceEventsTab = ({
         </Button>
       </div>
 
-      {upcomingEvents ? (
+      {events && events.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          Upcoming events: {upcomingEvents}
+          {events.map(event => (
+            <EventCard
+              key={event.id}
+              event={event}
+              onDelete={handleDelete}
+              onRSVPChange={handleRSVPChange}
+            />
+          ))}
         </div>
       ) : (
         <div className="text-center py-12 bg-gray-50 rounded-lg">

@@ -17,12 +17,107 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { LocationSourceTypes } from "@/db/schemas/events";
 import { cn } from "@/lib/utils";
 import { CreateEventFormValues } from "@/modules/events/schemas/schemas";
 import { PlaceType } from "@/modules/places";
 import { Check, MapPin, X } from "lucide-react";
 import dynamic from "next/dynamic";
+import { memo, useCallback } from "react";
 import { UseFormReturn } from "react-hook-form";
+
+// Memoized Map component to prevent frequent rerenders
+const LocationMapPicker = memo(
+  ({
+    form,
+    isCoordinatesValid,
+    getFormattedCoordinates,
+  }: {
+    form: UseFormReturn<CreateEventFormValues>;
+    isCoordinatesValid: boolean;
+    getFormattedCoordinates: () => string | null;
+  }) => {
+    // Only import the map component on the client-side
+    const LocationPicker = dynamic(
+      () => import("@/components/events/location-picker"),
+      { ssr: false },
+    );
+
+    const handleLocationSelected = useCallback(
+      (lat: number, lng: number) => {
+        console.log("Location selected on map:", lat, lng);
+        // Force values to be numbers to avoid type issues
+        const latitude = Number(lat);
+        const longitude = Number(lng);
+
+        // Update the form values with validation
+        form.setValue("latitude", latitude, {
+          shouldTouch: true,
+          shouldValidate: true,
+          shouldDirty: true,
+        });
+        form.setValue("longitude", longitude, {
+          shouldTouch: true,
+          shouldValidate: true,
+          shouldDirty: true,
+        });
+
+        // Make sure the values are actually set by logging them
+        setTimeout(() => {
+          console.log("Form values after update:", {
+            latitude: form.getValues("latitude"),
+            longitude: form.getValues("longitude"),
+          });
+        }, 100);
+      },
+      [form],
+    );
+
+    return (
+      <div className="space-y-2">
+        <FormLabel className="flex items-center">
+          Choose Location on Map
+          <span className="text-red-500 ml-1">*</span>
+          {isCoordinatesValid && (
+            <Check className="h-4 w-4 ml-2 text-green-500" />
+          )}
+        </FormLabel>
+        <div
+          className={cn(
+            "border rounded-md overflow-hidden h-[300px]",
+            !isCoordinatesValid ? "border-red-300" : "border-green-300",
+          )}
+        >
+          <LocationPicker
+            initialLocation={
+              form.getValues("latitude") && form.getValues("longitude")
+                ? [
+                    form.getValues("latitude") as number,
+                    form.getValues("longitude") as number,
+                  ]
+                : [49.19, 16.61]
+            }
+            onLocationSelected={handleLocationSelected}
+            viewOnly={false}
+          />
+        </div>
+        {isCoordinatesValid ? (
+          <div className="flex items-center text-sm text-green-600">
+            <MapPin className="h-4 w-4 mr-1" />
+            Selected coordinates: {getFormattedCoordinates()}
+          </div>
+        ) : (
+          <p className="text-sm text-red-500">
+            <MapPin className="h-4 w-4 inline mr-1" />
+            Click on the map to select a precise location
+          </p>
+        )}
+      </div>
+    );
+  },
+);
+
+LocationMapPicker.displayName = "LocationMapPicker";
 
 type LocationStepProps = {
   form: UseFormReturn<CreateEventFormValues>;
@@ -30,11 +125,6 @@ type LocationStepProps = {
 };
 
 const LocationStep = ({ form, places }: LocationStepProps) => {
-  const LocationPicker = dynamic(
-    () => import("@/components/events/location-picker"),
-    { ssr: false },
-  );
-
   // Check if location field is valid and coordinates are set
   const isLocationValid =
     !form.formState.errors.location && form.getValues("location");
@@ -43,20 +133,53 @@ const LocationStep = ({ form, places }: LocationStepProps) => {
     form.getValues("latitude") && form.getValues("longitude");
 
   // Display formatted coordinate values
-  const getFormattedCoordinates = () => {
+  const getFormattedCoordinates = useCallback(() => {
     const lat = form.getValues("latitude");
     const lng = form.getValues("longitude");
     if (lat && lng) {
       return `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
     }
     return null;
-  };
+  }, [form]);
 
   // Helper to handle clearing custom location
-  const handleClearLocation = () => {
-    form.setValue("location", "");
-    form.trigger("location");
-  };
+  const handleClearLocation = useCallback(() => {
+    // Clear the customLocation field
+    form.setValue("customLocation", "");
+
+    // If there's a selected place from the dropdown, switch back to it
+    if (form.getValues("selectedPlace")) {
+      const selectedPlace = places.find(
+        place => place.name === form.getValues("selectedPlace"),
+      );
+
+      if (selectedPlace) {
+        // Switch back to place mode
+        form.setValue("locationSource", LocationSourceTypes.PLACE);
+        form.setValue("placeId", selectedPlace.id);
+        form.setValue("location", form.getValues("selectedPlace"), {
+          shouldTouch: true,
+          shouldValidate: true,
+        });
+      } else {
+        // Otherwise, clear the location field but stay in custom mode
+        form.setValue("locationSource", LocationSourceTypes.CUSTOM);
+        form.setValue("placeId", undefined);
+        form.setValue("location", "", {
+          shouldTouch: true,
+          shouldValidate: true,
+        });
+      }
+    } else {
+      // No selected place, stay in custom mode but clear fields
+      form.setValue("locationSource", LocationSourceTypes.CUSTOM);
+      form.setValue("placeId", undefined);
+      form.setValue("location", "", {
+        shouldTouch: true,
+        shouldValidate: true,
+      });
+    }
+  }, [form, places]);
 
   return (
     <div className="space-y-6">
@@ -76,6 +199,10 @@ const LocationStep = ({ form, places }: LocationStepProps) => {
               onValueChange={value => {
                 field.onChange(value);
                 form.trigger("location");
+                // Save the selected place name for reference
+                form.setValue("selectedPlace", value);
+                // Clear any custom location when selecting from dropdown
+                form.setValue("customLocation", "");
 
                 const selectedPlace = places.find(
                   place => place.name === value,
@@ -83,6 +210,10 @@ const LocationStep = ({ form, places }: LocationStepProps) => {
 
                 if (selectedPlace) {
                   console.log("Selected place:", selectedPlace);
+
+                  // Set the locationSource to "place" and store the placeId
+                  form.setValue("locationSource", LocationSourceTypes.PLACE);
+                  form.setValue("placeId", selectedPlace.id);
 
                   // Check if the place has latitude and longitude
                   if (selectedPlace.latitude && selectedPlace.longitude) {
@@ -108,16 +239,9 @@ const LocationStep = ({ form, places }: LocationStepProps) => {
                       shouldDirty: true,
                     });
 
-                    // Verify values were set
-                    setTimeout(() => {
-                      console.log(
-                        "Form latitude/longitude after place selection:",
-                        {
-                          latitude: form.getValues("latitude"),
-                          longitude: form.getValues("longitude"),
-                        },
-                      );
-                    }, 100);
+                    // Update form validation state
+                    form.trigger("locationSource");
+                    form.trigger("placeId");
                   } else {
                     console.warn(
                       "Selected place does not have coordinates",
@@ -164,99 +288,106 @@ const LocationStep = ({ form, places }: LocationStepProps) => {
         )}
       />
 
-      <div className="mt-4">
-        <FormLabel>Custom Location (optional)</FormLabel>
-        <div className="flex gap-2">
-          <Input
-            placeholder="Enter a custom location if not in the list above"
-            value={form.getValues("location") || ""}
-            onChange={e => {
-              form.setValue("location", e.target.value, {
-                shouldTouch: true,
-                shouldValidate: true,
-              });
-            }}
-          />
-          {form.getValues("location") && (
-            <Button
-              variant="outline"
-              size="icon"
-              type="button"
-              onClick={handleClearLocation}
-            >
-              <X className="h-4 w-4" />
-            </Button>
-          )}
-        </div>
-        <FormDescription>
-          If your location isn&apos;t in the list above, you can enter it here
-        </FormDescription>
-      </div>
+      <FormField
+        control={form.control}
+        name="customLocation"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Custom Location (optional)</FormLabel>
+            <div className="flex gap-2">
+              <FormControl>
+                <Input
+                  placeholder="Enter a custom location if not in the list above"
+                  {...field}
+                  onChange={e => {
+                    // Update customLocation field
+                    field.onChange(e.target.value);
 
-      <div className="space-y-2">
-        <FormLabel className="flex items-center">
-          Choose Location on Map
-          <span className="text-red-500 ml-1">*</span>
-          {isCoordinatesValid && (
-            <Check className="h-4 w-4 ml-2 text-green-500" />
-          )}
-        </FormLabel>
-        <div
-          className={cn(
-            "border rounded-md overflow-hidden h-[300px]",
-            !isCoordinatesValid ? "border-red-300" : "border-green-300",
-          )}
-        >
-          <LocationPicker
-            initialLocation={
-              form.getValues("latitude") && form.getValues("longitude")
-                ? [
-                    form.getValues("latitude") as number,
-                    form.getValues("longitude") as number,
-                  ]
-                : [49.19, 16.61]
-            }
-            onLocationSelected={(lat, lng) => {
-              console.log("Location selected on map:", lat, lng);
-              // Force values to be numbers to avoid type issues
-              const latitude = Number(lat);
-              const longitude = Number(lng);
+                    const customValue = e.target.value;
+                    // Update the main location field with the custom value
+                    if (customValue) {
+                      // When using custom location, set the locationSource to "custom" and clear placeId
+                      form.setValue(
+                        "locationSource",
+                        LocationSourceTypes.CUSTOM,
+                      );
+                      form.setValue("placeId", undefined);
+                      form.setValue("location", customValue, {
+                        shouldTouch: true,
+                        shouldValidate: true,
+                      });
+                    } else if (form.getValues("selectedPlace")) {
+                      // If custom is empty and there's a selected place, restore it
+                      const selectedPlace = places.find(
+                        place => place.name === form.getValues("selectedPlace"),
+                      );
 
-              // Update the form values with validation
-              form.setValue("latitude", latitude, {
-                shouldTouch: true,
-                shouldValidate: true,
-                shouldDirty: true,
-              });
-              form.setValue("longitude", longitude, {
-                shouldTouch: true,
-                shouldValidate: true,
-                shouldDirty: true,
-              });
-
-              // Make sure the values are actually set by logging them
-              setTimeout(() => {
-                console.log("Form values after update:", {
-                  latitude: form.getValues("latitude"),
-                  longitude: form.getValues("longitude"),
-                });
-              }, 100);
-            }}
-            viewOnly={false}
-          />
-        </div>
-        {isCoordinatesValid ? (
-          <div className="flex items-center text-sm text-green-600">
-            <MapPin className="h-4 w-4 mr-1" />
-            Selected coordinates: {getFormattedCoordinates()}
-          </div>
-        ) : (
-          <p className="text-sm text-red-500">
-            <MapPin className="h-4 w-4 inline mr-1" />
-            Click on the map to select a precise location
-          </p>
+                      if (selectedPlace) {
+                        form.setValue(
+                          "locationSource",
+                          LocationSourceTypes.PLACE,
+                        );
+                        form.setValue("placeId", selectedPlace.id);
+                        form.setValue(
+                          "location",
+                          form.getValues("selectedPlace"),
+                          {
+                            shouldTouch: true,
+                            shouldValidate: true,
+                          },
+                        );
+                      } else {
+                        // Otherwise, clear the location field
+                        form.setValue(
+                          "locationSource",
+                          LocationSourceTypes.CUSTOM,
+                        );
+                        form.setValue("placeId", undefined);
+                        form.setValue("location", "", {
+                          shouldTouch: true,
+                          shouldValidate: true,
+                        });
+                      }
+                    } else {
+                      // Otherwise, clear the location field
+                      form.setValue(
+                        "locationSource",
+                        LocationSourceTypes.CUSTOM,
+                      );
+                      form.setValue("placeId", undefined);
+                      form.setValue("location", "", {
+                        shouldTouch: true,
+                        shouldValidate: true,
+                      });
+                    }
+                  }}
+                />
+              </FormControl>
+              {field.value && (
+                <Button
+                  variant="outline"
+                  size="icon"
+                  type="button"
+                  onClick={handleClearLocation}
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              )}
+            </div>
+            <FormDescription>
+              If your location isn&apos;t in the list above, you can enter it
+              here
+            </FormDescription>
+          </FormItem>
         )}
-      </div>
+      />
+
+      {/* Use the memoized map component */}
+      <LocationMapPicker
+        form={form}
+        isCoordinatesValid={Boolean(isCoordinatesValid)}
+        getFormattedCoordinates={getFormattedCoordinates}
+      />
     </div>
   );
 };

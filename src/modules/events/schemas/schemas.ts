@@ -1,3 +1,4 @@
+import { LocationSourceTypes } from "@/db/schemas/events";
 import { z } from "zod";
 import { RSVPStatusEnum } from "../types/events";
 
@@ -18,6 +19,13 @@ export const createEventSchema = z.object({
     required_error: "Please select a category.",
   }),
   location: z.string().optional(),
+  locationSource: z.enum([
+    LocationSourceTypes.PLACE,
+    LocationSourceTypes.CUSTOM,
+  ]),
+  placeId: z.string().optional(),
+  customLocation: z.string().optional(),
+  selectedPlace: z.string().optional(),
   date: z.date({
     required_error: "Please select a date.",
   }),

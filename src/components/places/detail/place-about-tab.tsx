@@ -1,12 +1,13 @@
+import PlaceMap from "@/components/map/place-map";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { PlaceType } from "@/modules/places";
-import { ExternalLink, Globe, Phone } from "lucide-react";
+import { ExternalLink, Globe, MapPin, Phone } from "lucide-react";
 
 export const PlaceAboutTab = ({ place }: { place: PlaceType }) => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-      <div className="md:col-span-2 space-y-6">
+      <div className="md:col-span-2 space-y-6 mt-4">
         <div>
           <h2 className="text-lg font-medium mb-2">Description</h2>
           <p className="text-gray-700">
@@ -43,15 +44,11 @@ export const PlaceAboutTab = ({ place }: { place: PlaceType }) => {
         {place.latitude && place.longitude && (
           <div>
             <h2 className="text-lg font-medium mb-2">Location</h2>
-            <div className="h-48 rounded-md bg-gray-200 overflow-hidden">
-              {/* In a real app, this would be a map component showing the place location */}
-              <div className="h-full flex items-center justify-center">
-                <p className="text-gray-500">
-                  Location: {Number(place.latitude).toFixed(5)},{" "}
-                  {Number(place.longitude).toFixed(5)}
-                </p>
-              </div>
+            <div className="flex items-center mb-2 text-sm text-gray-600">
+              <MapPin className="h-4 w-4 mr-2" />
+              <span>{place.address}</span>
             </div>
+            <PlaceMap place={place} />
           </div>
         )}
       </div>

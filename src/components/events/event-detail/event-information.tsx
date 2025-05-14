@@ -12,6 +12,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { LocationSourceTypes } from "@/db/schemas/events";
 import { EventType } from "@/modules/events/types/events";
 import { Calendar, Clock, MapPin } from "lucide-react";
 import dynamic from "next/dynamic";

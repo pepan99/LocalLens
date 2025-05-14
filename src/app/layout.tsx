@@ -14,9 +14,23 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "LocalLens",
-  description: "Don't miss any event",
+  title: "LocalLens - Discover Events Around You",
+  description:
+    "Discover public events, meetups and recommendations based on location, interests and friend activity.",
   icons: { icon: "./favicon.ico" },
+  openGraph: {
+    title: "LocalLens - Discover Events Around You",
+    description:
+      "Discover public events, meetups and recommendations based on location, interests and friend activity.",
+    url: "https://locallens.app",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "LocalLens - Discover Events Around You",
+    description:
+      "Discover public events, meetups and recommendations based on location, interests and friend activity.",
+  },
 };
 
 const RootLayout = ({
@@ -26,9 +40,6 @@ const RootLayout = ({
 }>) => {
   return (
     <html lang="en">
-      <head>
-        <title>LocalLens</title>
-      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >

@@ -2,7 +2,7 @@ import { auth } from "@/auth";
 import { db } from "@/db";
 import { eventAttendance } from "@/db/schemas/event-attendance";
 import { users } from "@/db/schemas/users";
-import { and, eq } from "drizzle-orm";
+import { and, count, eq } from "drizzle-orm";
 import { AttendingUser, RSVPStatusEnum } from "../types/events";
 
 /**
@@ -43,5 +43,31 @@ export const getAttendingUsers = async (
   } catch (error) {
     console.error("Error fetching attending events:", error);
     return [];
+  }
+};
+
+/**
+ * Get the number of attendees for an event (public function)
+ */
+export const getEventAttendeeCount = async (
+  eventId: string,
+): Promise<number> => {
+  try {
+    const results = await db
+      .select({
+        attendeeCount: count(),
+      })
+      .from(eventAttendance)
+      .where(
+        and(
+          eq(eventAttendance.eventId, eventId),
+          eq(eventAttendance.status, RSVPStatusEnum.GOING),
+        ),
+      );
+
+    return results[0]?.attendeeCount || 0;
+  } catch (error) {
+    console.error("Error fetching attendee count:", error);
+    return 0;
   }
 };

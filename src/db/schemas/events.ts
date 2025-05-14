@@ -1,6 +1,13 @@
 import { sql } from "drizzle-orm";
 import { integer, real, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { places } from "./places";
 import { users } from "./users";
+
+// Enum for location source types
+export const LocationSourceTypes = {
+  PLACE: "place",
+  CUSTOM: "custom",
+};
 
 export const events = sqliteTable("events", {
   id: text("id").primaryKey(),
@@ -11,6 +18,11 @@ export const events = sqliteTable("events", {
   time: text("time").notNull(),
   date: integer("date", { mode: "timestamp" }).notNull(),
   location: text("location"),
+  // New fields for improved location handling
+  locationSource: text("location_source")
+    .notNull()
+    .default(LocationSourceTypes.CUSTOM),
+  placeId: text("place_id").references(() => places.id),
   description: text("description").notNull(),
   category: text("category").notNull(),
   capacity: integer("capacity").notNull(),

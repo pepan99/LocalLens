@@ -111,7 +111,7 @@ export const getPlaces = async (
 
     const result: PlaceType[] = [];
     for (const place of placesData) {
-      result.push(await mapPlaceToPlaceType(place));
+      result.push(await mapPlaceToPlaceType(place, true));
     }
 
     return result;

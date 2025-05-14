@@ -5,6 +5,7 @@ import { PlaceDetailHeader } from "@/components/places/detail/place-detail-heade
 import { PlaceEventsTab } from "@/components/places/detail/place-events-tab";
 import { PlaceReviewsTab } from "@/components/places/detail/place-reviews-tab";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { EventType } from "@/modules/events/types/events";
 import { getPlaceReviews } from "@/modules/places";
 import { createReview } from "@/modules/places/actions/reviews";
 import { PlaceType, ReviewType } from "@/modules/places/types/places";
@@ -12,15 +13,17 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
-interface ClientPlaceDetailProps {
+type ClientPlaceDetailProps = {
   place: PlaceType;
+  upcomingEvents: EventType[];
   initialReviews: ReviewType[];
   placeId: string;
   initialTab?: string;
-}
+};
 
 const ClientPlaceDetail = ({
   place,
+  upcomingEvents,
   initialReviews,
   placeId,
   initialTab = "about",
@@ -73,12 +76,8 @@ const ClientPlaceDetail = ({
     <>
       <PlaceDetailHeader place={place} />
 
-      <Tabs
-        value={activeTab}
-        onValueChange={setActiveTab}
-        className="px-6 pb-6"
-      >
-        <TabsList className="mb-6">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="p-6">
+        <TabsList className="flex gap-4">
           <TabsTrigger value="about">About</TabsTrigger>
           <TabsTrigger value="events">Events</TabsTrigger>
           <TabsTrigger value="reviews">Reviews</TabsTrigger>
@@ -89,10 +88,7 @@ const ClientPlaceDetail = ({
         </TabsContent>
 
         <TabsContent value="events">
-          <PlaceEventsTab
-            placeId={place.id}
-            upcomingEvents={place.upcomingEvents || 0}
-          />
+          <PlaceEventsTab placeId={place.id} upcomingEvents={upcomingEvents} />
         </TabsContent>
 
         <TabsContent value="reviews">

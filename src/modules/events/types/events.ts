@@ -1,3 +1,5 @@
+import { LocationSourceTypes } from "@/db/schemas/events";
+
 export type EventType = {
   id: string;
   creatorId: string;
@@ -6,6 +8,8 @@ export type EventType = {
   category: string;
   date: Date;
   location: string;
+  locationSource?: string; // 'place' or 'custom'
+  placeId: string | null; // Optional reference to a place
   description: string;
   capacity: number;
   isPrivate: boolean;
