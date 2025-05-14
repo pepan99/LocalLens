@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/card";
 import { Form } from "@/components/ui/form";
 import { ProgressSteps } from "@/components/ui/progress-steps";
+import { LocationSourceTypes } from "@/db/schemas/events";
 import { useMultiStepForm } from "@/hooks/use-multi-step-form";
 import { createEvent, updateEvent } from "@/modules/events/actions/events";
 import {
@@ -46,6 +47,10 @@ const CreateEventForm = ({ event, places }: CreateEventFormProps) => {
       description: event?.description || "",
       category: event?.category || "",
       location: event?.location || "",
+      locationSource: event?.locationSource || LocationSourceTypes.CUSTOM,
+      placeId: event?.placeId || undefined,
+      customLocation: "",
+      selectedPlace: "",
       date: event?.date ? new Date(event.date) : undefined,
       time: event?.time || "",
       capacity: event?.capacity || 0,
@@ -119,6 +124,12 @@ const CreateEventForm = ({ event, places }: CreateEventFormProps) => {
 
       console.log("Form submission values:", {
         ...values,
+        // Show which location source was used
+        locationSource: form.getValues("locationSource"),
+        placeId: form.getValues("placeId"),
+        location: form.getValues("location"),
+        customLocation: form.getValues("customLocation"),
+        selectedPlace: form.getValues("selectedPlace"),
         latitude,
         longitude,
       });

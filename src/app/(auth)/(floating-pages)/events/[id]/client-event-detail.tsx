@@ -9,7 +9,6 @@ import {
 import { RSVPAttendees } from "@/components/events/rsvp";
 import { deleteEvent } from "@/modules/events/actions/events";
 import { AttendingUser, EventType } from "@/modules/events/types/events";
-import { useSession } from "next-auth/react";
 import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -26,8 +25,6 @@ const ClientEventDetailPage = ({
   const { id } = useParams();
   const eventId = Array.isArray(id) ? id[0] : (id as string);
   const router = useRouter();
-  const session = useSession();
-  const isOwner = initialEvent.creatorId === session.data?.user.id;
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
   const handleDeleteEvent = async () => {

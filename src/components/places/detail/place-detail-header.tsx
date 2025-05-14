@@ -20,18 +20,19 @@ export const PlaceDetailHeader = ({
 
   return (
     <div className="relative">
-      <div className="h-48 bg-gray-200 relative">
+      <div className="h-48 bg-gradient-to-r from-primary/80 to-blue-600/80 relative">
         {place.image && (
           <div
-            className="absolute inset-0 bg-cover bg-center"
+            className="absolute inset-0 bg-cover bg-center mix-blend-overlay opacity-90"
             style={{ backgroundImage: `url(${place.image})` }}
           />
         )}
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/30" />
         <div className="absolute top-4 left-4 right-4 flex justify-between items-center">
           <Button
             variant="outline"
             size="sm"
-            className="bg-white/80 hover:bg-white"
+            className="bg-white/80 hover:bg-white backdrop-blur-sm"
             onClick={() => router.push("/places")}
           >
             <ChevronLeft className="h-4 w-4 mr-2" />
@@ -45,7 +46,7 @@ export const PlaceDetailHeader = ({
                 className={`${
                   isFavorite
                     ? "bg-primary text-white"
-                    : "bg-white/80 hover:bg-white"
+                    : "bg-white/80 hover:bg-white backdrop-blur-sm"
                 }`}
                 onClick={onToggleFavorite}
               >
@@ -57,7 +58,7 @@ export const PlaceDetailHeader = ({
             <Button
               variant="outline"
               size="sm"
-              className="bg-white/80 hover:bg-white"
+              className="bg-white/80 hover:bg-white backdrop-blur-sm"
               onClick={() => {
                 navigator
                   .share?.({
@@ -73,15 +74,26 @@ export const PlaceDetailHeader = ({
           </div>
         </div>
       </div>
-      <div className="p-6">
+      <div className="p-6 bg-white relative z-10 shadow-sm">
         <div className="flex justify-between items-start flex-wrap">
-          <div className="space-y-1">
-            <h1 className="text-2xl font-bold">{place.name}</h1>
+          <div className="space-y-2">
+            <div className="flex gap-4 items-center justify-between  w-full">
+              <h1 className="text-2xl font-bold">{place.name}</h1>
+              <div className="flex items-center">
+                <Star className="h-4 w-4 text-yellow-500 fill-yellow-500 mr-1" />
+                <span className="font-medium">
+                  {place.rating?.toFixed(1) || "N/A"}
+                </span>
+                <span className="text-gray-500 ml-1">
+                  ({place.reviewCount || 0} reviews)
+                </span>
+              </div>
+            </div>
             <div className="flex items-center text-sm text-gray-500">
               <MapPin className="h-4 w-4 mr-1" />
               <span>{place.address}</span>
             </div>
-            <div className="flex items-center space-x-2 mt-2 flex-wrap gap-2">
+            <div className="flex flex-wrap gap-2 mt-2">
               {/* Primary category */}
               <Badge variant="secondary">{place.category}</Badge>
 
@@ -94,16 +106,6 @@ export const PlaceDetailHeader = ({
                       {category}
                     </Badge>
                   ))}
-
-              <div className="flex items-center ml-2">
-                <Star className="h-4 w-4 text-yellow-500 fill-yellow-500 mr-1" />
-                <span className="font-medium">
-                  {place.rating?.toFixed(1) || "N/A"}
-                </span>
-                <span className="text-gray-500 ml-1">
-                  ({place.reviewCount || 0} reviews)
-                </span>
-              </div>
             </div>
           </div>
           <div className="mt-4 sm:mt-0 space-x-2">

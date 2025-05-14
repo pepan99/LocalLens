@@ -1,10 +1,9 @@
 import { Skeleton } from "@/components/ui/skeleton";
+import { getEventsForPlace } from "@/modules/events/server/queries";
 import { getPlaceWithReviews } from "@/modules/places";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import ClientPlaceDetail from "./client-place-detail";
-
-export const dynamic = "force-dynamic";
 
 type DetailPageParams = {
   params: Promise<{
@@ -26,6 +25,9 @@ const PlaceDetailPage = async ({ params, searchParams }: DetailPageParams) => {
 
   // Get place data with reviews
   const placeWithReviews = await getPlaceWithReviews(placeId);
+
+  // Use the server action to get events for the place
+  const upcomingEvents = await getEventsForPlace(placeId);
 
   // If place doesn't exist, show 404
   if (!placeWithReviews) {
@@ -50,6 +52,7 @@ const PlaceDetailPage = async ({ params, searchParams }: DetailPageParams) => {
         >
           <ClientPlaceDetail
             place={place}
+            upcomingEvents={upcomingEvents}
             initialReviews={reviews || []}
             placeId={placeId}
             initialTab={activeTab}

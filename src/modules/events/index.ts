@@ -21,6 +21,8 @@ export const mapEventToEventType = ({
     description: event.description,
     capacity: event.capacity,
     isPrivate: Boolean(event.isPrivate),
+    placeId: event.placeId,
+    locationSource: event.locationSource,
     latitude: event.latitude,
     longitude: event.longitude,
     // These fields don't exist in the original schema, so default values are assigned

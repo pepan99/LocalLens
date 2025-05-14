@@ -322,3 +322,54 @@ export const getAttendingEvents = async (
     return [];
   }
 };
+
+export const getEventsForPlace = async (
+  placeId: string,
+  userId?: string | null,
+): Promise<EventType[]> => {
+  try {
+    // Check if we have a valid place ID
+    if (!placeId) {
+      console.error("No placeId provided to getEventsForPlace");
+      return [];
+    }
+    const queryBuilder = db
+      .select({
+        event: events,
+        userAttendance: eventAttendance,
+      })
+      .from(events)
+      .leftJoin(
+        eventAttendance,
+        and(
+          eq(events.id, eventAttendance.eventId),
+          userId
+            ? eq(eventAttendance.userId, userId)
+            : isNull(eventAttendance.userId),
+        ),
+      );
+
+    const filterConditions = [eq(events.placeId, placeId)];
+
+    if (userId) {
+      filterConditions.push(
+        sql`${events.isPrivate} = 0 OR ${events.creatorId} = ${userId}`,
+      );
+    } else {
+      filterConditions.push(eq(events.isPrivate, false));
+    }
+
+    const results = await queryBuilder
+      .where(and(...filterConditions))
+      .orderBy(desc(events.date));
+
+    if (results.length === 0) {
+      return [];
+    }
+
+    return mapEventsToEventTypes(results);
+  } catch (error) {
+    console.error("Error fetching events for place:", error);
+    return [];
+  }
+};
