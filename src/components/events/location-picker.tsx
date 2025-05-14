@@ -1,11 +1,9 @@
 "use client";
 
 import L from "leaflet";
-import { memo, useCallback, useEffect, useMemo, useState } from "react";
+import { memo, useEffect, useMemo, useState } from "react";
 import { MapContainer, Marker, TileLayer, useMapEvents } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
-import { Button } from "@/components/ui/button";
-import { Locate } from "lucide-react";
 
 // Custom marker icon
 const createMarkerIcon = () => {
@@ -86,27 +84,6 @@ const LocationPicker = memo(
     initialLocation = [49.21, 16.599], // Brno as default
     viewOnly = false, // Default to interactive mode
   }: LocationPickerProps) => {
-    const [myLocation, setMyLocation] = useState<[number, number] | null>(null);
-
-    // Get user's current location
-    const getCurrentLocation = useCallback(() => {
-      navigator.geolocation.getCurrentPosition(
-        position => {
-          const { latitude, longitude } = position.coords;
-          setMyLocation([latitude, longitude]);
-
-          // If not in view-only mode, update the selected location
-          if (!viewOnly) {
-            onLocationSelected(latitude, longitude);
-          }
-        },
-        error => {
-          console.error("Error getting location:", error);
-        },
-        { enableHighAccuracy: true },
-      );
-    }, [viewOnly, onLocationSelected]);
-
     // Memoize the tile layer URL to prevent rerenders
     const tileLayerUrl = useMemo(
       () => "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
@@ -125,29 +102,6 @@ const LocationPicker = memo(
         />
       );
     }, [viewOnly, initialLocation, onLocationSelected]);
-
-    // Memoize button component
-    const locationButton = useMemo(() => {
-      if (viewOnly) return null;
-
-      return (
-        <div className="leaflet-control-container">
-          <div className="leaflet-top leaflet-right">
-            <div className="leaflet-control leaflet-bar">
-              <Button
-                variant="default"
-                size="sm"
-                className="rounded-none"
-                onClick={getCurrentLocation}
-              >
-                <Locate className="h-4 w-4 mr-2" />
-                <span>Use my location</span>
-              </Button>
-            </div>
-          </div>
-        </div>
-      );
-    }, [viewOnly, getCurrentLocation]);
 
     // Memoize help text
     const helpText = useMemo(() => {
@@ -175,9 +129,6 @@ const LocationPicker = memo(
 
           {/* Render the memoized marker */}
           {locationMarker}
-
-          {/* Show the location button if not in view-only mode */}
-          {locationButton}
         </MapContainer>
 
         {/* Show the help text if not in view-only mode */}

@@ -77,7 +77,6 @@ const LocationMapPicker = memo(
       <div className="space-y-2">
         <FormLabel className="flex items-center">
           Choose Location on Map
-          <span className="text-red-500 ml-1">*</span>
           {isCoordinatesValid && (
             <Check className="h-4 w-4 ml-2 text-green-500" />
           )}
