@@ -226,6 +226,8 @@ async function seedPlaces() {
         hours: extendedHours,
         latitude: "49.19",
         longitude: "16.61",
+        image:
+          "https://www.hubbrno.cz/wp-content/uploads/2021/04/Impact-Hub-Brno.jpg",
       },
       {
         id: uuid(),
@@ -240,6 +242,8 @@ async function seedPlaces() {
         hours: parkHours,
         latitude: "49.1953",
         longitude: "16.6083",
+        image:
+          "https://www.gotobrno.cz/wp-content/uploads/2017/05/07-No%C4%8Dn%C3%AD-%C5%BEivot-v-ulici%C3%ADch-HD-1.jpg",
       },
       {
         id: uuid(),
@@ -260,6 +264,8 @@ async function seedPlaces() {
         hours: weekdayHours,
         latitude: "49.1976",
         longitude: "16.6075",
+        image:
+          "https://upload.wikimedia.org/wikipedia/commons/5/51/M%C3%ADstodr%C5%BEitelsk%C3%BD_pal%C3%A1c_MG.jpg",
       },
       {
         id: uuid(),
@@ -274,6 +280,8 @@ async function seedPlaces() {
         hours: parkHours,
         latitude: "49.2097",
         longitude: "16.6158",
+        image:
+          "https://upload.wikimedia.org/wikipedia/commons/0/0c/Brno-Lu%C5%BE%C3%A1nky_XIV.jpg",
       },
       {
         id: uuid(),
@@ -288,6 +296,7 @@ async function seedPlaces() {
         hours: extendedHours,
         latitude: "49.1943",
         longitude: "16.6009",
+        image: "https://musiclab.cz/wp-content/uploads/2020/11/Layer-5.jpg",
       },
       {
         id: uuid(),
@@ -309,6 +318,7 @@ async function seedPlaces() {
         hours: weekdayHours,
         latitude: "49.2246",
         longitude: "16.5752",
+        image: "https://msmstudy.eu/wp-content/uploads/2021/06/Sloj-12-3.jpg",
       },
       {
         id: uuid(),
@@ -330,6 +340,8 @@ async function seedPlaces() {
         hours: extendedHours,
         latitude: "49.1947",
         longitude: "16.6006",
+        image:
+          "https://upload.wikimedia.org/wikipedia/commons/3/3c/%C5%A0pilberk_%2802%29.jpg",
       },
       {
         id: uuid(),
@@ -350,6 +362,8 @@ async function seedPlaces() {
         hours: weekdayHours,
         latitude: "49.2134",
         longitude: "16.6158",
+        image:
+          "https://www.tugendhat.eu/wp-content/uploads/2022/03/tugendhat_photo_david_zidlicky_intro_CF017094.jpg",
       },
       {
         id: uuid(),
@@ -371,6 +385,8 @@ async function seedPlaces() {
         hours: weekdayHours,
         latitude: "49.1887",
         longitude: "16.5804",
+        image:
+          "https://www.gotobrno.cz/wp-content/uploads/2017/06/vystaviste-obecna-2.jpg",
       },
       {
         id: uuid(),
@@ -392,6 +408,8 @@ async function seedPlaces() {
         hours: trainStationHours,
         latitude: "49.1905",
         longitude: "16.6128",
+        image:
+          "https://upload.wikimedia.org/wikipedia/commons/b/b8/Pr%C5%AF%C4%8Del%C3%AD_hlavn%C3%ADho_n%C3%A1dra%C5%BE%C3%AD_v_Brn%C4%9B.jpg",
       },
     ];
 
