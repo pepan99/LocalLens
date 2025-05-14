@@ -2,6 +2,8 @@
 
 import { respondToEvent } from "@/modules/events/actions/events";
 import { EventType, RSVPStatusEnum } from "@/modules/events/types/events";
+import { is } from "drizzle-orm";
+import { Loader } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import RSVPButton from "./rsvp-button";
@@ -31,7 +33,7 @@ const RSVPManager = ({
   onRSVPChange,
 }: RSVPManagerProps) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [_isSubmitting, setIsSubmitting] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleOpenDialog = () => {
     setIsDialogOpen(true);
@@ -50,26 +52,12 @@ const RSVPManager = ({
     setIsSubmitting(true);
 
     try {
-      const res = await respondToEvent(eventId, {
+      setIsSubmitting(true);
+      await respondToEvent(eventId, {
         status: status,
         guests: guests,
         note: note,
       });
-
-      // if (res.type === "error") {
-      //   toast.error("Failed to submit your RSVP. Please try again.");
-      //   return;
-      // }
-
-      const message =
-        status === RSVPStatusEnum.GOING
-          ? "You're going to this event!"
-          : status === RSVPStatusEnum.MAYBE
-            ? "Your tentative response has been saved."
-            : "You've declined this event.";
-
-      // toast.success(message);
-
       if (onRSVPChange) {
         onRSVPChange(eventId, status);
       }
@@ -88,6 +76,7 @@ const RSVPManager = ({
         variant={buttonVariant}
         size={buttonSize}
         className={buttonClassName}
+        isLoading={isSubmitting}
       />
 
       <RSVPDialog
