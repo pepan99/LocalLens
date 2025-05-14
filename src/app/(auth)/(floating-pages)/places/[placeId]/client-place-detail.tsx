@@ -79,7 +79,7 @@ const ClientPlaceDetail = ({
 
       <ScrollArea className="h-[calc(100vh-500px)]">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="p-6">
-          <TabsList className="flex gap-4">
+          <TabsList className="flex gap-4 mb-4">
             <TabsTrigger value="about">About</TabsTrigger>
             <TabsTrigger value="events">Events</TabsTrigger>
             <TabsTrigger value="reviews">Reviews</TabsTrigger>
