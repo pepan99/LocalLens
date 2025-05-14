@@ -66,13 +66,13 @@ export const mapPlaceToPlaceType = async (
     description: placeData.description,
     website: placeData.website,
     phone: placeData.phone,
+    image: placeData.image,
     rating: ratingResult.average,
     reviewCount: ratingResult.count || 0,
     latitude: placeData.latitude,
     longitude: placeData.longitude,
     openingHours: includeDetails ? openingHoursData : undefined,
     amenities: includeDetails ? amenitiesData : undefined,
-    image: "/placeholder-place-1.jpg", // Default image
     createdAt: new Date(placeData.createdAt),
     updatedAt: new Date(placeData.updatedAt),
   };

@@ -7,6 +7,7 @@ export const createPlaceSchema = z.object({
   description: z.string().optional().nullable(),
   website: z.string().url().optional().nullable(),
   phone: z.string().optional().nullable(),
+  image: z.string().optional().nullable(),
   amenityIds: z.array(z.string()).optional(),
 });
 
@@ -18,6 +19,7 @@ export const updatePlaceSchema = z
     description: z.string().optional().nullable(),
     website: z.string().url().optional().nullable(),
     phone: z.string().optional().nullable(),
+    image: z.string().optional().nullable(),
     amenityIds: z.array(z.string()).optional(),
   })
   .refine(data => Object.values(data).some(val => val !== undefined), {
