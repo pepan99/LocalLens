@@ -27,7 +27,9 @@ const RSVPAttendees = ({ attendees, className = "" }: RSVPAttendeesProps) => {
     .reduce((total, attendee) => total + 1 + (attendee.rsvp.guests || 0), 0);
 
   return (
-    <Card className={`bg-white/90 backdrop-blur-sm ${className}`}>
+    <Card
+      className={`bg-gradient-to-br from-white to-blue-100/95 backdrop-blur-sm ${className}`}
+    >
       <CardHeader>
         <CardTitle className="text-lg flex items-center">
           <User className="mr-2 h-5 w-5" />

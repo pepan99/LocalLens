@@ -38,7 +38,7 @@ const PlacesPage = async ({ searchParams }: PlacesPageProps) => {
 
   return (
     <div className="container mx-auto p-4">
-      <div className="bg-white/90 backdrop-blur-sm flex flex-col gap-4 rounded-lg shadow-md p-6">
+      <div className="bg-gradient-to-br from-white to-purple-100/95 backdrop-blur-sm flex flex-col gap-4 rounded-lg shadow-md p-6">
         <PlacesHeader />
 
         <ClientPlaces placesWithEvents={placesWithEvents} />

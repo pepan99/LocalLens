@@ -57,7 +57,7 @@ const PublicEventDetailPage = ({ event }: PublicEventDetailPageProps) => {
   };
 
   return (
-    <div className="container mx-auto py-8 px-4">
+    <div className="container">
       <div className="mb-6">
         <Button variant="outline" asChild className="mb-4">
           <Link href="/discover">
@@ -69,7 +69,7 @@ const PublicEventDetailPage = ({ event }: PublicEventDetailPageProps) => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Event Information */}
         <div className="lg:col-span-2">
-          <Card className="bg-white/90 backdrop-blur-sm">
+          <Card className="">
             <CardHeader className="justify-between flex items-start">
               <CardTitle className="text-3xl">{event.title}</CardTitle>
               <Badge variant="outline" className="text-sm px-3 py-1">
@@ -116,7 +116,7 @@ const PublicEventDetailPage = ({ event }: PublicEventDetailPageProps) => {
 
         {/* Event Actions */}
         <div>
-          <Card className="bg-white/90 backdrop-blur-sm">
+          <Card className="">
             <CardHeader>
               <CardTitle>Event Actions</CardTitle>
             </CardHeader>
@@ -154,7 +154,7 @@ const PublicEventDetailPage = ({ event }: PublicEventDetailPageProps) => {
           </Card>
 
           {/* Join Community Card */}
-          <Card className="mt-6 bg-white/90 backdrop-blur-sm">
+          <Card className="mt-6 ">
             <CardHeader>
               <CardTitle>Join LocalLens</CardTitle>
             </CardHeader>

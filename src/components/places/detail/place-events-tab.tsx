@@ -68,7 +68,7 @@ export const PlaceEventsTab = ({
           ))}
         </div>
       ) : (
-        <div className="text-center py-12 bg-gray-50 rounded-lg">
+        <div className="text-center py-12 bg-gradient-to-br from-white to-purple-100/95 rounded-lg">
           <Calendar className="mx-auto h-12 w-12 text-gray-400" />
           <h3 className="mt-2 text-lg font-medium">No upcoming events</h3>
           <p className="mt-1 text-gray-500">

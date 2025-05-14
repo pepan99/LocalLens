@@ -19,7 +19,7 @@ const NotificationsPage = async () => {
   if (!user) {
     return (
       <div className="container">
-        <div className="bg-white/90 backdrop-blur-sm rounded-lg shadow-md p-6">
+        <div className="bg-gradient-to-br from-white to-orange-100/95 backdrop-blur-sm rounded-lg shadow-md p-6">
           <h1 className="text-2xl font-bold">Notifications</h1>
           <p className="mt-2 text-muted-foreground py-2">
             You need to be signed in to view notifications.
@@ -36,7 +36,7 @@ const NotificationsPage = async () => {
 
   return (
     <div className="container">
-      <div className="bg-white/90 backdrop-blur-sm rounded-lg shadow-md p-6">
+      <div className="bg-gradient-to-br from-white to-orange-100/95 backdrop-blur-sm rounded-lg shadow-md p-6">
         <h1 className="text-2xl font-bold mb-4">Notifications</h1>
         <NotificationEventList events={eventNotifications} />
         <MapReturnButton title="Return to Map" />

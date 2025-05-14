@@ -146,7 +146,10 @@ export const PlaceReviewsTab = ({
       <div className="space-y-4">
         {reviews.length > 0 ? (
           reviews.map(review => (
-            <div key={review.id} className="border rounded-lg p-4">
+            <div
+              key={review.id}
+              className="border rounded-lg p-4 bg-gradient-to-br from-white to-purple-100/95"
+            >
               <div className="flex justify-between">
                 <div className="flex items-center gap-2">
                   <Avatar className="h-10 w-10">
@@ -207,7 +210,7 @@ export const PlaceReviewsTab = ({
             </div>
           ))
         ) : (
-          <div className="text-center py-12 bg-gray-50 rounded-lg">
+          <div className="text-center py-12 bg-gradient-to-br from-white to-purple-100/95 rounded-lg">
             <Star className="mx-auto h-12 w-12 text-gray-400" />
             <h3 className="mt-2 text-lg font-medium">No reviews yet</h3>
             <p className="mt-1 text-gray-500">
