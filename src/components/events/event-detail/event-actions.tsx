@@ -52,7 +52,7 @@ const EventActions = ({ event, onDelete, onRSVPChange }: EventActionsProps) => {
   };
 
   return (
-    <Card className="bg-white/90 backdrop-blur-sm">
+    <Card className="bg-gradient-to-br from-white to-blue-100/95 backdrop-blur-sm">
       <CardHeader>
         <CardTitle>Event Actions</CardTitle>
       </CardHeader>

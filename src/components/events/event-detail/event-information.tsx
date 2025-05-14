@@ -49,7 +49,7 @@ const EventInformation = ({ event }: EventInformationProps) => {
   }, [position, event.latitude, event.longitude]);
 
   return (
-    <Card className="bg-white/90 backdrop-blur-sm">
+    <Card className="bg-gradient-to-br from-white to-blue-100/95 backdrop-blur-sm">
       <CardHeader className="justify-between flex items-start">
         <CardTitle className="text-3xl">{event.title}</CardTitle>
         <Badge variant="outline" className="text-sm px-3 py-1">

@@ -54,7 +54,7 @@ export const PlaceAboutTab = ({ place }: { place: PlaceType }) => {
       </div>
 
       <div className="space-y-6">
-        <Card className="p-4">
+        <Card className="p-4 bg-gradient-to-br from-white to-purple-100/95">
           <h2 className="text-lg font-medium mb-2">Contact Information</h2>
           <div className="space-y-2">
             {place.phone && (
@@ -81,7 +81,7 @@ export const PlaceAboutTab = ({ place }: { place: PlaceType }) => {
         </Card>
 
         {place.openingHours && place.openingHours.length > 0 && (
-          <Card className="p-4">
+          <Card className="p-4 bg-gradient-to-br from-white to-purple-100/95">
             <h2 className="text-lg font-medium mb-2">Opening Hours</h2>
             <div className="space-y-1">
               {place.openingHours.map(item => (
