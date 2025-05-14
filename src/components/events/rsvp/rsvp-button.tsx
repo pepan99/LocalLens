@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { EventType, RSVPStatusEnum } from "@/modules/events/types/events";
-import { CalendarCheck, CalendarClock, CalendarX } from "lucide-react";
+import { CalendarCheck, CalendarClock, CalendarX, Loader } from "lucide-react";
 import { getRSVPStatusColor, getRSVPStatusText } from "./utils";
 
 interface RSVPButtonProps {
@@ -17,6 +17,7 @@ interface RSVPButtonProps {
     | "link"
     | "destructive";
   size?: "default" | "sm" | "lg" | "icon";
+  isLoading?: boolean;
 }
 
 const RSVPButton = ({
@@ -25,10 +26,15 @@ const RSVPButton = ({
   className = "",
   variant = "default",
   size = "sm",
+  isLoading = false,
 }: RSVPButtonProps) => {
   const status = event.rsvp?.status ?? RSVPStatusEnum.NO_RESPONSE;
   // Get appropriate icon based on RSVP status
   const getStatusIcon = () => {
+    if (isLoading) {
+      return <Loader className="h-4 w-4 mr-1 animate-spin" />;
+    }
+
     switch (status) {
       case RSVPStatusEnum.GOING:
         return <CalendarCheck className="h-4 w-4 mr-1" />;
