@@ -23,7 +23,7 @@ import { CreateEventFormValues } from "@/modules/events/schemas/schemas";
 import { PlaceType } from "@/modules/places";
 import { Check, MapPin, X } from "lucide-react";
 import dynamic from "next/dynamic";
-import { memo, useCallback } from "react";
+import { memo, useCallback, useMemo, useState } from "react";
 import { UseFormReturn } from "react-hook-form";
 
 // Memoized Map component to prevent frequent rerenders
@@ -42,6 +42,19 @@ const LocationMapPicker = memo(
       () => import("@/components/events/location-picker"),
       { ssr: false },
     );
+
+    // Get current coordinates from form
+    const currentLat = form.getValues("latitude");
+    const currentLng = form.getValues("longitude");
+
+    // Create a memoized initialLocation value that depends on form values
+    const initialLocation = useMemo<[number, number]>(() => {
+      const coords = [
+        Number(currentLat) || 49.19,
+        Number(currentLng) || 16.61,
+      ] as [number, number];
+      return coords;
+    }, [currentLat, currentLng]);
 
     const handleLocationSelected = useCallback(
       (lat: number, lng: number) => {
@@ -88,14 +101,7 @@ const LocationMapPicker = memo(
           )}
         >
           <LocationPicker
-            initialLocation={
-              form.getValues("latitude") && form.getValues("longitude")
-                ? [
-                    form.getValues("latitude") as number,
-                    form.getValues("longitude") as number,
-                  ]
-                : [49.19, 16.61]
-            }
+            initialLocation={initialLocation}
             onLocationSelected={handleLocationSelected}
             viewOnly={false}
           />
@@ -124,6 +130,9 @@ type LocationStepProps = {
 };
 
 const LocationStep = ({ form, places }: LocationStepProps) => {
+  // State to force map component to update when coordinates change
+  const [forceMapUpdate, setForceMapUpdate] = useState(0);
+
   // Check if location field is valid and coordinates are set
   const isLocationValid =
     !form.formState.errors.location && form.getValues("location");
@@ -237,6 +246,15 @@ const LocationStep = ({ form, places }: LocationStepProps) => {
                       shouldValidate: true,
                       shouldDirty: true,
                     });
+
+                    // Force re-render of the LocationPicker component
+                    // This is needed to update the map with the new coordinates
+                    console.log(
+                      "Forcing map update with coordinates:",
+                      lat,
+                      lng,
+                    );
+                    setForceMapUpdate(prev => prev + 1);
 
                     // Update form validation state
                     form.trigger("locationSource");
@@ -386,6 +404,7 @@ const LocationStep = ({ form, places }: LocationStepProps) => {
         form={form}
         isCoordinatesValid={Boolean(isCoordinatesValid)}
         getFormattedCoordinates={getFormattedCoordinates}
+        key={forceMapUpdate} // Adding a key to force re-render when coordinates change
       />
     </div>
   );
