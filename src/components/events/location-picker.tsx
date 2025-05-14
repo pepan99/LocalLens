@@ -43,8 +43,10 @@ const InteractiveMarker = memo(
     useEffect(() => {
       if (initialLocation) {
         setPosition(initialLocation);
+        // Call onLocationSelected when initialLocation changes
+        onLocationSelected(initialLocation[0], initialLocation[1]);
       }
-    }, [initialLocation]);
+    }, [initialLocation, onLocationSelected]);
 
     // Create event listeners for map
     useMapEvents({
@@ -75,6 +77,21 @@ type LocationPickerProps = {
   onLocationSelected: (lat: number, lng: number) => void;
   initialLocation?: [number, number];
   viewOnly?: boolean; // New prop to determine if the map is view-only
+};
+
+// Map Controller to update map view when initialLocation changes
+const MapController = ({ center }: { center: [number, number] }) => {
+  const map = useMapEvents({
+    // Empty event handlers, just to get access to the map instance
+  });
+
+  // Update map view when center changes
+  useEffect(() => {
+    console.log("MapController: Updating map view to coordinates:", center);
+    map.setView(center, map.getZoom());
+  }, [center, map]);
+
+  return null;
 };
 
 // Main LocationPicker component, memoized to prevent unnecessary rerenders
@@ -129,6 +146,9 @@ const LocationPicker = memo(
 
           {/* Render the memoized marker */}
           {locationMarker}
+
+          {/* Add the MapController to update map view */}
+          <MapController center={initialLocation} />
         </MapContainer>
 
         {/* Show the help text if not in view-only mode */}
