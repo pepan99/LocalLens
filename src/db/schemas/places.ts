@@ -54,6 +54,7 @@ export const places = sqliteTable("places", {
   description: text("description"),
   website: text("website"),
   phone: text("phone"),
+  image: text("image"),
   latitude: text("latitude"),
   longitude: text("longitude"),
   createdAt: text("created_at")

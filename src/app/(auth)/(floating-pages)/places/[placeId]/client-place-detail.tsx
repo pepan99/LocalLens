@@ -4,6 +4,7 @@ import { PlaceAboutTab } from "@/components/places/detail/place-about-tab";
 import { PlaceDetailHeader } from "@/components/places/detail/place-detail-header";
 import { PlaceEventsTab } from "@/components/places/detail/place-events-tab";
 import { PlaceReviewsTab } from "@/components/places/detail/place-reviews-tab";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { EventType } from "@/modules/events/types/events";
 import { getPlaceReviews } from "@/modules/places";
@@ -76,30 +77,35 @@ const ClientPlaceDetail = ({
     <>
       <PlaceDetailHeader place={place} />
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="p-6">
-        <TabsList className="flex gap-4">
-          <TabsTrigger value="about">About</TabsTrigger>
-          <TabsTrigger value="events">Events</TabsTrigger>
-          <TabsTrigger value="reviews">Reviews</TabsTrigger>
-        </TabsList>
+      <ScrollArea className="h-[calc(100vh-500px)]">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="p-6">
+          <TabsList className="flex gap-4">
+            <TabsTrigger value="about">About</TabsTrigger>
+            <TabsTrigger value="events">Events</TabsTrigger>
+            <TabsTrigger value="reviews">Reviews</TabsTrigger>
+          </TabsList>
 
-        <TabsContent value="about">
-          <PlaceAboutTab place={place} />
-        </TabsContent>
+          <TabsContent value="about">
+            <PlaceAboutTab place={place} />
+          </TabsContent>
 
-        <TabsContent value="events">
-          <PlaceEventsTab placeId={place.id} upcomingEvents={upcomingEvents} />
-        </TabsContent>
+          <TabsContent value="events">
+            <PlaceEventsTab
+              placeId={place.id}
+              upcomingEvents={upcomingEvents}
+            />
+          </TabsContent>
 
-        <TabsContent value="reviews">
-          <PlaceReviewsTab
-            place={place}
-            reviews={reviews}
-            onAddReview={handleAddReview}
-            isSubmitting={isSubmitting}
-          />
-        </TabsContent>
-      </Tabs>
+          <TabsContent value="reviews">
+            <PlaceReviewsTab
+              place={place}
+              reviews={reviews}
+              onAddReview={handleAddReview}
+              isSubmitting={isSubmitting}
+            />
+          </TabsContent>
+        </Tabs>
+      </ScrollArea>
     </>
   );
 };

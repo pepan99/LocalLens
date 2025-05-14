@@ -3,6 +3,8 @@
 import { PlaceType } from "@/modules/places/types/places";
 import { MapContainer, Marker, TileLayer } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
+import L from "leaflet";
+import { useMemo } from "react";
 
 type SimpleMapProps = {
   place: PlaceType;
@@ -11,6 +13,21 @@ type SimpleMapProps = {
 };
 
 const SimpleMap = ({ place, center, zoom }: SimpleMapProps) => {
+  // Create a custom icon for the marker
+  const customIcon = useMemo(() => {
+    return new L.Icon({
+      iconUrl: "https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png",
+      iconRetinaUrl:
+        "https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon-2x.png",
+      shadowUrl:
+        "https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png",
+      iconSize: [25, 41],
+      iconAnchor: [12, 41],
+      popupAnchor: [1, -34],
+      shadowSize: [41, 41],
+    });
+  }, []);
+
   return (
     <MapContainer
       center={center}
@@ -26,7 +43,7 @@ const SimpleMap = ({ place, center, zoom }: SimpleMapProps) => {
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
       />
-      <Marker position={center} />
+      <Marker position={center} icon={customIcon} />
     </MapContainer>
   );
 };

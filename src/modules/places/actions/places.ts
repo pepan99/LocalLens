@@ -49,6 +49,7 @@ export const createPlace = async (
       description: placeData.description,
       website: placeData.website,
       phone: placeData.phone,
+      image: placeData.image,
       createdAt: new Date().toUTCString(),
       updatedAt: new Date().toUTCString(),
     });

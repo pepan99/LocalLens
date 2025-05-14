@@ -17,7 +17,7 @@ export type PlaceType = {
   amenities?: string[];
   upcomingEvents?: number;
   isFavorite?: boolean;
-  image?: string;
+  image: string | null;
   createdAt: Date;
   updatedAt: Date;
 };
