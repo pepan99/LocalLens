@@ -43,7 +43,7 @@ export const PlaceDetailHeader = ({ place }: PlaceDetailHeaderProps) => {
               <div className="flex items-center">
                 <Star className="h-4 w-4 text-yellow-500 fill-yellow-500 mr-1" />
                 <span className="font-medium">
-                  {place.rating?.toFixed(1) || "N/A"}
+                  {place.rating?.toFixed(1) || "No ratings"}
                 </span>
                 <span className="text-gray-500 ml-1">
                   ({place.reviewCount || 0} reviews)
