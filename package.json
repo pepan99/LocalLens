@@ -7,7 +7,7 @@
     "check-types": "tsc --noemit",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
-    "db:seed": "tsx ./scripts/seed-places",
+    "db:seed": "bunx ./scripts/seed",
     "db:studio": "drizzle-kit studio",
     "dev": "next dev --turbopack",
     "lint": "bun run check-types && next lint",
